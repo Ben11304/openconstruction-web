@@ -25,9 +25,9 @@
       if (nav) actions.prepend(nav);
       const files = actions.querySelector('[data-research-tools-toggle]');
       const fileControl = document.createElement('div'); fileControl.className = 'oc-focus-files';
-      files.before(fileControl); fileControl.append(files);
+      root.querySelector('.oc-research-stage').prepend(fileControl); fileControl.append(files);
       files.dataset.focusFilesArrow = ''; files.removeAttribute('title');
-      files.innerHTML = '<svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg>';
+      files.innerHTML = '<svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 5 5 5-5 5"/></svg>';
       const popup = document.createElement('div'); popup.className = 'oc-focus-files-popup'; popup.hidden = true;
       popup.id = 'ocFocusFilesPopup'; popup.setAttribute('role', 'group'); popup.setAttribute('aria-label', 'Files and outputs');
       popup.innerHTML = '<strong>Files and outputs</strong><p>Browse project documents and results.</p><button type="button" data-focus-files-expand>Expand file panel</button>';

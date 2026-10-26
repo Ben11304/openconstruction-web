@@ -18,14 +18,16 @@
 #ocResearchRoot.oc-focus-workspace .oc-research-header-actions button{border:0;background:transparent;color:#596251;font-size:12px;font-weight:400;padding:7px 9px;border-radius:5px}
 #ocResearchRoot.oc-focus-workspace .oc-research-header-actions button:hover,#ocResearchRoot.oc-focus-workspace .oc-research-header-actions button[aria-pressed=true],#ocResearchRoot.oc-focus-workspace [data-research-tools-toggle][aria-expanded=true]{background:#e9ede5;color:#293329}
 #ocResearchRoot .oc-focus-menu,#ocResearchRoot .oc-focus-options{position:relative}
-#ocResearchRoot .oc-focus-files{position:relative;display:flex;align-items:center}
-#ocResearchRoot.oc-focus-workspace [data-focus-files-arrow]{display:grid;place-items:center;width:30px;height:30px;padding:6px}
+#ocResearchRoot.oc-focus-workspace .oc-research-stage{position:relative}
+#ocResearchRoot .oc-focus-files{position:absolute;left:6px;top:50%;transform:translateY(-50%);z-index:1200;display:flex;align-items:center}
+#ocResearchRoot.oc-focus-workspace [data-focus-files-arrow]{display:grid;place-items:center;width:28px;height:28px;padding:5px;border:1px solid var(--oc-border);border-radius:50%;background:#fff;color:#596251;cursor:pointer;box-shadow:0 1px 4px #2634230a}
+#ocResearchRoot.oc-focus-workspace [data-focus-files-arrow]:hover{background:#e9ede5;color:#293329}
 #ocResearchRoot [data-focus-files-arrow] svg{width:16px;height:16px;pointer-events:none}
 #ocResearchRoot [data-focus-files-arrow][aria-expanded=true] svg{transform:rotate(180deg)}
-#ocResearchRoot .oc-focus-files-popup{position:absolute;right:0;top:100%;z-index:1250;width:220px;max-width:calc(100vw - 32px);padding:14px;background:#fff;border:1px solid var(--oc-border);border-radius:7px;box-shadow:0 6px 22px #26342314;color:#293329}
+#ocResearchRoot .oc-focus-files-popup{position:absolute;left:100%;top:50%;transform:translateY(-50%);z-index:1250;width:220px;max-width:calc(100vw - 64px);padding:14px;background:#fff;border:1px solid var(--oc-border);border-radius:10px;box-shadow:0 6px 22px #26342314;color:#293329}
 #ocResearchRoot .oc-focus-files-popup strong{font-size:13px;font-weight:500}
 #ocResearchRoot .oc-focus-files-popup p{font-size:12px;line-height:1.5;white-space:normal;overflow:visible;margin:5px 0 12px;color:#70776b}
-#ocResearchRoot.oc-focus-workspace .oc-focus-files-popup button{width:100%;background:#e9ede5;color:#34472f;text-align:left;white-space:normal}
+#ocResearchRoot.oc-focus-workspace .oc-focus-files-popup button{width:100%;padding:7px 9px;border:0;border-radius:5px;font-size:12px;background:#e9ede5;color:#34472f;text-align:left;white-space:normal;cursor:pointer}
 @media(pointer:coarse){#ocResearchRoot.oc-focus-workspace [data-focus-files-arrow]{width:44px;height:44px}}
 #ocResearchRoot .oc-focus-menu>summary,#ocResearchRoot .oc-focus-options>summary{list-style:none;cursor:pointer;color:#596251;padding:6px 8px;border-radius:5px;font-size:12px}
 #ocResearchRoot .oc-focus-menu>summary{font-size:18px;line-height:1}
