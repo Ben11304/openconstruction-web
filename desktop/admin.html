@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta name="oc-auth-mode" content="gateway"><script src="/openconstruction-web/web/config.js"></script><script src="/openconstruction-web/web/connection.js"></script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="/openconstruction-web/desktop/vendor/bootstrap.min.css" rel="stylesheet"><link href="/openconstruction-web/assets/css/shared-site.css" rel="stylesheet"><title>Platform Admin · OpenConstruction</title><link href="/openconstruction-web/desktop/admin.css" rel="stylesheet"><link href="/openconstruction-web/desktop/desktop.css" rel="stylesheet"><link href="/openconstruction-web/desktop/app-layout.css" rel="stylesheet"><link href="/openconstruction-web/desktop/skills.css" rel="stylesheet"><link href="/openconstruction-web/web/web.css" rel="stylesheet"><script src="/openconstruction-web/web/adapter.js"></script><script src="/openconstruction-web/desktop/desktop.js" defer></script></head>
+<body class="oc-admin-page"><a class="skip-link" href="#mainContent">Skip to admin</a><nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top oc-nav">
+  <div class="container oc-container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/openconstruction-web/index.html">
+      <img src="/openconstruction-web/assets/img/icon.png" alt="OpenConstruction logo" class="oc-logo" height="44" width="44">
+      <span class="brand-wordmark">
+        <span class="oc-open">OpenConstruction</span>
+        <span class="oc-construction">Open Science</span>
+      </span>
+    </a>
+    <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarsExample">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
+        <li class="nav-item"><a class="nav-link plain" href="/openconstruction-web/index.html">Home</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link plain dropdown-toggle" href="#" id="ddLibraries" role="button" data-bs-toggle="dropdown" aria-expanded="false">Libraries</a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="ddLibraries">
+            <li><a class="dropdown-item" href="/openconstruction-web/dataset.html">Datasets</a></li>
+            <li><a class="dropdown-item" href="/openconstruction-web/models.html">Models</a></li>
+            <li><a class="dropdown-item" href="/openconstruction-web/deployments.html">Workflows</a></li>
+            <li><a class="dropdown-item" href="/openconstruction-web/oer.html">OERs</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a class="nav-link plain" href="/openconstruction-web/benchmarks.html">Insights</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link plain dropdown-toggle" href="#" id="ddDocs" role="button" data-bs-toggle="dropdown" aria-expanded="false">Docs</a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="ddDocs">
+            <li><a class="dropdown-item" href="/openconstruction-web/schema.html">Schema</a></li>
+            <li><a class="dropdown-item" href="/openconstruction-web/tools.html">Tools</a></li>
+            <li><a class="dropdown-item" href="/openconstruction-web/guides.html">Guides</a></li>
+            <li><a class="dropdown-item" href="/openconstruction-web/mcp.html">API &amp; MCP</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a class="nav-link plain" href="/openconstruction-web/contribute.html">Contribute</a></li>
+        <li class="nav-item"><a class="nav-link plain" href="/openconstruction-web/contributors.html">Community</a></li>
+        <li class="nav-item" id="ocAuthNavItem"><div class="oc-auth-actions"><a class="nav-link plain oc-auth-login-link" href="/auth/sign-in.html?mode=login" rel="nofollow">Log in</a><a class="nav-link plain oc-auth-signup-link" href="/auth/sign-in.html?mode=signup" rel="nofollow">Sign up</a></div></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<main id="mainContent" class="oc-admin-shell">
+  <header class="oc-admin-header">
+    <div><p class="oc-admin-kicker">OPENCONSTRUCTION CONTROL PLANE</p><h1>Platform Admin</h1><p>Manage accounts and workspaces. Inspect research models, services and recent operations.</p></div>
+    <div class="oc-admin-header-actions"><span id="adminUpdated" class="oc-admin-updated">Not loaded</span><button id="adminRefresh" class="oc-admin-button oc-admin-button-primary" type="button">Refresh all</button></div>
+  </header>
+  <p id="adminNotice" class="oc-admin-notice" role="status" aria-live="polite" hidden></p>
+  <nav class="oc-admin-tabs" aria-label="Admin sections">
+    <button type="button" data-admin-tab="platform" aria-selected="true">Platform</button>
+    <button type="button" data-admin-tab="monitor" aria-selected="false">Task Manager</button>
+    <button type="button" data-admin-tab="compute">Compute sessions</button>
+    <button type="button" data-admin-tab="overview" aria-selected="false">Research runtime</button>
+    <button type="button" data-admin-tab="users">Users</button>
+    <button type="button" data-admin-tab="models">Models &amp; context</button>
+    <button type="button" data-admin-tab="tools">Tools &amp; connectors</button>
+    <button type="button" data-admin-tab="operations">Operations</button>
+    <button type="button" data-admin-tab="system">System settings</button>
+  </nav>
+
+  <section class="oc-admin-panel" data-admin-panel="monitor" hidden>
+    <article class="oc-admin-card oc-monitor-heading">
+      <div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">LIVE HOST PERFORMANCE</p><h2>Task Manager</h2><p id="monitorScope">CPU, memory and processes on the machine running OC.</p></div><div class="oc-monitor-controls"><span id="monitorStatus" class="oc-admin-status is-info" role="status">Waiting</span><label>Update every <select id="monitorInterval"><option value="2000">2 seconds</option><option value="5000">5 seconds</option><option value="10000">10 seconds</option></select></label><button id="monitorPause" class="oc-admin-button" type="button">Pause</button></div></div>
+      <p id="monitorUpdated" class="oc-admin-subtle">No samples yet</p><p id="monitorWarning" class="oc-admin-warning" hidden></p>
+    </article>
+    <div id="monitorMetrics" class="oc-monitor-metrics"></div>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">GPU TELEMETRY</p><h2>Graphics &amp; compute</h2><p>Driver-reported device metrics, not OC-only usage. WSL may not expose every metric or per-process GPU usage.</p></div></div><div id="monitorGpu"><p class="oc-admin-empty">Checking GPU telemetry…</p></div></article>
+    <div class="oc-admin-split">
+      <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">PERFORMANCE HISTORY</p><h2>CPU &amp; memory</h2><p>Last 60 samples · CPU <span class="oc-monitor-cpu-key">green</span> · Memory <span class="oc-monitor-memory-key">blue</span></p></div></div><svg id="monitorChart" viewBox="0 0 600 150" role="img" aria-label="CPU and memory utilization history, from zero to 100 percent"></svg><p id="monitorChartRange" class="oc-admin-subtle">Collecting samples…</p></article>
+      <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">MACHINE CONFIGURATION</p><h2>Host details</h2></div></div><div id="monitorHost"></div></article>
+    </div>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">RUNNING ON THIS HOST</p><h2>Processes <span id="monitorProcessCount" class="oc-admin-subtle"></span></h2><p>CPU is a share of total CPU capacity. Memory is resident RAM (RSS); shared pages may be counted in multiple processes.</p></div><div class="oc-monitor-controls"><label>Find process <input id="monitorSearch" type="search" placeholder="Name or PID" maxlength="80"></label><label>Sort by <select id="monitorSort"><option value="cpu">CPU usage</option><option value="memory">Memory usage</option><option value="pid">PID</option><option value="name">Name</option></select></label></div></div><div id="monitorProcesses" class="oc-admin-table-wrap"><p class="oc-admin-empty">Waiting for the first sample…</p></div><p id="monitorProcessNote" class="oc-admin-subtle"></p></article>
+  </section>
+
+  <section class="oc-admin-panel" data-admin-panel="platform">
+    <div id="platformMetrics" class="oc-admin-metric-grid"><p class="oc-admin-empty">Loading platform overview…</p></div>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">RESEARCH TEAMS</p><h2>Workspaces</h2><p>Workspace ownership, membership and task records are independent of research engine availability.</p></div><a class="oc-admin-button" href="/openconstruction-web/desktop/platform.html">Open workspace</a></div><div id="platformWorkspaces" class="oc-admin-table-wrap"></div></article>
+    <div class="oc-admin-split"><article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">PLATFORM STORAGE</p><h2>Persistence &amp; capacity</h2></div></div><div id="platformStorage"></div></article><article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">OPERATING MODEL</p><h2>Hosted lab workspace</h2></div></div><p class="oc-admin-platform-copy">Accounts, memberships, research tasks and published reports are managed here. Research runs use this host’s shared engine and compute resources.</p><p class="oc-admin-platform-copy">Use workspace membership to organize your teams, and review the run limit before adding more concurrent researchers.</p><button class="oc-admin-link-button" type="button" data-open-tab="users">Manage user accounts</button></article></div>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">RECENT CHANGES</p><h2>Platform activity</h2><p>Account, membership, task and publication actions recorded by the platform.</p></div></div><div id="platformAudit" class="oc-admin-table-wrap"></div></article>
+  </section>
+
+  <section class="oc-admin-panel" data-admin-panel="compute" hidden>
+    <p class="oc-admin-warning">Live gateway admission control · RAM and CPU are reservation budgets, not OS-enforced limits. Shared model memory and direct/native engine access are outside these budgets.</p>
+    <p id="computeNotice" class="oc-admin-notice" role="status" aria-live="polite" hidden></p>
+    <div id="computeMetrics" class="oc-admin-metric-grid"></div>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">PROJECT-ATTACHED RUNTIME</p><h2>Compute sessions</h2><p>One reservation per project, shared by its agents. Closing a browser tab does not release it. A waiting session queues capacity, never the user's prompt.</p></div><button id="computeRefresh" class="oc-admin-button" type="button">Refresh compute</button></div>
+      <form id="computeStart" class="oc-admin-inline-form"><label>Project<select name="projectId" aria-label="Project for compute session" required></select></label><button class="oc-admin-button" type="submit">Start session</button></form>
+      <div id="computeSessions" class="oc-admin-table-wrap"></div><p id="computeHealth" class="oc-admin-subtle"></p>
+    </article>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">VERSIONED POLICY</p><h2>Configuration &amp; limits</h2><p>Draft → review impact → apply. Existing reservations retain their profile; waiting/new sessions use the latest version. Pool reductions cannot invalidate existing allocations.</p></div><span id="computeVersion"></span></div>
+      <form id="computeConfig" class="oc-admin-form-grid"></form>
+      <p class="oc-admin-subtle">Idle means no active agent, background command, transfer or pending timer. Duration is a drain deadline, not a forced kill. Drain closes future agent wake-ups and clears persistent kernels after current work finishes. Files remain; in-memory variables are lost.</p>
+    </article>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">AUDITABLE CHANGES</p><h2>Configuration history</h2><p>Restore loads a draft. It must be reviewed and applied as a new version.</p></div></div><div id="computeHistory" class="oc-admin-table-wrap"></div></article>
+  </section>
+  <section class="oc-admin-panel" data-admin-panel="overview" hidden>
+    <div id="overviewHealth" class="oc-admin-health-grid" aria-label="Service health"></div>
+    <div id="overviewMetrics" class="oc-admin-metric-grid"></div>
+    <div class="oc-admin-split">
+      <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">COMPUTE</p><h2>Local runner</h2></div></div><div id="runnerSummary"></div></article>
+      <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">MODEL USAGE</p><h2>Tokens and recent activity</h2></div></div><div id="usageSummary"></div></article>
+    </div>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">ACTIVITY</p><h2>Recent runs</h2></div><button class="oc-admin-link-button" type="button" data-open-tab="operations">View operations</button></div><div id="overviewRuns" class="oc-admin-table-wrap"></div></article>
+  </section>
+
+  <section class="oc-admin-panel" data-admin-panel="users" hidden>
+    <article class="oc-admin-card">
+      <div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">LAB ACCOUNTS</p><h2>Create local account</h2><p>These accounts are independent from openconstruction.org. Their stable user IDs and identity links can be connected to the main OC login later.</p></div><span id="authMode" class="oc-admin-subtle"></span></div>
+      <form id="createUserForm" class="oc-admin-user-form">
+        <label><span>Email</span><input name="email" type="email" maxlength="320" required></label>
+        <label><span>Display name</span><input name="displayName" type="text" maxlength="160"></label>
+        <label><span>Role</span><select name="role"><option value="member">Member</option><option value="viewer">Viewer</option><option value="admin">Admin</option></select></label>
+        <label><span>Temporary password</span><input name="password" type="password" minlength="12" maxlength="256" required></label>
+        <div class="oc-admin-form-actions"><button class="oc-admin-button oc-admin-button-primary" type="submit">Create account</button></div>
+      </form>
+    </article>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">DIRECTORY</p><h2>Workspace users</h2><p>Changing a user signs out their existing workspace sessions.</p></div><span id="userCount" class="oc-admin-subtle"></span></div><div id="usersTable" class="oc-admin-table-wrap"></div></article>
+  </section>
+
+  <section class="oc-admin-panel" data-admin-panel="models" hidden>
+    <article class="oc-admin-card">
+      <div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">ROUTING</p><h2>Global default model</h2><p>New sessions inherit this model unless a project or session overrides it.</p></div></div>
+      <form id="defaultModelForm" class="oc-admin-inline-form"><label><span>Default model</span><select id="defaultModelSelect"></select></label><button class="oc-admin-button oc-admin-button-primary" type="submit">Save default</button></form>
+    </article>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">REGISTRY</p><h2>Available models</h2></div><span id="modelCount" class="oc-admin-subtle"></span></div><div id="modelsTable" class="oc-admin-table-wrap"></div></article>
+    <article class="oc-admin-card">
+      <div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">PROMPT INSPECTOR</p><h2>Latest context snapshot</h2><p>Inspect the exact system prompt, conversation history and tool schemas captured for a session.</p></div></div>
+      <form id="contextForm" class="oc-admin-context-form"><label><span>Project</span><select id="contextProject"></select></label><label><span>Session</span><select id="contextSession"></select></label><button class="oc-admin-button oc-admin-button-primary" type="submit">Analyze context</button></form>
+      <div id="contextInspector" class="oc-admin-inspector-empty">Choose a session to inspect its latest captured context.</div>
+    </article>
+  </section>
+
+  <section class="oc-admin-panel" data-admin-panel="tools" hidden>
+    <div class="oc-admin-split">
+      <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">BOUND AT START</p><h2>Active tool schemas</h2></div><span id="boundToolCount" class="oc-admin-subtle">No context loaded</span></div><div id="boundTools" class="oc-admin-table-wrap"><p class="oc-admin-empty">Analyze a session context to see bound tools.</p></div></article>
+      <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">LAZY LOADING</p><h2>Deferred tools</h2></div><span id="deferredToolCount" class="oc-admin-subtle">No context loaded</span></div><div id="deferredTools" class="oc-admin-chip-list"><p class="oc-admin-empty">Analyze a session context to see deferred tools.</p></div></article>
+    </div>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">MCP SOURCES</p><h2>Tool providers</h2><p>Availability is reported by the engine tool registry.</p></div><button id="reloadMcp" class="oc-admin-button" type="button">Reload sources</button></div><div id="mcpSources" class="oc-admin-table-wrap"></div></article>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">GLOBAL POLICY</p><h2>Enabled connectors</h2><p>Changes affect the global agent configuration. Existing session overrides are preserved.</p></div></div><form id="connectorsForm"><div id="connectorList" class="oc-admin-check-grid"></div><div class="oc-admin-form-actions"><button class="oc-admin-button oc-admin-button-primary" type="submit">Save connector policy</button></div></form></article>
+  </section>
+
+  <section class="oc-admin-panel" data-admin-panel="operations" hidden>
+    <div id="operationsMetrics" class="oc-admin-metric-grid"></div>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">EXECUTIONS</p><h2>All recent runs</h2><p>Cancel is available only for active runs.</p></div></div><div id="operationsRuns" class="oc-admin-table-wrap"></div></article>
+    <div class="oc-admin-split">
+      <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">APPROVAL QUEUE</p><h2>Permission requests</h2></div></div><div id="permissionRequests"></div></article>
+      <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">AUDIT</p><h2>Permission grants</h2></div></div><div id="permissionGrants"></div></article>
+    </div>
+  </section>
+
+  <section class="oc-admin-panel" data-admin-panel="system" hidden>
+    <div class="oc-admin-warning"><strong>Administrative controls</strong><span>These values directly affect execution. Review units before saving; zero means unlimited where supported.</span></div>
+    <div class="oc-admin-split">
+      <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">TIMEOUTS</p><h2>Execution limits</h2></div></div><form id="timeoutsForm" class="oc-admin-form-grid"></form></article>
+      <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">STORAGE</p><h2>Quota limits</h2></div></div><form id="quotasForm" class="oc-admin-form-grid"></form></article>
+    </div>
+    <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">SANDBOX</p><h2>Network egress</h2><p>Opening private or unrestricted network access increases risk for model-triggered code.</p></div></div><form id="networkForm" class="oc-admin-network-form"></form></article>
+    <div class="oc-admin-split">
+      <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">SERVICES</p><h2>Runtime details</h2></div></div><div id="runtimeDetails"></div></article>
+      <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">FEATURE FLAGS</p><h2>Supporting services</h2></div></div><div id="supportingServices"></div></article>
+    </div>
+  </section>
+</main>
+<dialog id="computeReview" aria-labelledby="computeReviewTitle" class="oc-compute-dialog"><h2 id="computeReviewTitle">Review configuration</h2><div id="computeReviewContent"></div><p id="computeReviewError" role="alert" hidden></p><div class="oc-admin-form-actions"><button id="computeBack" class="oc-admin-button" type="button">Back to draft</button><button id="computeApply" class="oc-admin-button oc-admin-button-primary" type="button">Apply reviewed configuration</button></div></dialog>
+<script src="/openconstruction-web/desktop/vendor/bootstrap.bundle.min.js"></script><script src="/openconstruction-web/desktop/vendor/supabase.js"></script><script src="/openconstruction-web/assets/js/config.js"></script><script src="/openconstruction-web/assets/js/auth.js"></script><script src="/openconstruction-web/assets/js/site-shell.js"></script><script src="/openconstruction-web/desktop/admin.js"></script><script src="/openconstruction-web/desktop/compute-admin.js"></script><script src="/openconstruction-web/desktop/system-monitor.js"></script></body></html>

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "kind": "github",
+    "repository": "ruoxinx/open-construction-data",
+    "ref": "main",
+    "commit": "a0a630aa93547144576ab7931f0e41da2311b828",
+    "url": "https://github.com/ruoxinx/open-construction-data/tree/a0a630aa93547144576ab7931f0e41da2311b828"
+  },
+  "files": {
+    "ai-catalog.json": {
+      "bytes": 1964044,
+      "sha256": "ea39b6c5f6f4717325a3118a0c2222c64bbf9a35354f6b4ac47605de0cbf00ec"
+    },
+    "benchmark-results.json": {
+      "bytes": 446127,
+      "sha256": "0514db06b3e7cf2df4c9f3069f7dd2686bbeb1a201cbe5e1e720a1898108944e"
+    },
+    "contributors.json": {
+      "bytes": 116065,
+      "sha256": "c350494b450a1cd5ebabc415cd40141cd3e6250a89ccc7b1955944d185adedda"
+    },
+    "dataset.schema.json": {
+      "bytes": 2186,
+      "sha256": "f6eeff686733bcc2c85656b6e05524d8590bd8ed50fac1a757d2a05c92f6697e"
+    },
+    "datasets.json": {
+      "bytes": 206553,
+      "sha256": "15b5f7698ad4aad49d3216441958bc5739a6b155a9c3357320bfbea7d0448282"
+    },
+    "guides.json": {
+      "bytes": 3745,
+      "sha256": "bda8819b40faacf1427cc88bab324d263d955a480da892dabb2ea4b726b343a3"
+    },
+    "institutions.json": {
+      "bytes": 13167,
+      "sha256": "a651808986292f1f1793bfb81114dec78311501eef73a72ff9cf596b8b472ea4"
+    },
+    "models.json": {
+      "bytes": 262182,
+      "sha256": "98ee382476cb73e8c6a650c71bb1eb76f6c530602f49c438a6c45d9f39db2671"
+    },
+    "news-events.json": {
+      "bytes": 1349,
+      "sha256": "382b0618ccb6450718e5d1b3200ece9b960955222f5acd1478e9cbbdb895de9e"
+    },
+    "object-label-mappings.json": {
+      "bytes": 4456,
+      "sha256": "d1181e0df4b7e3c4b33d55235e0aa2f7f4329ba8f3dfe03d0ffe00ef1a6eae58"
+    },
+    "object_taxonomy_config.json": {
+      "bytes": 39174,
+      "sha256": "3faa46df0fb9bfcdc1c7d141e05aeeac7cd5eca8b4e9655a4b5b2cf192c32d93"
+    },
+    "object_vocab.json": {
+      "bytes": 98210,
+      "sha256": "05407be3055a9e419b56b6b26d03ac2382d864dc13221603c342e21c3655edf1"
+    },
+    "oer.json": {
+      "bytes": 27203,
+      "sha256": "284b75b15548ca5b2261c31870c4d4ec8e2bfe308019853bf711422051d96b94"
+    },
+    "task-definitions.json": {
+      "bytes": 689,
+      "sha256": "05fe8a2ff644d0c4fe06578f1b5ca3159f2808a5dd9575d053760c5b788dee4e"
+    },
+    "task-vocabulary.json": {
+      "bytes": 43610,
+      "sha256": "4df18f4196109ddd3871a550e31a317026ca21aef3d9feb55d3cae7866b4fa35"
+    },
+    "tools.json": {
+      "bytes": 11940,
+      "sha256": "a99b6e184bc682cf59f32b5aa8c834feea38ed7ee22686c4c5e589bd37b37581"
+    },
+    "use-cases.json": {
+      "bytes": 69006,
+      "sha256": "eb78155f2dcfa65b115776cc9f3c7b2aaa8d84a0fff243c8907dd57de0bb6eee"
+    }
+  }
+}

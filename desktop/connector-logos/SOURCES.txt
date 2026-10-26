@@ -1,0 +1,34 @@
+Connector identity assets, retrieved 2026-10-07.
+Third-party marks identify the source integrations; they do not indicate endorsement.
+Logo rights remain with their respective owners. No logo colors or proportions were changed.
+These local copies allow the desktop catalog to work offline without sending page views to provider CDNs.
+
+GitHub: github.svg
+https://brand.github.com/foundations/logo
+https://brand.github.com/GitHub_Logos.zip
+Archive member: GitHub Logos/SVG/GitHub_Invertocat_Black.svg
+
+Hugging Face: huggingface.svg
+https://huggingface.co/brand
+https://huggingface.co/datasets/huggingface/brand-assets/resolve/main/hf-logo.svg
+
+Crossref: crossref.svg
+https://www.crossref.org/brand/
+https://assets.crossref.org/logo/crossref-logo-200.svg
+Primary stacked logo; preserved intact. The website recommends live CDN references;
+OC Desktop uses a bundled snapshot for offline display.
+
+Semantic Scholar: semantic-scholar.png
+https://www.semanticscholar.org/
+https://cdn.semanticscholar.org/f9b8e7341641493f/img/favicon-196x196.png
+Official site's 196px brand icon.
+
+arXiv: arxiv.jpg
+https://info.arxiv.org/brand/logos.html
+https://info.arxiv.org/brand/brand-guidelines.html
+https://info.arxiv.org/brand/images/brand-logo-primary.jpg
+Used to identify and acknowledge the arXiv API connector. Acknowledgment appears in its detail dialog.
+
+OpenConstruction: existing /assets/img/icon.png from this repository.
+Local LLM Wiki: local-wiki.svg is an OC-authored book icon, not a third-party logo.
+Unknown/custom connectors: connector.svg is an OC-authored generic fallback icon.

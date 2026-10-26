@@ -1,0 +1,13 @@
+.oc-connector-project{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.oc-connector-project label{font-weight:600;white-space:nowrap}
+.oc-connector-project select{max-width:460px}
+.oc-connector-state{display:inline-block;color:#526578;font-size:12px;margin-bottom:10px}
+.oc-connector-state.is-enabled{color:#236044}
+.oc-connector-mark{width:132px;min-height:100px;flex:none!important;display:flex;align-items:center;justify-content:center;padding:8px;background:#fff}
+.oc-connector-logo{display:block;width:112px;height:84px;object-fit:contain;flex:none}
+.oc-connector-identity{display:flex;align-items:center;gap:18px;min-width:0}
+.oc-connector-identity .oc-connector-logo{width:72px;height:56px}
+.oc-connector-dialog header{align-items:center}
+.oc-connector-dialog footer{flex-wrap:wrap}
+.oc-connector-dialog button:focus-visible,.oc-connector-project select:focus-visible{outline:2px solid #b38845;outline-offset:3px}
+@media(max-width:700px){.oc-connector-project{align-items:flex-start;flex-direction:column}.oc-connector-mark{width:100%;min-height:76px;justify-content:flex-start;padding:0}.oc-connector-logo{width:96px;height:72px}.oc-connector-identity{gap:10px}.oc-connector-identity .oc-connector-logo{width:52px;height:48px}}

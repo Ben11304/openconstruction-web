@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta name="oc-auth-mode" content="gateway"><script src="/openconstruction-web/web/config.js"></script><script src="/openconstruction-web/web/connection.js"></script><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="/openconstruction-web/desktop/vendor/bootstrap.min.css" rel="stylesheet"><link href="/openconstruction-web/assets/css/shared-site.css" rel="stylesheet"><title>Connector Catalog · OpenConstruction</title><link href="/openconstruction-web/desktop/skills.css" rel="stylesheet"><link href="/openconstruction-web/desktop/connectors.css" rel="stylesheet"><link href="/openconstruction-web/desktop/desktop.css" rel="stylesheet"><link href="/openconstruction-web/desktop/app-layout.css" rel="stylesheet"><link href="/openconstruction-web/desktop/skills.css" rel="stylesheet"><link href="/openconstruction-web/web/web.css" rel="stylesheet"><script src="/openconstruction-web/web/adapter.js"></script><script src="/openconstruction-web/desktop/desktop.js" defer></script></head>
+<body class="oc-skills-page"><nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top oc-nav">
+  <div class="container oc-container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/openconstruction-web/index.html">
+      <img src="/openconstruction-web/assets/img/icon.png" alt="OpenConstruction logo" class="oc-logo" height="44" width="44">
+      <span class="brand-wordmark">
+        <span class="oc-open">OpenConstruction</span>
+        <span class="oc-construction">Open Science</span>
+      </span>
+    </a>
+    <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarsExample">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
+        <li class="nav-item"><a class="nav-link plain" href="/openconstruction-web/index.html">Home</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link plain dropdown-toggle" href="#" id="ddLibraries" role="button" data-bs-toggle="dropdown" aria-expanded="false">Libraries</a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="ddLibraries">
+            <li><a class="dropdown-item" href="/openconstruction-web/dataset.html">Datasets</a></li>
+            <li><a class="dropdown-item" href="/openconstruction-web/models.html">Models</a></li>
+            <li><a class="dropdown-item" href="/openconstruction-web/deployments.html">Workflows</a></li>
+            <li><a class="dropdown-item" href="/openconstruction-web/oer.html">OERs</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a class="nav-link plain" href="/openconstruction-web/benchmarks.html">Insights</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link plain dropdown-toggle" href="#" id="ddDocs" role="button" data-bs-toggle="dropdown" aria-expanded="false">Docs</a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="ddDocs">
+            <li><a class="dropdown-item" href="/openconstruction-web/schema.html">Schema</a></li>
+            <li><a class="dropdown-item" href="/openconstruction-web/tools.html">Tools</a></li>
+            <li><a class="dropdown-item" href="/openconstruction-web/guides.html">Guides</a></li>
+            <li><a class="dropdown-item" href="/openconstruction-web/mcp.html">API &amp; MCP</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a class="nav-link plain" href="/openconstruction-web/contribute.html">Contribute</a></li>
+        <li class="nav-item"><a class="nav-link plain" href="/openconstruction-web/contributors.html">Community</a></li>
+        <li class="nav-item" id="ocAuthNavItem"><div class="oc-auth-actions"><a class="nav-link plain oc-auth-login-link" href="/auth/sign-in.html?mode=login" rel="nofollow">Log in</a><a class="nav-link plain oc-auth-signup-link" href="/auth/sign-in.html?mode=signup" rel="nofollow">Sign up</a></div></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<header class="hero oc-skills-hero"><div class="container content">
+  <h1 class="display-6 fw-bold">Connector Catalog</h1>
+  <p>Choose the sources your project agent can use. Review a connector before enabling it.</p>
+  <div class="oc-catalog-search-wrap"><input id="ocConnectorSearch" type="search" class="form-control form-control-lg search-input" placeholder="Search connectors or capabilities…" aria-label="Search connectors"></div>
+</div></header>
+<main id="mainContent" class="container my-4 oc-skills-catalog"><div class="row g-3">
+  <aside class="col-lg-3"><div class="card shadow-sm filters"><div class="card-header"><strong>Filters</strong></div><div class="card-body small">
+    <fieldset class="oc-skill-library-filter"><legend>Category</legend><div id="ocConnectorCategories" class="vstack gap-2"></div></fieldset>
+    <p class="oc-skill-filter-note">Browsing does not enable connectors. External sources are off by default; your saved choices are preserved.</p>
+  </div></div></aside>
+  <section class="col-lg-9">
+    <div class="oc-connector-project"><label for="ocConnectorProject">Project</label><select id="ocConnectorProject" class="form-select" disabled><option value="">Loading projects…</option></select></div>
+    <p class="oc-skill-meta">Changes apply to new runs that inherit this project’s settings. Session overrides and specialist selections are managed in <a href="/openconstruction-web/research.html?view=agent">Agent &amp; tools</a>.</p>
+    <div class="toolbar mb-2 oc-skill-toolbar"><span id="ocConnectorCount">0 connectors</span><button id="ocConnectorRefresh" type="button" class="btn btn-outline-secondary btn-sm">Refresh</button></div>
+    <p id="ocConnectorStatus" role="status" aria-live="polite"></p>
+    <div id="ocConnectorList" class="vstack gap-3" aria-busy="true"></div>
+  </section>
+</div></main><script src="/openconstruction-web/desktop/vendor/bootstrap.bundle.min.js"></script><script src="/openconstruction-web/desktop/vendor/supabase.js"></script><script src="/openconstruction-web/assets/js/config.js"></script><script src="/openconstruction-web/assets/js/auth.js"></script><script src="/openconstruction-web/assets/js/site-shell.js"></script><script src="/openconstruction-web/desktop/connectors.js"></script></body></html>

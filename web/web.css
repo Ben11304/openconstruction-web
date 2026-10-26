@@ -1,0 +1,67 @@
+/* OC's browser shell: compact top bar and a collapsible community navigation. */
+html[data-oc-platform=web]{--oc-rail:250px;--oc-web-header:64px;--oc-web-ink:#202124;--oc-web-line:#dedede}
+html[data-oc-platform=web][data-oc-sidebar=hidden]{--oc-rail:0px}
+html[data-oc-platform=web] body{box-sizing:border-box;padding-left:var(--oc-rail)!important;padding-top:var(--oc-web-header)!important}
+html[data-oc-platform=web] .oc-nav,html[data-oc-platform=web] .oc-desktop-research-banner a{display:none!important}
+html[data-oc-platform=web] .oc-web-topbar{box-sizing:border-box;position:fixed;inset:0 0 auto;height:var(--oc-web-header);display:flex;align-items:center;gap:16px;padding:0 24px 0 12px;background:#fff;border-bottom:1px solid var(--oc-web-line);z-index:1300;color:var(--oc-web-ink)}
+html[data-oc-platform=web] .oc-web-wordmark{display:flex;align-items:center;gap:8px;font:600 23px/1.1 Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:-1.1px;color:var(--oc-web-ink);text-decoration:none;white-space:nowrap}
+html[data-oc-platform=web] .oc-web-wordmark img{display:block;width:36px;height:36px;object-fit:contain;flex-shrink:0}
+html[data-oc-platform=web] .oc-sidebar-toggle{display:grid;place-items:center;flex-shrink:0;width:36px;height:40px;padding:8px;border:0;border-radius:50%;color:#444;background:#fff;cursor:pointer}
+html[data-oc-platform=web] .oc-sidebar-toggle:hover{background:#f5f5f5}
+html[data-oc-platform=web] .oc-sidebar-toggle svg{width:20px;height:20px}
+html[data-oc-platform=web] .oc-topbar-search{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;margin-left:auto;border:1px solid #bdbdbd;border-radius:50%;color:var(--oc-web-ink);text-decoration:none}
+html[data-oc-platform=web] .oc-topbar-search svg{width:23px;height:23px}
+html[data-oc-platform=web] .oc-topbar-search:hover{background:#f5f5f5}
+html[data-oc-platform=web] .oc-web-topbar.is-searching .oc-web-wordmark,html[data-oc-platform=web] .oc-web-topbar.is-searching .oc-topbar-search{display:none}
+html[data-oc-platform=web] .oc-topbar-search-form{display:flex;align-items:center;flex:1;min-width:0;height:44px;margin:0;border:1px solid #bdbdbd;border-radius:24px;padding:0 6px 0 16px;background:#fff}
+html[data-oc-platform=web] .oc-topbar-search-form:focus-within{border-color:#555;box-shadow:0 0 0 1px #555}
+html[data-oc-platform=web] .oc-topbar-search-form input{flex:1;min-width:0;width:100%;height:100%;padding:0;border:0;outline:0;box-shadow:none;background:transparent;color:#202124;font:400 15px Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+html[data-oc-platform=web] .oc-topbar-search-form button{display:grid;place-items:center;flex-shrink:0;width:34px;height:34px;padding:7px;border:0;border-radius:50%;background:transparent;color:#444;cursor:pointer}
+html[data-oc-platform=web] .oc-topbar-search-form button:hover{background:#f3f3f3}
+html[data-oc-platform=web] .oc-topbar-search-form svg{width:20px;height:20px}
+html[data-oc-platform=web] .oc-app-rail{box-sizing:border-box;top:var(--oc-web-header);bottom:0;padding:0 12px 24px 8px;gap:0;align-items:stretch;background:#fff;border-right:1px solid var(--oc-web-line);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+html[data-oc-platform=web] .oc-app-rail::before,html[data-oc-platform=web] .oc-app-rail .oc-app-brand{display:none}
+html[data-oc-platform=web] .oc-app-rail a,html[data-oc-platform=web] .oc-app-rail>button,html[data-oc-platform=web] .oc-sidebar-group>summary{box-sizing:border-box;display:flex;flex-direction:row;justify-content:flex-start;align-items:center;gap:20px;width:100%;min-height:44px;padding:10px 12px;border:0;border-radius:12px;background:transparent;color:#555;font-size:14px;font-weight:400;line-height:24px;flex-shrink:0;text-decoration:none;cursor:pointer}
+html[data-oc-platform=web] .oc-app-rail svg{width:20px;height:20px;flex-shrink:0;color:inherit}
+html[data-oc-platform=web] .oc-app-rail a:hover,html[data-oc-platform=web] .oc-app-rail>button:hover,html[data-oc-platform=web] .oc-sidebar-group>summary:hover{background:#f6f6f6}
+html[data-oc-platform=web] .oc-app-rail a[aria-current=page]{background:#faf5ec;color:#202124;box-shadow:none}
+html[data-oc-platform=web] .oc-app-rail a[aria-current] svg{color:inherit}
+html[data-oc-platform=web] .oc-app-rail .oc-sidebar-create{align-self:flex-start;width:auto;min-height:44px;margin:0 0 16px;padding:10px 20px 10px 14px;gap:14px;border-radius:24px;background:#202124;color:#fff;font-weight:600}
+html[data-oc-platform=web] .oc-app-rail .oc-sidebar-create:hover{background:#383838;box-shadow:0 2px 6px #0002}
+html[data-oc-platform=web] .oc-sidebar-group{flex-shrink:0}
+html[data-oc-platform=web] .oc-sidebar-group>summary{list-style:none}
+html[data-oc-platform=web] .oc-sidebar-group>summary::-webkit-details-marker{display:none}
+html[data-oc-platform=web] .oc-sidebar-group .oc-sidebar-chevron{width:16px;height:16px;margin-left:auto;transition:transform .15s}
+html[data-oc-platform=web] .oc-sidebar-group[open] .oc-sidebar-chevron{transform:rotate(180deg)}
+html[data-oc-platform=web] .oc-sidebar-group>a,html[data-oc-platform=web] .oc-sidebar-resources>a{padding-left:52px}
+html[data-oc-platform=web] .oc-sidebar-resources{flex-shrink:0;margin:12px 8px;padding:10px 0;border-top:1px solid var(--oc-web-line)}
+html[data-oc-platform=web] .oc-sidebar-resources>a{padding-left:44px}
+html[data-oc-platform=web] .oc-app-rail>[data-app-destination=Admin]{order:8}
+html[data-oc-platform=web] .oc-app-rail>.oc-app-reload{order:9;margin-top:12px}
+html[data-oc-platform=web] .oc-web-topbar .oc-app-account{display:grid;place-items:center;flex-shrink:0;width:40px;height:40px;margin:0;padding:2px;border:1px solid #bdbdbd;border-radius:50%;background:#fff;color:var(--oc-web-ink);cursor:pointer}
+html[data-oc-platform=web] .oc-web-topbar .oc-account-avatar{width:100%;height:100%;min-width:0;min-height:0;aspect-ratio:1}
+html[data-oc-platform=web] .oc-web-topbar .oc-app-account svg{width:20px;height:20px}
+html[data-oc-platform=web] .oc-web-topbar .oc-app-account span{display:none}
+html[data-oc-platform=web] .oc-web-topbar .oc-app-account:hover,html[data-oc-platform=web] .oc-web-topbar .oc-app-account.is-active,html[data-oc-platform=web] .oc-web-topbar .oc-app-account[aria-expanded=true]{background:#f3f3f3;border-color:#777}
+html[data-oc-platform=web] .oc-web-topbar :focus-visible,html[data-oc-platform=web] .oc-app-rail :focus-visible{outline:2px solid #555;outline-offset:2px}
+html[data-oc-platform=web] .oc-account-menu{top:72px;right:24px;bottom:auto;left:auto;max-width:calc(100vw - 24px);max-height:calc(100dvh - 88px);overflow:auto;color:var(--oc-web-ink);border-color:var(--oc-web-line)}
+html[data-oc-platform=web] body.oc-catalog-desktop{padding-top:116px!important}
+html[data-oc-platform=web] .oc-catalog-nav{top:var(--oc-web-header)}
+html[data-oc-platform=web] body.oc-web-home>.oc-site-footer,html[data-oc-platform=web] body.oc-web-home>footer{display:block!important}
+html[data-oc-platform=web] .oc-sidebar-backdrop{display:none}
+@media(max-width:1100px){
+  html[data-oc-platform=web]{--oc-rail:0px}
+  html[data-oc-platform=web] .oc-app-rail{width:min(250px,85vw);z-index:1250;box-shadow:2px 0 8px #0002}
+  html[data-oc-platform=web] .oc-sidebar-backdrop:not([hidden]){display:block;position:fixed;inset:var(--oc-web-header) 0 0;border:0;background:transparent;z-index:1200;cursor:default}
+}
+@media(max-width:480px){
+  html[data-oc-platform=web] .oc-web-topbar{gap:8px;padding-right:12px;padding-left:8px}
+  html[data-oc-platform=web] .oc-web-wordmark{font-size:16px;letter-spacing:-.6px}
+  html[data-oc-platform=web] .oc-web-wordmark img{width:30px;height:30px}
+  html[data-oc-platform=web] .oc-topbar-search{width:36px;height:36px}
+  html[data-oc-platform=web] .oc-web-topbar .oc-app-account{width:36px;height:36px;padding:2px}
+  html[data-oc-platform=web] .oc-account-menu{right:12px}
+}
+@media(max-width:360px){
+  html[data-oc-platform=web] .oc-web-wordmark span{display:none}
+}

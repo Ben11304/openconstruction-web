@@ -1,0 +1,130 @@
+/* Personal research dashboard; dialog and sharing contracts remain shared. */
+.oc-projects-page{--platform-ink:#242424;--platform-muted:#727272;--platform-line:#e4e4e4;--platform-green:#242424;background:#fff;color:var(--platform-ink)}
+.oc-projects-page .oc-projects-shell{max-width:1380px;padding:44px clamp(20px,4vw,64px) 72px}
+.oc-projects-welcome{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:34px}
+.oc-projects-eyebrow{font:500 11px/1.5 Inter,sans-serif;letter-spacing:1.5px;color:#777;margin:0 0 12px}
+.oc-projects-welcome h1{font-size:clamp(28px,3vw,40px);font-weight:600;letter-spacing:-1.3px;line-height:1.2;margin:0 0 12px;overflow-wrap:anywhere}
+.oc-projects-welcome p:last-child{margin:0;font-size:15px;color:#777;line-height:1.5}
+.oc-projects-page .oc-platform-button{border-color:#d8d8d8;color:#333;border-radius:20px;min-height:36px;font-size:12px;font-weight:500;padding:7px 14px}
+.oc-projects-page .oc-platform-button:hover{background:#f5f5f5}
+.oc-projects-page .oc-platform-primary{color:#fff;background:#222;border-color:#222}
+.oc-projects-page .oc-platform-primary:hover{background:#3c3c3c;color:#fff}
+.oc-projects-welcome>.oc-platform-button{min-height:44px;padding:10px 21px;font-size:14px;flex-shrink:0}
+.oc-projects-welcome>.oc-platform-button>span{font-size:22px;line-height:1}
+.oc-projects-page :is(button,a,input,select):focus-visible{outline:2px solid #777;outline-offset:3px}
+.oc-projects-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:0 0 30px;margin:0 0 28px;border-bottom:1px solid #dedede;gap:20px}
+.oc-projects-stats>div{display:flex;flex-direction:column;gap:6px;min-width:0;padding:12px 20px 8px;border-left:1px solid #e8e8e8}
+.oc-projects-stats>div:first-child{padding-left:0;border-left:0}
+.oc-stat-label{font-size:13px;font-weight:500;display:flex;align-items:center;gap:7px;color:#555}
+.oc-stat-dot{height:6px;width:6px;border-radius:50%;background:#547c63}
+.oc-projects-stats strong{font-size:32px;font-weight:500;line-height:1.4;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.oc-projects-stats small{font-size:11px;color:#777;line-height:1.5}
+.oc-projects-collection-head{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #e4e4e4;margin:0 0 20px}
+.oc-projects-collection-head .oc-platform-tabs{border:0;gap:26px;margin:0;min-width:0}
+.oc-projects-collection-head .oc-platform-tabs button{font-size:13px;color:#777;padding:14px 0}
+.oc-projects-collection-head .oc-platform-tabs button[aria-pressed=true]{color:#222;border-color:#222}
+.oc-projects-page .oc-projects-refresh{border:0;font-size:18px;padding:6px}
+.oc-projects-refresh span{font-size:12px}
+.oc-projects-tools{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.oc-projects-filter{display:flex;align-items:center;gap:10px;flex:1;max-width:400px;height:40px;border:1px solid #ddd;border-radius:8px;padding:0 12px;margin:0}
+.oc-projects-filter svg{width:18px;height:18px;color:#777;flex:none}
+.oc-projects-page .oc-projects-filter input{width:100%;min-width:0;border:0;padding:0;height:100%;font-size:13px;background:transparent;box-shadow:none;outline:none}
+.oc-projects-filter:focus-within{outline:2px solid #777;outline-offset:2px}
+.oc-projects-page #projectSort{margin-left:auto;font-size:12px;border-color:#ddd;height:40px;background:#fff;max-width:160px}
+.oc-projects-view{display:flex;padding:3px;border:1px solid #ddd;border-radius:8px;flex:none}
+.oc-projects-view button{display:grid;place-items:center;width:32px;height:32px;padding:6px;border:0;border-radius:5px;color:#777;background:transparent;cursor:pointer}
+.oc-projects-view button[aria-pressed=true]{background:#f0eee9;color:#222}
+.oc-projects-view svg{width:19px;height:19px}
+.oc-projects-section-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 16px}
+.oc-projects-section-head h2{font-size:19px;font-weight:600;letter-spacing:-.3px;margin:0}
+.oc-projects-section-head>span{color:#888;font-size:12px}
+.oc-projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:16px;margin:0}
+.oc-project-card{border:1px solid #ddd;border-radius:14px;padding:20px;background:#fff;display:flex;flex-direction:column;gap:16px;min-width:0;transition:border-color .15s,box-shadow .15s}
+.oc-project-card:hover{border-color:#bababa;box-shadow:0 4px 16px #00000006}
+.oc-project-card{position:relative}
+.oc-project-overview-link{color:inherit;text-decoration:none}
+.oc-project-overview-link::after{content:'';position:absolute;inset:0;border-radius:14px}
+.oc-project-overview-link:focus-visible::after{outline:2px solid #777;outline-offset:3px}
+.oc-project-card .oc-platform-actions{position:relative;z-index:1}
+.oc-project-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.oc-project-folder{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#f5f2eb;color:#6c634d;flex-shrink:0}
+.oc-project-folder svg{width:22px;height:22px}
+.oc-project-state{font-size:10px;border-radius:12px;padding:4px 8px;line-height:1.4;background:#f3f3f3;color:#737373;white-space:nowrap}
+.oc-project-state.is-running{color:#26744a;background:#edf7f0}.oc-project-state.is-waiting{color:#8b671c;background:#faf4e6}.oc-project-state.is-failed{color:#a04d40;background:#fcf0ec}.oc-project-state.is-ready{color:#54665b;background:#f0f4f1}
+.oc-project-card h3{font-size:17px;font-weight:600;line-height:1.35;letter-spacing:-.2px;margin:0 0 8px;overflow-wrap:anywhere}
+.oc-project-card .oc-project-access{font-size:11px;color:#777;margin:0}.oc-project-access span{margin:0 5px}
+.oc-project-card-meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;line-height:1.5;color:#888}
+.oc-project-card .oc-platform-actions{display:flex;flex-wrap:wrap;gap:6px;margin:auto 0 0;padding-top:2px}
+.oc-project-card .oc-platform-actions .oc-platform-button{font-size:11px;min-height:32px;padding:6px 10px}
+.oc-projects-grid.is-list{grid-template-columns:1fr}
+.oc-projects-grid.is-list .oc-project-card{display:grid;grid-template-columns:minmax(130px,.7fr) minmax(160px,1.4fr) minmax(125px,1fr) auto;align-items:center;gap:18px;padding:16px 18px}
+.oc-projects-grid.is-list .oc-project-card-top{justify-content:flex-start;flex-wrap:wrap}
+.oc-projects-grid.is-list .oc-project-card-meta{flex-direction:column}.oc-projects-grid.is-list .oc-platform-actions{margin:0;justify-content:flex-end;padding:0}
+.oc-projects-shared{margin-top:34px}
+.oc-projects-text-button{border:0;padding:0;background:transparent;color:#555;cursor:pointer;text-align:left;font:500 12px/1.5 Inter,sans-serif}
+.oc-projects-text-button:hover{text-decoration:underline;color:#222}
+.oc-projects-activity{margin-top:38px;padding-top:26px;border-top:1px solid #e4e4e4}
+#projectActivity ul{list-style:none;padding:0;margin:0}#projectActivity li{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #f0f0f0}#projectActivity li:last-child{border-bottom:0}
+.oc-activity-dot{width:7px;height:7px;background:#c2beb6;border-radius:50%;flex:none}
+#projectActivity li>div{display:grid;gap:4px;min-width:0;flex:1}#projectActivity strong{font-size:12px;font-weight:500;overflow-wrap:anywhere}#projectActivity time{font-size:11px;color:#888;white-space:nowrap}#projectActivity .oc-projects-text-button{color:#888;font-size:11px;overflow-wrap:anywhere}
+.oc-projects-empty{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;border:1px dashed #d8d8d8;border-radius:14px;padding:36px 20px}
+.oc-projects-empty h3{font-size:20px;margin:4px 0 0}.oc-projects-empty p{font-size:13px;color:#777;max-width:420px;line-height:1.6;margin:0 0 6px}.oc-projects-loading{padding:40px;color:#777;text-align:center}
+.oc-projects-start{margin-top:32px;padding-top:28px;border-top:1px solid #e4e4e4}.oc-projects-start h2{font-size:22px;letter-spacing:-.4px;margin:0 0 10px}.oc-projects-start>p{font-size:13px;color:#777;margin:0 0 20px}
+.oc-projects-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.oc-projects-steps>*{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:22px;border:1px solid #ddd;border-radius:14px;background:#fff;color:#333;text-decoration:none;cursor:pointer}
+.oc-projects-steps>*:hover{background:#faf9f6;color:#222}.oc-projects-steps span{font-size:12px;color:#a99770;margin-bottom:20px}.oc-projects-steps strong{font-size:15px;margin-bottom:9px}.oc-projects-steps small{font-size:12px;color:#777;line-height:1.6}
+@media(max-width:1200px){.oc-projects-grid.is-list .oc-project-card{grid-template-columns:minmax(130px,.7fr) minmax(150px,1fr) auto}.oc-projects-grid.is-list .oc-project-card-meta{grid-column:2}.oc-projects-grid.is-list .oc-platform-actions{grid-column:3;grid-row:1 / 3}.oc-projects-grid.is-list .oc-project-card-top{grid-row:1 / 3}}
+@media(max-width:700px){.oc-projects-page .oc-projects-shell{padding:28px 18px 48px}.oc-projects-welcome{align-items:flex-start;flex-direction:column;gap:20px}.oc-projects-stats{grid-template-columns:1fr 1fr;gap:20px 12px}.oc-projects-stats>div:nth-child(3){padding-left:0;border:0}.oc-projects-stats strong{font-size:28px}.oc-projects-collection-head{align-items:flex-start}.oc-projects-collection-head .oc-platform-tabs{gap:18px;overflow:auto;white-space:nowrap}.oc-projects-collection-head .oc-platform-tabs button{font-size:12px}.oc-projects-refresh span{display:none}.oc-projects-tools{flex-wrap:wrap;gap:10px}.oc-projects-filter{max-width:none;flex-basis:100%}.oc-projects-page #projectSort{margin-left:0;flex:1;max-width:none}.oc-projects-grid.is-list .oc-project-card{display:flex;align-items:stretch}.oc-projects-grid.is-list .oc-project-card-top{justify-content:space-between}.oc-projects-grid.is-list .oc-platform-actions{justify-content:flex-start}.oc-projects-steps{grid-template-columns:1fr}.oc-projects-section-head{align-items:flex-start}.oc-projects-section-head>span{white-space:nowrap}#projectActivity li{align-items:flex-start}#projectActivity time{font-size:10px}}
+#projectCollaborators{margin:16px 0;display:grid;gap:14px}.oc-project-collaborator{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid #e1e7ed}.oc-project-collaborator span{flex:1;min-width:160px;overflow-wrap:anywhere}
+#shareProjectDialog h3{font-size:16px;margin-top:24px}#shareProjectDialog [data-error],#createProjectDialog [data-error]{color:#9b3030}
+.oc-release-choices{max-height:250px;overflow:auto;border:1px solid #dee5eb;border-radius:6px;padding:8px}.oc-release-choices:empty{display:none}.oc-release-choices label{font-size:12px;overflow-wrap:anywhere}.oc-release-choices small{color:#718191}
+#projectOverview{overflow-wrap:anywhere}
+.oc-project-overview-header{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:30px 0 20px}
+.oc-project-overview-header h1{font-size:clamp(28px,3vw,40px);letter-spacing:-1px;line-height:1.2;margin:0 0 16px}
+.oc-project-overview-header .oc-project-access{font-size:13px;color:#777;margin:0}
+.oc-project-overview-header .oc-project-state{margin-left:10px}
+.oc-project-overview-header>button{flex-shrink:0;min-height:44px;padding:10px 20px}
+.oc-project-overview-actions{display:flex;gap:8px;margin-bottom:28px}
+.oc-project-overview-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;padding:24px 0;border-block:1px solid #e4e4e4;margin:0 0 32px}
+.oc-project-overview-facts dt{font-size:12px;color:#777;font-weight:400;margin-bottom:10px}
+.oc-project-overview-facts dd{font-size:18px;margin:0}
+.oc-project-overview-columns{display:grid;grid-template-columns:1fr 1.4fr;gap:40px}
+.oc-project-overview-columns h2{font-size:19px;margin:0 0 18px}
+.oc-project-overview-list{list-style:none;margin:0;padding:0}
+.oc-project-overview-list li{display:flex;flex-direction:column;gap:6px;padding:14px 0;border-bottom:1px solid #eee;font-size:13px}
+.oc-project-overview-list li:first-child{padding-top:0}
+.oc-project-overview-list a{color:#333;text-decoration:underline;text-underline-offset:3px}
+.oc-project-overview-list strong{font-weight:500}
+.oc-project-overview-list span{font-size:11px;color:#777}
+@media(max-width:700px){.oc-project-overview-header{align-items:flex-start;flex-direction:column}.oc-project-overview-facts{grid-template-columns:1fr 1fr}.oc-project-overview-columns{grid-template-columns:1fr;gap:28px}}
+/* Project subpages share the project header and stay outside the live workspace. */
+.oc-project-page-nav{display:flex;gap:28px;overflow-x:auto;border-bottom:1px solid #dedede;margin:0 0 28px;white-space:nowrap}
+.oc-project-page-nav a{padding:14px 0;color:#777;text-decoration:none;font-size:14px;border-bottom:2px solid transparent}
+.oc-project-page-nav a[aria-current=page]{color:#222;border-bottom-color:#222;font-weight:600}
+.oc-project-page-nav a:hover{color:#222}
+.oc-project-page-content>.oc-project-overview-facts{border-top:0;padding-top:0}
+.oc-project-page-content h2{font-size:22px;line-height:1.35;margin:0 0 22px;letter-spacing:-.4px}
+.oc-project-page-content>a+h2{margin-top:22px}
+.oc-project-page-content h2 small{font-size:13px;letter-spacing:0;color:#888;font-weight:400;margin-left:8px}
+.oc-project-page-content h3{font-size:16px;margin:28px 0 12px}
+.oc-project-page-list{list-style:none;padding:0;margin:0}
+.oc-project-page-list li{display:flex;align-items:flex-start;gap:20px;padding:20px 0;border-bottom:1px solid #e9e9e9;font-size:13px}
+.oc-project-page-list li:first-child{padding-top:0}
+.oc-project-page-list li>div{min-width:0;flex:1}
+.oc-project-page-list a,.oc-project-agent-grid a{color:#262626;font-size:15px;font-weight:500;text-decoration:none}
+.oc-project-page-list a:hover,.oc-project-agent-grid a:hover{text-decoration:underline}
+.oc-project-page-list p{margin:7px 0 0;color:#777;line-height:1.6;white-space:pre-wrap;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.oc-project-page-list small{display:block;color:#888;margin-top:7px}
+.oc-project-page-list time,.oc-project-page-list li>span:not(.oc-project-state){color:#888;font-size:12px}
+.oc-project-detail-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:24px;padding:22px 0;border-block:1px solid #e4e4e4;margin:0 0 28px}
+.oc-project-detail-facts dt{font-size:12px;font-weight:400;color:#888;margin-bottom:8px}
+.oc-project-detail-facts dd{font-size:14px;margin:0}
+.oc-project-detail-prose{font-size:14px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere;max-width:900px}
+.oc-project-agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:18px}
+.oc-project-agent-grid article{padding:22px;border:1px solid #ddd;border-radius:12px;min-width:0}
+.oc-project-agent-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.oc-project-agent-grid small{font-size:11px;color:#999}
+.oc-project-agent-grid p{font-size:13px;color:#777;line-height:1.65;margin:18px 0 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap}
+.oc-project-result-preview{max-height:550px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#faf9f6;border:1px solid #e4e2dc;border-radius:10px;padding:22px;font:13px/1.75 ui-monospace,SFMono-Regular,monospace}
+.oc-project-page-error{color:#9b3030;font-size:13px;line-height:1.7}
+@media(max-width:700px){.oc-project-page-nav{gap:24px}.oc-project-page-nav a{font-size:13px}.oc-project-page-list li{flex-wrap:wrap;gap:10px}.oc-project-page-list li>div{flex-basis:100%}.oc-project-result-preview{padding:14px}.oc-project-detail-facts{grid-template-columns:1fr 1fr;gap:20px}}

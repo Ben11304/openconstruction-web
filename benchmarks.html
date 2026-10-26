@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="oc-auth-mode" content="gateway"><script src="/openconstruction-web/web/config.js"></script><script src="/openconstruction-web/web/connection.js"></script>
+  <link rel="icon" type="image/png" sizes="96x96" href="/openconstruction-web/favicon-96x96.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/openconstruction-web/apple-touch-icon.png">
+  <link rel="manifest" href="/openconstruction-web/site.webmanifest">
+  <link rel="shortcut icon" href="/openconstruction-web/favicon.ico">
+  <meta name="theme-color" content="#0f2e4b">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Catalog Insights | OpenConstruction</title>
+  <meta name="description" content="Explore task, application, dataset, and model patterns aggregated from OpenConstruction catalog metadata.">
+  <link rel="canonical" href="https://www.openconstruction.org/benchmarks.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="OpenConstruction.org">
+  <meta property="og:title" content="Catalog Insights | OpenConstruction">
+  <meta property="og:description" content="Explore task, application, dataset, and model patterns aggregated from OpenConstruction catalog metadata.">
+  <meta property="og:url" content="https://www.openconstruction.org/benchmarks.html">
+  <meta property="og:image" content="https://www.openconstruction.org/assets/img/icon.png">
+
+  
+  
+  
+  <link href="/openconstruction-web/desktop/vendor/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/shared-site.css?v=20260825-footer-social-icons" rel="stylesheet">
+  <link rel="stylesheet" href="/openconstruction-web/desktop/vendor/leaflet.css" crossorigin="anonymous">
+
+  <style>
+    :root{
+      --oc-bg:#ffffff; --oc-text:#1e2a36; --oc-subtle:#4f5d6c; --oc-border:#e7edf3;
+      --oc-ink:#0f2e4b; --oc-accent:#f2a238; --oc-link:#0b66c3;
+      --oc-card:#ffffff; --oc-shadow:0 8px 24px rgba(15,46,75,.06);
+      --oc-radius:10px; --oc-muted:#f6f9fc; --oc-focus:#86b7fe;
+    }
+	.oc-container{ max-width:1080px; }
+
+    /* shared shell styles live in assets/css/shared-site.css */
+
+    .oc-section{ margin-top:34px; }
+    .oc-kicker{ font-size:.8rem; letter-spacing:.18em; text-transform:uppercase; color:var(--oc-subtle); }
+    .insight-hero-note{
+      max-width:620px;
+      margin:.75rem auto 0;
+      color:var(--oc-subtle);
+      font-size:.96rem;
+      line-height:1.6;
+    }
+
+    /* Index cards */
+	.index-grid{
+	  display:grid;
+	  gap:12px;
+	  grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+    .index-grid.is-loading{
+      min-height:248px;
+    }
+    .index-grid-skeleton{
+      display:grid;
+      gap:16px;
+      grid-template-columns:inherit;
+      grid-column:1 / -1;
+    }
+    .index-skeleton-card{
+      min-height:104px;
+      border:1px solid var(--oc-border);
+      border-radius:10px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.7) 50%, rgba(255,255,255,0) 100%),
+        var(--oc-muted);
+      background-size:220px 100%, auto;
+      animation:benchSkeleton 1.2s ease-in-out infinite;
+      box-shadow:var(--oc-shadow);
+    }
+    .stat-value{
+      min-height:2.5rem;
+      display:flex;
+      align-items:center;
+    }
+    .insight-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+    }
+    .pattern-card{
+      background:#fff;
+      border:1px solid var(--oc-border);
+      border-radius:10px;
+      box-shadow:var(--oc-shadow);
+      padding:1.05rem;
+      min-width:0;
+    }
+    .pattern-card h3{
+      color:var(--oc-ink);
+      font-size:1rem;
+      font-weight:750;
+      margin:0;
+    }
+    .pattern-card-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:.75rem;
+      margin-bottom:.85rem;
+    }
+    .rank-legend{
+      display:flex;
+      align-items:center;
+      gap:.55rem;
+      color:var(--oc-subtle);
+      font-size:.72rem;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    .rank-legend span{
+      display:inline-flex;
+      align-items:center;
+      gap:.26rem;
+    }
+    .rank-legend i{
+      width:.5rem;
+      height:.5rem;
+      border-radius:2px;
+      display:inline-block;
+    }
+    .rank-legend .dataset{background:#2f6fa7}
+    .rank-legend .model{background:#368461}
+    .section-title-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+      margin-bottom:1rem;
+    }
+    .section-title-row h2{margin-bottom:0}
+    .section-note{
+      color:var(--oc-subtle);
+      font-size:.84rem;
+      margin:-.4rem 0 1rem;
+    }
+    .pattern-count{
+      color:var(--oc-subtle);
+      font-size:.78rem;
+      font-weight:550;
+    }
+    .rank-scale{
+      grid-column:1 / -1;
+      width:100%;
+      height:7px;
+      overflow:hidden;
+      border-radius:999px;
+      background:#edf3f8;
+    }
+    .rank-mix{
+      display:flex;
+      height:100%;
+      min-width:10px;
+      overflow:hidden;
+      border-radius:inherit;
+    }
+    .rank-segment{
+      display:block;
+      min-width:2px;
+      height:100%;
+    }
+    .rank-segment.dataset{background:#2f6fa7}
+    .rank-segment.model{background:#368461}
+    .rank-list{
+      display:grid;
+      gap:.7rem;
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+    .rank-row.is-hidden{display:none}
+    .rank-row{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:.35rem .8rem;
+      align-items:center;
+      padding:.15rem 0;
+    }
+    .rank-row a{
+      color:var(--oc-text);
+      font-size:.9rem;
+      font-weight:500;
+      line-height:1.25;
+      text-decoration:none;
+      min-width:0;
+    }
+    .rank-row a:hover,.rank-row a:focus{color:var(--oc-link);text-decoration:underline}
+    .rank-count{color:var(--oc-subtle);font-size:.82rem;font-weight:500;white-space:nowrap}
+    .rank-count{
+      display:inline-flex;
+      align-items:center;
+    }
+    .pattern-toggle,
+    .index-toggle{
+      border:0;
+      border-radius:0;
+      background:transparent;
+      color:var(--oc-link);
+      font-size:.8rem;
+      font-weight:650;
+      padding:.2rem 0;
+      text-decoration:none;
+    }
+    .pattern-toggle:hover,
+    .pattern-toggle:focus,
+    .index-toggle:hover,
+    .index-toggle:focus{
+      background:transparent;
+      color:var(--oc-ink);
+      text-decoration:underline;
+    }
+    .time-card{
+      background:#fff;
+      border:1px solid var(--oc-border);
+      border-radius:10px;
+      box-shadow:var(--oc-shadow);
+      padding:1.05rem;
+    }
+    .time-chart-wrap{
+      width:100%;
+      overflow-x:auto;
+      padding:.25rem 0 .35rem;
+      border-bottom:1px solid var(--oc-border);
+    }
+    .time-chart{
+      display:block;
+      min-width:720px;
+      width:100%;
+      height:auto;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
+    .time-grid-line{stroke:#e6edf4;stroke-width:1}
+    .time-axis{stroke:#d8e2ec;stroke-width:1.2}
+    .time-line-dataset{fill:none;stroke:#2f6fa7;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .time-line-model{fill:none;stroke:#368461;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .time-dot{stroke:#fff;stroke-width:2}
+    .time-dot.dataset{fill:#2f6fa7}
+    .time-dot.model{fill:#368461}
+    .time-value{fill:#5f6d7b;font-size:10px;font-weight:500;text-anchor:middle}
+    .time-year{fill:var(--oc-subtle);font-size:12px;font-weight:750;text-anchor:middle}
+    .time-y-label{fill:#7a8794;font-size:10px;font-weight:650;text-anchor:end}
+    .time-segment.dataset{background:#2f6fa7}
+    .time-segment.model{background:#368461}
+    .time-legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.8rem;
+      color:var(--oc-subtle);
+      font-size:.82rem;
+      font-weight:700;
+      margin-top:.75rem;
+    }
+    .section-title-row .time-legend{margin-top:0}
+    .time-legend span{display:inline-flex;align-items:center;gap:.35rem}
+    .time-legend i{width:.65rem;height:.65rem;border-radius:2px;display:inline-block}
+    .composition-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+    }
+    .composition-card{
+      background:#fff;
+      border:1px solid var(--oc-border);
+      border-radius:10px;
+      box-shadow:var(--oc-shadow);
+      padding:1.05rem;
+      min-width:0;
+    }
+    .composition-card h3{
+      color:var(--oc-ink);
+      font-size:1rem;
+      font-weight:750;
+      margin:0;
+    }
+    .composition-body{
+      display:grid;
+      grid-template-columns:132px minmax(0,1fr);
+      gap:1rem;
+      align-items:start;
+      margin-top:.95rem;
+    }
+    .donut-chart{
+      width:132px;
+      aspect-ratio:1;
+      border-radius:50%;
+      background:conic-gradient(#edf3f8 0 100%);
+      display:grid;
+      place-items:center;
+      position:relative;
+      align-self:start;
+    }
+    .donut-chart::after{
+      content:"";
+      width:68%;
+      aspect-ratio:1;
+      border-radius:50%;
+      background:#fff;
+      box-shadow:inset 0 0 0 1px #edf3f8;
+    }
+    .donut-center{
+      position:absolute;
+      display:grid;
+      place-items:center;
+      color:var(--oc-ink);
+      font-size:.85rem;
+      font-weight:700;
+      line-height:1.1;
+      text-align:center;
+    }
+    .donut-center span{
+      color:var(--oc-subtle);
+      font-size:.64rem;
+      font-weight:650;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+    .composition-list{
+      display:grid;
+      gap:.48rem;
+      margin:0;
+      padding:0;
+      list-style:none;
+    }
+    .composition-list li{
+      display:grid;
+      grid-template-columns:auto minmax(0,1fr) auto;
+      gap:.45rem;
+      align-items:center;
+      color:var(--oc-subtle);
+      font-size:.82rem;
+    }
+    .composition-list i{
+      width:.58rem;
+      height:.58rem;
+      border-radius:2px;
+      display:inline-block;
+    }
+    .composition-label{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .composition-value{
+      color:var(--oc-text);
+      font-weight:600;
+      white-space:nowrap;
+    }
+    @keyframes benchSkeleton{
+      from{ background-position:-220px 0, 0 0; }
+      to{ background-position:220px 0, 0 0; }
+    }
+    .section-inline-head{
+      display:flex;
+      align-items:end;
+      justify-content:space-between;
+      gap:1rem;
+      margin-bottom:1rem;
+    }
+    .section-inline-head h2{margin-bottom:0}
+    .index-search{
+      display:flex;
+      align-items:center;
+      gap:.45rem;
+      width:min(320px, 100%);
+      border:1px solid var(--oc-border);
+      border-radius:9px;
+      background:#fff;
+      padding:.38rem .56rem;
+      box-shadow:0 4px 14px rgba(15,46,75,.04);
+    }
+    .index-search svg{
+      flex:0 0 auto;
+      color:var(--oc-subtle);
+    }
+    .index-search input{
+      width:100%;
+      border:0;
+      outline:0;
+      background:transparent;
+      color:var(--oc-text);
+      font-size:.86rem;
+    }
+    .index-search input::placeholder{color:#7d8793}
+    .index-card{
+      background:#fff; border:1px solid var(--oc-border); border-radius:10px; box-shadow:var(--oc-shadow);
+      padding:11px; text-decoration:none; color:inherit;
+      transition:transform .12s ease, border-color .12s ease;
+      display:flex; gap:10px; align-items:flex-start;
+    }
+    .index-card:hover{ transform:translateY(-1px); border-color:#d9e3ee; }
+
+    /* thumbnail (PNG-first) */
+	.index-thumb{
+	  width:58px; height:58px;
+	  border-radius:8px;
+	  border:1px solid var(--oc-border);
+	  object-fit:cover;
+	  background:var(--oc-muted);
+	  flex:0 0 auto;
+	  box-shadow:0 8px 16px rgba(15,46,75,.08);
+	}
+
+    .index-title{ font-size:.94rem; font-weight:700; color:var(--oc-ink); line-height:1.18; margin:0; }
+    .index-type{
+      display:inline-flex;
+      align-items:center;
+      width:max-content;
+      max-width:100%;
+      border:1px solid var(--oc-border);
+      border-radius:6px;
+      background:#f7fafc;
+      color:var(--oc-subtle);
+      font-size:.68rem;
+      font-weight:800;
+      letter-spacing:.08em;
+      line-height:1;
+      text-transform:uppercase;
+      padding:.24rem .42rem;
+      margin-bottom:.32rem;
+    }
+    .index-meta{ color:var(--oc-subtle); font-size:.8rem; margin-top:5px; display:flex; flex-wrap:wrap; gap:.3rem .65rem; }
+    .index-meta .dotline{ display:flex; gap:8px; align-items:center; }
+    .index-meta .dotline span{ display:inline-flex; gap:6px; align-items:center; }
+    .index-meta svg{ width:14px; height:14px; opacity:.85; }
+
+    .oc-card{ background:var(--oc-card); border:1px solid var(--oc-border); border-radius:var(--oc-radius); box-shadow:var(--oc-shadow); }
+    .oc-card-body{ padding:1.25rem; }
+    .oc-card-title{ font-weight:700; color:var(--oc-ink); }
+
+    :focus-visible{ outline:2px solid var(--oc-focus); outline-offset:2px; border-radius:6px; }
+
+	@media (max-width: 991.98px){
+	  .index-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .insight-grid{ grid-template-columns:1fr; }
+      .composition-grid{grid-template-columns:1fr}
+	}
+	
+	@media (max-width: 991.98px){
+	  .index-thumb{ width:64px; height:64px; }
+	}
+
+	/* Mobile: 1 per row */
+	@media (max-width: 575.98px){
+	  .index-grid{ grid-template-columns: 1fr; }
+      .rank-row{grid-template-columns:1fr}
+      .rank-count{white-space:normal}
+      .section-title-row{align-items:flex-start;flex-direction:column}
+      .rank-legend{white-space:normal}
+      .section-inline-head{align-items:stretch;flex-direction:column}
+      .index-search{width:100%}
+      .composition-body{grid-template-columns:1fr}
+      .donut-chart{width:120px}
+	}
+</style>
+<link href="/openconstruction-web/desktop/desktop.css" rel="stylesheet"><link href="/openconstruction-web/desktop/app-layout.css" rel="stylesheet"><link href="/openconstruction-web/desktop/skills.css" rel="stylesheet"><link href="/openconstruction-web/web/web.css" rel="stylesheet"><script src="/openconstruction-web/web/adapter.js"></script><script src="/openconstruction-web/desktop/desktop.js" defer></script></head>
+
+<body>
+<nav class="navbar navbar-expand-lg bg-white sticky-top oc-nav">
+  <div class="container oc-container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+      <img src="assets/img/icon.png" alt="OpenConstruction logo" class="oc-logo">
+      <span class="brand-wordmark">
+        <span class="oc-open">OpenConstruction</span>
+        <span class="oc-construction">Open Science</span>
+      </span>
+    </a>
+    <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExample">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-2">
+        <li class="nav-item"><a class="nav-link plain" href="index.html" data-route="index">Home</a></li>
+		<li class="nav-item dropdown">
+          <a class="nav-link plain dropdown-toggle" href="#" id="ddLibraries" role="button" data-bs-toggle="dropdown" aria-expanded="false">Libraries</a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="ddLibraries">
+            <li><a class="dropdown-item" href="dataset.html">Datasets</a></li>
+            <li><a class="dropdown-item" href="models.html">Models</a></li>
+            <li><a class="dropdown-item" href="deployments.html">Workflows</a></li>
+			<li><a class="dropdown-item" href="oer.html">OERs</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a class="nav-link plain active" href="benchmarks.html" data-route="benchmarks">Insights</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link plain dropdown-toggle" href="#" id="ddResourcesMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">Learn</a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="ddResourcesMenu">
+            <li><a class="dropdown-item" href="tutorials.html">Tutorial</a></li>
+            <li><a class="dropdown-item" href="references.html">Documentation</a></li>
+          </ul>
+        </li>
+        <li class="nav-item"><a class="nav-link plain" href="contribute.html" data-route="contribute">Contribute</a></li>
+        <li class="nav-item"><a class="nav-link plain" href="contributors.html" data-route="contributors">Community</a></li>
+        <li class="nav-item" id="ocAuthNavItem"><div class="oc-auth-actions"><a class="nav-link plain oc-auth-login-link" href="auth/sign-in.html?mode=login" rel="nofollow">Log in</a><a class="nav-link plain oc-auth-signup-link" href="auth/sign-in.html?mode=signup" rel="nofollow">Sign up</a></div></li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container oc-container content">
+    <h1>Catalog Insights</h1>
+    <p class="insight-hero-note">Trends are derived from public metadata records currently indexed in OpenConstruction.</p>
+  </div>
+</header>
+
+
+<main class="container oc-container">
+	<section class="oc-section">
+	  <div class="oc-kicker mb-2">Overview</div>
+	  <p class="text-muted mb-3">
+		Summary statistics across tasks, applications, datasets, and models indexed in OpenConstruction.
+	  </p>
+
+	  <div class="row g-3">
+		<div class="col-md-4">
+		  <div class="oc-card h-100">
+			<div class="oc-card-body">
+			  <div class="oc-card-title">Tasks</div>
+			  <div class="display-6 fw-bold mb-1 stat-value" id="statTasks">&mdash;</div>
+			</div>
+		  </div>
+		</div>
+
+		<div class="col-md-4">
+		  <div class="oc-card h-100">
+			<div class="oc-card-body">
+			  <div class="oc-card-title">Applications</div>
+			  <div class="display-6 fw-bold mb-1 stat-value" id="statApps">&mdash;</div>
+			</div>
+		  </div>
+		</div>
+
+		<div class="col-md-4">
+		  <div class="oc-card h-100">
+			<div class="oc-card-body">
+			  <div class="oc-card-title">Datasets and Models</div>
+			  <div class="display-6 fw-bold mb-1 stat-value">
+				<span id="statDatasets">&mdash;</span> / <span id="statModels">&mdash;</span>
+			  </div>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	</section>
+
+  <section class="oc-section" aria-labelledby="frequencyPatternsTitle">
+    <div class="oc-kicker mb-2">Patterns</div>
+    <div class="section-title-row">
+      <h2 class="h4 fw-bold" id="frequencyPatternsTitle" style="color:var(--oc-ink);">Top Coverage Patterns</h2>
+      <div class="rank-legend" aria-label="Coverage bar legend">
+        <span><i class="dataset"></i>Datasets</span>
+        <span><i class="model"></i>Models</span>
+      </div>
+    </div>
+    <div class="insight-grid">
+      <div class="pattern-card">
+        <div class="pattern-card-head">
+          <h3>Tasks <span class="pattern-count" id="taskPatternCount"></span></h3>
+        </div>
+        <div id="taskFrequencyBars" class="text-muted small">Loading...</div>
+      </div>
+      <div class="pattern-card">
+        <div class="pattern-card-head">
+          <h3>Applications <span class="pattern-count" id="appPatternCount"></span></h3>
+        </div>
+        <div id="appFrequencyBars" class="text-muted small">Loading...</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="oc-section" aria-labelledby="compositionTitle">
+    <div class="oc-kicker mb-2">Metadata</div>
+    <h2 class="h4 fw-bold mb-3" id="compositionTitle" style="color:var(--oc-ink);">Metadata Profile</h2>
+    <div class="composition-grid">
+      <div class="composition-card">
+        <h3>Primary Data Modality</h3>
+        <div id="modalityDonut" class="text-muted small">Loading...</div>
+      </div>
+      <div class="composition-card">
+        <h3>Recorded License Status</h3>
+        <div id="licenseDonut" class="text-muted small">Loading...</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="oc-section" aria-labelledby="timePatternsTitle">
+    <div class="oc-kicker mb-2">Timeline</div>
+    <div class="section-title-row">
+      <h2 class="h4 fw-bold" id="timePatternsTitle" style="color:var(--oc-ink);">Catalog Growth by Year</h2>
+      <div class="time-legend" aria-label="Time pattern legend">
+        <span><i class="time-segment dataset"></i>Datasets</span>
+        <span><i class="time-segment model"></i>Models</span>
+      </div>
+    </div>
+    <div class="time-card">
+      <div id="timePatternBars" class="text-muted small">Loading...</div>
+    </div>
+  </section>
+
+  <section class="oc-section">
+    <div class="section-inline-head">
+      <div>
+        <div class="oc-kicker mb-2">Browse</div>
+        <h2 class="h4 fw-bold" style="color:var(--oc-ink);">Tasks and Applications</h2>
+      </div>
+      <label class="index-search" for="indexSearch">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor"
+             viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+        </svg>
+        <input id="indexSearch" type="search" data-insight-search placeholder="Search index" aria-label="Search task and application index">
+      </label>
+    </div>
+    <div class="index-grid is-loading" id="insightGrid">
+      <div class="index-grid-skeleton" aria-hidden="true">
+        <div class="index-skeleton-card"></div>
+        <div class="index-skeleton-card"></div>
+        <div class="index-skeleton-card"></div>
+      </div>
+    </div>
+    <div class="mt-3 text-center text-muted small" id="insightGridNote"></div>
+  </section>
+</main>
+
+<footer class="py-4 mt-3 oc-site-footer">
+  <div class="container oc-container small text-muted text-center">
+    <div><img src="assets/img/icon.png" alt="OpenConstruction logo" width="24" height="24" style="vertical-align:-5px; margin-right:4px;"> &copy; <span id="yearNow"></span> OpenConstruction Open Science Initiative</div>
+    <div class="mt-1">
+      <small>
+        Licensed under Apache 2.0.
+        Images and thumbnails are &copy; their respective creators unless otherwise noted.
+      </small>
+    </div>
+    <div class="mt-1">
+      <small>
+        <a href="references.html#terms" class="text-muted">Terms</a> &middot;
+        <a href="references.html#privacy" class="text-muted">Data &amp; Privacy</a> &middot;
+        <a href="references.html" class="text-muted">Documentation</a> &middot; <span class="oc-footer-socials" aria-label="OpenConstruction social links"><a href="https://www.linkedin.com/company/openconstruction-open-science-initiative/" class="text-muted oc-footer-social-link" target="_blank" rel="noopener noreferrer" aria-label="OpenConstruction on LinkedIn" title="LinkedIn"><img class="oc-footer-social-icon" src="assets/img/footer-linkedin.svg?v=20260825-footer-social-icons-color" alt="" width="16" height="16"></a><a href="https://github.com/ruoxinx/open-construction" class="text-muted oc-footer-social-link" target="_blank" rel="noopener noreferrer" aria-label="OpenConstruction on GitHub" title="GitHub"><img class="oc-footer-social-icon" src="assets/img/footer-github.svg?v=20260825-footer-social-icons-color" alt="" width="16" height="16"></a></span>
+      </small>
+    </div>
+  </div>
+</footer>
+
+<!-- Floating button -->
+<!-- Subscribe Modal -->
+<div class="modal fade" id="subscribeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+    <div class="modal-content p-3 rounded-3 shadow">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h6 class="m-0 fw-semibold">Subscribe</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="https://github.us5.list-manage.com/subscribe/post?u=12fa0b9a59e8110ba3a89fc76&amp;id=696e3eb0b3&amp;f_id=006fbeedf0"
+            method="post" target="_blank" rel="noopener noreferrer" novalidate>
+        <label for="sub-email" class="form-label small text-muted mb-1">Email</label>
+        <input type="email" id="sub-email" name="EMAIL" class="form-control mb-2" placeholder="you@university.edu" required>
+        <button type="submit" class="btn btn-primary w-100 mt-2">Subscribe</button>
+        <div style="position:absolute; left:-5000px" aria-hidden="true">
+          <input type="text" name="b_12fa0b9a59e8110ba3a89fc76_696e3eb0b3" tabindex="-1" value="">
+        </div>
+        <p class="small text-muted mt-2 mb-0">We'll email only when new datasets or models are added. Unsubscribe anytime.</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="/openconstruction-web/desktop/vendor/bootstrap.bundle.min.js"></script>
+<script src="/openconstruction-web/desktop/vendor/supabase.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/auth.js?v=20260821-ask-role-gate"></script>
+<script src="assets/js/site-shell.js?v=20260827-insights-nav"></script>
+
+<script>
+  // ---------- Helpers ----------
+  const esc = (s) => String(s ?? '')
+    .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+    .replaceAll('"','&quot;').replaceAll("'","&#39;");
+
+  const normArray = (v) => Array.isArray(v) ? v.filter(Boolean) : (v ? [v] : []);
+  const normStr = (v) => (v == null ? '' : String(v).trim());
+
+  function canonKey(s){ return normStr(s).toLowerCase().replace(/\s+/g,' ').trim(); }
+  function niceLabel(s){
+    const raw = normStr(s);
+    if(!raw) return '';
+    const acronymPattern = /^(2d|3d|4d|ai|bim|cad|hvac|lod3|ui|fob|cif|dap)$/i;
+    const smallWords = new Set(['a', 'an', 'and', 'as', 'at', 'by', 'for', 'from', 'in', 'of', 'on', 'or', 'the', 'to', 'via', 'with']);
+    let wordIndex = 0;
+    return canonKey(raw).split(' ').map(word =>
+      word.split('/').map(segment =>
+        segment.split('-').map(part => {
+          if(!part) return part;
+          const isFirst = wordIndex === 0;
+          wordIndex += 1;
+          if(acronymPattern.test(part)) return part.toUpperCase();
+          if(!isFirst && smallWords.has(part)) return part;
+          return `${part.charAt(0).toUpperCase()}${part.slice(1)}`;
+        }).join('-')
+      ).join('/')
+    ).join(' ');
+  }
+  function slugifyKey(s){
+    return normStr(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0, 90) || 'key';
+  }
+  const APPLICATION_ONLY_TERMS = new Set([
+    'construction drawing understanding'
+  ]);
+  function isApplicationOnlyTerm(itemOrTerm){
+    const value = typeof itemOrTerm === 'string'
+      ? itemOrTerm
+      : (itemOrTerm?.canon || itemOrTerm?.label || '');
+    return APPLICATION_ONLY_TERMS.has(canonKey(value));
+  }
+
+  function iconStack(){
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M8.974 1.5a1 1 0 0 0-1.948 0l-.3 1.2a1 1 0 0 1-.757.727l-1.22.29a1 1 0 0 0 0 1.946l1.22.29a1 1 0 0 1 .757.727l.3 1.2a1 1 0 0 0 1.948 0l.3-1.2a1 1 0 0 1 .757-.727l1.22-.29a1 1 0 0 0 0-1.946l-1.22-.29a1 1 0 0 1-.757-.727l-.3-1.2z"/>
+      <path d="M5.5 9.5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5z"/>
+    </svg>`;
+  }
+  function iconModel(){
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M8.186.113a1 1 0 0 0-.372 0L2.5 1.385a1 1 0 0 0-.7.957v3.316a1 1 0 0 0 .553.894l5.314 2.657a1 1 0 0 0 .894 0l5.314-2.657a1 1 0 0 0 .553-.894V2.342a1 1 0 0 0-.7-.957L8.186.113zM3 2.9 8 1.65l5 1.25L8 4.15 3 2.9z"/>
+      <path d="M2.8 6.42v3.06c0 .379.214.725.553.894l4.947 2.474V9.79L2.8 6.42zm10.4 0L7.7 9.79v5.058l4.947-2.474a1 1 0 0 0 .553-.894V6.42z"/>
+    </svg>`;
+  }
+
+  // Prefer PNG; fallback to original (e.g., GIF) if PNG fails
+  function toPngFirst(url){
+    const u = normStr(url);
+    if(!u) return { primary:'', fallback:'' };
+    if (/\.png(\?|#|$)/i.test(u)) return { primary:u, fallback:'' };
+    if (/\.gif(\?|#|$)/i.test(u)) {
+      const png = u.replace(/\.gif(\?|#|$)/i, '.png$1');
+      return { primary: png, fallback: u };
+    }
+    return { primary:u, fallback:'' };
+  }
+  function isPng(u){ return /\.png(\?|#|$)/i.test(normStr(u)); }
+
+  function betterImage(currentPrimary, candidatePrimary){
+    const c = normStr(currentPrimary);
+    const n = normStr(candidatePrimary);
+    if(!c) return n;
+    if(!n) return c;
+    if(isPng(c)) return c;
+    if(isPng(n)) return n;
+    return c;
+  }
+
+  // ---------- Field normalizers ----------
+  function getDatasetTasks(ds){
+    return [...normArray(ds.tasks), ...normArray(ds.task), ...normArray(ds.potential_tasks)]
+      .map(normStr).filter(Boolean);
+  }
+  function getModelTasks(m){
+    return [...normArray(m.tasks), ...normArray(m.task)]
+      .map(normStr).filter(Boolean);
+  }
+  function getDatasetApps(ds){
+    return [...normArray(ds.applications), ...normArray(ds.application), ...normArray(ds.use_cases)]
+      .map(normStr).filter(Boolean);
+  }
+  function getModelApps(m){
+    return [...normArray(m.applications), ...normArray(m.application), ...normArray(m.use_cases)]
+      .map(normStr).filter(Boolean);
+  }
+  function getModelCardImage(m){
+    return normStr(m.thumbnail || m.image_url || '')
+      || (m.id ? `assets/img/models/${encodeURIComponent(m.id)}.png` : '');
+  }
+
+  async function loadJsonSafe(url){
+    try{
+      const res = await fetch(url, {cache:'no-store'});
+      if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      const data = await res.json();
+      if(Array.isArray(data)) return data;
+      if(data?.items && Array.isArray(data.items)) return data.items;
+      if(data && typeof data === 'object') return Object.values(data).filter(v => v && typeof v === 'object');
+      return [];
+    }catch(err){
+      console.warn('Could not load', url, err);
+      return [];
+    }
+  }
+
+  function emptyTaskVocabulary(){
+    return { byCanonical: new Map(), byAlias: new Map() };
+  }
+
+  function buildTaskVocabulary(payload){
+    const vocab = emptyTaskVocabulary();
+    const tasks = Array.isArray(payload?.tasks) ? payload.tasks : [];
+    tasks.forEach(task => {
+      const canonical = canonKey(task.canonical_key || task.preferred_label || '');
+      if(!canonical) return;
+      const entry = {
+        ...task,
+        canonical_key: canonical,
+        preferred_label: normStr(task.preferred_label || task.canonical_key || '')
+      };
+      vocab.byCanonical.set(canonical, entry);
+      [entry.canonical_key, entry.preferred_label, ...normArray(entry.aliases)].forEach(alias => {
+        const aliasKey = canonKey(alias);
+        if(aliasKey) vocab.byAlias.set(aliasKey, entry);
+      });
+    });
+    return vocab;
+  }
+
+  function normalizeTaskTerm(raw, vocab){
+    const rawText = normStr(raw);
+    const rawCanon = canonKey(rawText);
+    const entry = vocab?.byAlias?.get(rawCanon) || null;
+    if(entry){
+      return {
+        canon: entry.canonical_key,
+        label: niceLabel(entry.preferred_label || rawText),
+        taskId: entry.id || '',
+        entry
+      };
+    }
+    return {
+      canon: rawCanon,
+      label: niceLabel(rawText),
+      taskId: '',
+      entry: null
+    };
+  }
+  function formatApplicationLabel(raw){
+    return niceLabel(raw);
+  }
+  function normalizeApplicationTerm(raw){
+    const rawText = normStr(raw);
+    return {
+      canon: canonKey(rawText),
+      label: formatApplicationLabel(rawText),
+      taskId: '',
+      entry: null
+    };
+  }
+
+  function buildMergedIndex({datasets, models, extractor, imageGetter, normalizer}){
+    // canonical -> { label, canon, dsCount, modelCount, imgPrimary, imgFallback }
+    const map = new Map();
+
+    function touch(raw){
+      const normalized = normalizer ? normalizer(raw) : { canon: canonKey(raw), label: niceLabel(raw), taskId: '', entry: null };
+      const canon = normalized.canon;
+      if(!canon) return null;
+      if(!map.has(canon)){
+        map.set(canon, {
+          canon,
+          label: normalized.label,
+          idSlug: slugifyKey(normalized.label || canon),
+          taskId: normalized.taskId || '',
+          dsCount:0,
+          modelCount:0,
+          imgPrimary:'',
+          imgFallback:'',
+          searchText: [normalized.label, canon].filter(Boolean).join(' ')
+        });
+      }
+      return map.get(canon);
+    }
+
+    datasets.forEach(ds=>{
+      const img = toPngFirst(imageGetter(ds, 'dataset'));
+      const seen = new Set();
+      extractor(ds, 'dataset').forEach(k=>{
+        const node = touch(k);
+        if(node && !seen.has(node.canon)){
+          seen.add(node.canon);
+          node.dsCount += 1;
+          node.imgPrimary = betterImage(node.imgPrimary, img.primary);
+          if(!node.imgFallback && img.fallback) node.imgFallback = img.fallback;
+          node.searchText = [node.searchText, ds.id, ds.name, ds.title].map(normStr).filter(Boolean).join(' ');
+        }
+      });
+    });
+
+    models.forEach(m=>{
+      const img = toPngFirst(imageGetter(m, 'model'));
+      const seen = new Set();
+      extractor(m, 'model').forEach(k=>{
+        const node = touch(k);
+        if(node && !seen.has(node.canon)){
+          seen.add(node.canon);
+          node.modelCount += 1;
+          node.imgPrimary = betterImage(node.imgPrimary, img.primary);
+          if(!node.imgFallback && img.fallback) node.imgFallback = img.fallback;
+          node.searchText = [node.searchText, m.id, m.name, m.title].map(normStr).filter(Boolean).join(' ');
+        }
+      });
+    });
+
+    const arr = Array.from(map.values());
+    arr.sort((a,b)=> a.label.localeCompare(b.label));
+    return arr;
+  }
+
+  function findDatasetById(datasets, id){
+    const wanted = canonKey(id);
+    if(!wanted) return null;
+    return datasets.find(ds => canonKey(ds.id) === wanted) || null;
+  }
+
+  function mergeBenchmarkTasks(index, boards, datasets, taskVocabulary){
+    const byCanon = new Map(index.map(item => [item.canon, item]));
+
+    boards.forEach(board => {
+      const normalized = normalizeTaskTerm(board.task, taskVocabulary);
+      const canon = normalized.canon;
+      if(!canon) return;
+
+      let node = byCanon.get(canon);
+      if(!node){
+        node = {
+          canon,
+          label: normalized.label,
+          idSlug: slugifyKey(normalized.label || canon),
+          taskId: normalized.taskId || '',
+          dsCount: 0,
+          modelCount: 0,
+          imgPrimary: '',
+          imgFallback: '',
+          searchText: [normalized.label, canon].filter(Boolean).join(' ')
+        };
+        byCanon.set(canon, node);
+      }
+
+      const dataset = findDatasetById(datasets, board.dataset_id);
+      const boardDatasetKey = canonKey(board.dataset_id || board.dataset_name || board.id);
+      const datasetAlreadyLinked = dataset
+        ? getDatasetTasks(dataset).some(task => normalizeTaskTerm(task, taskVocabulary).canon === canon)
+        : false;
+      node._benchmarkDatasetKeys = node._benchmarkDatasetKeys || new Set();
+      if(boardDatasetKey && !datasetAlreadyLinked && !node._benchmarkDatasetKeys.has(boardDatasetKey)){
+        node._benchmarkDatasetKeys.add(boardDatasetKey);
+        node.dsCount += 1;
+      }
+
+      const img = toPngFirst(dataset?.image_url || dataset?.thumbnail || '');
+      node.imgPrimary = betterImage(node.imgPrimary, img.primary);
+      if(!node.imgFallback && img.fallback) node.imgFallback = img.fallback;
+      node.searchText = [
+        node.searchText,
+        board.id,
+        board.name,
+        board.page_title,
+        board.dataset_id,
+        board.dataset_name,
+        board.summary
+      ].map(normStr).filter(Boolean).join(' ');
+    });
+
+    return Array.from(byCanon.values()).sort((a,b)=> a.label.localeCompare(b.label));
+  }
+
+  function mergeDatasetTaskMatchesIntoApplications(index, datasets){
+    const byCanon = new Map(index.map(item => [item.canon, item]));
+
+    datasets.forEach(ds => {
+      const explicitAppCanons = new Set(
+        getDatasetApps(ds)
+          .map(app => normalizeApplicationTerm(app).canon)
+          .filter(Boolean)
+      );
+      const matchedForDataset = new Set();
+      const img = toPngFirst(ds.image_url || ds.thumbnail || '');
+
+      getDatasetTasks(ds).forEach(task => {
+        const normalized = normalizeApplicationTerm(task);
+        const canon = normalized.canon;
+        if(!canon || explicitAppCanons.has(canon) || matchedForDataset.has(canon)) return;
+        if(!byCanon.has(canon) && !isApplicationOnlyTerm(canon)) return;
+
+        let node = byCanon.get(canon);
+        if(!node){
+          node = {
+            canon,
+            label: normalized.label,
+            idSlug: slugifyKey(normalized.label || canon),
+            taskId: '',
+            dsCount: 0,
+            modelCount: 0,
+            imgPrimary: '',
+            imgFallback: '',
+            searchText: [normalized.label, canon].filter(Boolean).join(' ')
+          };
+          byCanon.set(canon, node);
+        }
+
+        matchedForDataset.add(canon);
+        node.dsCount += 1;
+        node.imgPrimary = betterImage(node.imgPrimary, img.primary);
+        if(!node.imgFallback && img.fallback) node.imgFallback = img.fallback;
+        node.searchText = [node.searchText, ds.id, ds.name, ds.title, task].map(normStr).filter(Boolean).join(' ');
+      });
+    });
+
+    return Array.from(byCanon.values()).sort((a,b)=> a.label.localeCompare(b.label));
+  }
+
+  // -------- Progressive reveal --------
+  const gridState = {
+    insight: { all: [], defaultAll: [], shown: 0, batch: 12 }
+  };
+
+  function thumbHtml(x){
+    const src = normStr(x.imgPrimary) || 'assets/img/icon.png';
+    const fb  = normStr(x.imgFallback);
+    const onerr = fb
+      ? `this.onerror=null;this.src='${esc(fb)}';`
+      : `this.onerror=null;`;
+    return `<img class="index-thumb" src="${esc(src)}" alt="${esc(x.label || x.canon)}" data-oc-image-fallback>`;
+  }
+
+  function renderIndexGrid({items, elId, noteId, hrefBuilder, kind, reset=false}){
+    const el = document.getElementById(elId);
+    const note = document.getElementById(noteId);
+    if(el) el.classList.remove('is-loading');
+
+    const state = gridState[kind];
+    if(reset) state.shown = 0;
+    const total = items.length;
+
+    if(!total){
+      el.innerHTML = `
+        <div class="oc-card"><div class="oc-card-body">
+          <div class="oc-card-title mb-1">No entries found</div>
+          <div class="text-muted">Add the corresponding fields in JSON to populate this index.</div>
+        </div></div>`;
+      note.textContent = '';
+      return;
+    }
+
+    const nextShown = Math.min(total, state.shown + state.batch);
+    const shownItems = items.slice(0, nextShown);
+    state.shown = nextShown;
+
+	el.innerHTML = shownItems.map(x=>{
+	  const label = x.label || x.canon;
+	  const href = hrefBuilder(x);
+
+	  const metaHtml = `
+		  <div class="index-meta">
+			<div class="dotline"><span>${iconStack()} <strong>${x.dsCount}</strong> dataset${x.dsCount===1?'':'s'}</span></div>
+			<div class="dotline"><span>${iconModel()} <strong>${x.modelCount}</strong> model${x.modelCount===1?'':'s'}</span></div>
+		  </div>
+		`;
+
+	  return `
+		<a class="index-card" href="${esc(href)}" data-index-card="1" data-label="${esc(label)}" aria-label="Open insight for ${esc(label)}">
+		  ${thumbHtml(x)}
+		  <div>
+            ${x.typeLabel ? `<div class="index-type">${esc(x.typeLabel)}</div>` : ''}
+			<div class="index-title">${esc(label)}</div>
+			${metaHtml}
+		  </div>
+		</a>`;
+	}).join('');
+
+
+    const remaining = total - state.shown;
+    if(remaining > 0){
+      el.insertAdjacentHTML('beforeend', `
+        <div class="d-grid" style="grid-column: 1 / -1;">
+          <button class="index-toggle" type="button" data-show-more="${kind}">
+            Show more (${remaining} remaining)
+          </button>
+        </div>
+      `);
+      note.textContent = '';
+    } else if(total > state.batch){
+      el.insertAdjacentHTML('beforeend', `
+        <div class="d-grid" style="grid-column: 1 / -1;">
+          <button class="index-toggle" type="button" data-show-less="${kind}">
+            Show less
+          </button>
+        </div>
+      `);
+      note.textContent = '';
+    } else {
+      note.textContent = '';
+    }
+  }
+
+  function applyFilter(q){
+    const needle = q.trim().toLowerCase();
+    const isSearching = needle.length > 0;
+
+    function renderAllMatches(kind, elId, noteId){
+      const all = gridState[kind].all || [];
+      const filtered = !needle ? all : all.filter(x => (x.searchText || x.label || x.canon || '').toLowerCase().includes(needle));
+
+      const el = document.getElementById(elId);
+      const note = document.getElementById(noteId);
+      if(el) el.classList.remove('is-loading');
+
+      if(!filtered.length){
+        el.innerHTML = `<div class="text-muted">No matches.</div>`;
+        note.textContent = '';
+        return;
+      }
+
+	el.innerHTML = filtered.map(x=>{
+	  const label = x.label || x.canon;
+	  const href = x.href || '#';
+
+	  const metaHtml = `
+		  <div class="index-meta">
+			<div class="dotline"><span>${iconStack()} <strong>${x.dsCount}</strong> dataset${x.dsCount===1?'':'s'}</span></div>
+			<div class="dotline"><span>${iconModel()} <strong>${x.modelCount}</strong> model${x.modelCount===1?'':'s'}</span></div>
+		  </div>
+		`;
+
+	  return `
+		<a class="index-card" href="${esc(href)}" data-index-card="1" data-label="${esc(label)}" aria-label="Open insight for ${esc(label)}">
+		  ${thumbHtml(x)}
+		  <div>
+            ${x.typeLabel ? `<div class="index-type">${esc(x.typeLabel)}</div>` : ''}
+			<div class="index-title">${esc(label)}</div>
+			${metaHtml}
+		  </div>
+		</a>`;
+	}).join('');
+
+      note.textContent = `Search results: ${filtered.length}.`;
+    }
+
+    if(isSearching){
+      renderAllMatches('insight', 'insightGrid', 'insightGridNote');
+    } else {
+      renderIndexGrid({ items: gridState.insight.defaultAll, elId:'insightGrid', noteId:'insightGridNote', hrefBuilder: (x) => x.href || '#', kind:'insight', reset:true });
+    }
+  }
+
+  function coverageTotal(item){
+    return Number(item?.dsCount || 0) + Number(item?.modelCount || 0);
+  }
+
+  function countLabel(item){
+    const ds = Number(item?.dsCount || 0);
+    const models = Number(item?.modelCount || 0);
+    const parts = [];
+    if(ds) parts.push(`${ds} dataset${ds === 1 ? '' : 's'}`);
+    if(models) parts.push(`${models} model${models === 1 ? '' : 's'}`);
+    return parts.length ? parts.join(' / ') : 'No linked resources';
+  }
+
+  const DONUT_COLORS = ['#3d6f9f', '#4f8a70', '#9b7a45', '#7b7098', '#5c8a96', '#7f8792', '#b8c4cf'];
+  const DONUT_OTHER_COLOR = '#b8c4cf';
+
+  function metadataTerms(...values){
+    const out = [];
+    function add(value){
+      if(Array.isArray(value)){
+        value.forEach(add);
+        return;
+      }
+      const text = normStr(value);
+      if(!text) return;
+      text.split(/[,;|/]+|\s+\+\s+|\s+and\s+/i).map(normStr).filter(Boolean).forEach(term => out.push(term));
+    }
+    values.forEach(add);
+    return out;
+  }
+
+  function modalityFamilyLabel(term){
+    const text = canonKey(term);
+    if(!text) return '';
+    if(/\b(cad|drawing|drawings|blueprint|floor plan|floorplan|plan image|architectural plan|rasterized)\b/.test(text)) return 'CAD Drawings';
+    if(/\b(point cloud|point clouds|lidar|laser scan|tls|als|pcd|3d scan)\b/.test(text)) return 'Point Cloud';
+    if(/\b(bim|ifc|revit|gbxml|building information model)\b/.test(text)) return 'BIM / IFC';
+    if(/\b(video|rgb-d video|sequence|time-lapse|timelapse)\b/.test(text)) return 'Video';
+    if(/\b(rgb-d|rgbd|depth|stereo)\b/.test(text)) return 'Depth / RGB-D';
+    if(/\b(mesh|3d model|3d geometry|geometry model|obj|ply)\b/.test(text)) return '3D Geometry';
+    if(/\b(thermal|infrared|ir image|thermography)\b/.test(text)) return 'Thermal Imagery';
+    if(/\b(text|language|caption|document|report|specification|poi)\b/.test(text)) return 'Text';
+    if(/\b(sensor|imu|temperature|iot|wearable|accelerometer|gyroscope)\b/.test(text)) return 'Sensor';
+    if(/\b(tabular|csv|spreadsheet|table|metadata)\b/.test(text)) return 'Tabular';
+    if(/\b(map|gis|geospatial|gps|satellite|aerial|uav|drone)\b/.test(text)) return 'Geospatial';
+    if(/\b(image|rgb|photo|photograph|visual|camera|frame)\b/.test(text)) return 'Image';
+    if(/\b(simulation|synthetic)\b/.test(text)) return 'Synthetic';
+    if(/\b(audio|speech|sound)\b/.test(text)) return 'Audio';
+    return niceLabel(term);
+  }
+
+  function primaryModality(item){
+    const terms = metadataTerms(
+      item?.data_modality,
+      item?.data_modalities,
+      item?.modality,
+      item?.modalities,
+      item?.media,
+      item?.format,
+      item?.formats
+    );
+    for(const term of terms){
+      const label = modalityFamilyLabel(term);
+      if(label) return label;
+    }
+    return 'Unspecified';
+  }
+
+  function licenseStatus(item){
+    const raw = normStr(item?.license || item?.licence || item?.license_name || item?.license_type);
+    if(!raw) return 'Not specified';
+    const text = raw.toUpperCase();
+    if(/\b(N\/A|NA|NONE|UNKNOWN|UNSPECIFIED|NOT SPECIFIED|SEE SOURCE|NO LICENSE)\b/.test(text)) return 'Not specified';
+    if(/\b(NC|NONCOMMERCIAL|NON-COMMERCIAL|ND|NO DERIVATIVES|RESTRICTED|RESEARCH ONLY|ACADEMIC ONLY|UPON REQUEST)\b/.test(text)) return 'Noncommercial / restricted';
+    if(/\b(CC0|CC BY|CC-BY|CC BY-SA|CC-BY-SA|ODC|OPEN DATA COMMONS|PDDL)\b/.test(text)) return 'Creative Commons / open data';
+    if(/\b(MIT|APACHE|BSD|GPL|AGPL|LGPL|MPL|EPL)\b/.test(text)) return 'Open-source software';
+    if(/\b(CUSTOM|PROPRIETARY|TERMS|SOURCE|DATA USE AGREEMENT|DUA)\b/.test(text)) return 'Custom / source terms';
+    return 'Custom / source terms';
+  }
+
+  function countBy(items, labeler){
+    const map = new Map();
+    items.forEach(item => {
+      const label = labeler(item) || 'Unspecified';
+      map.set(label, (map.get(label) || 0) + 1);
+    });
+    return Array.from(map, ([label, count]) => ({ label, count }))
+      .sort((a,b) => b.count - a.count || a.label.localeCompare(b.label));
+  }
+
+  function compactSlices(rows, limit = 5){
+    if(rows.length <= limit) return rows;
+    const keep = rows.slice(0, limit - 1);
+    const other = rows.slice(limit - 1).reduce((sum, row) => sum + row.count, 0);
+    return other ? [...keep, { label: 'Other', count: other }] : keep;
+  }
+
+  function renderDonut(containerId, title, rows, limit = 5){
+    const container = document.getElementById(containerId);
+    if(!container) return;
+    const slices = compactSlices(rows.filter(row => row.count > 0), limit);
+    const total = slices.reduce((sum, row) => sum + row.count, 0);
+    if(!total){
+      container.textContent = 'No metadata is available yet.';
+      return;
+    }
+    let cursor = 0;
+    const colorForSlice = (row, index) => row.label === 'Other'
+      ? DONUT_OTHER_COLOR
+      : DONUT_COLORS[index % DONUT_COLORS.length];
+    const gradient = slices.map((row, index) => {
+      const start = cursor;
+      const end = cursor + (row.count / total) * 360;
+      cursor = end;
+      return `${colorForSlice(row, index)} ${start.toFixed(2)}deg ${end.toFixed(2)}deg`;
+    }).join(', ');
+    container.classList.remove('text-muted', 'small');
+    container.innerHTML = `
+      <div class="composition-body">
+        <div class="donut-chart" style="background:conic-gradient(${gradient})" role="img" aria-label="${esc(title)} distribution across ${total} resources">
+          <div class="donut-center">${total}<span>resources</span></div>
+        </div>
+        <ol class="composition-list">
+          ${slices.map((row, index) => `
+            <li>
+              <i style="background:${colorForSlice(row, index)}"></i>
+              <span class="composition-label">${esc(row.label)}</span>
+              <span class="composition-value">${row.count}</span>
+            </li>
+          `).join('')}
+        </ol>
+      </div>
+    `;
+  }
+
+  function renderCatalogComposition(datasets, models){
+    const resources = [...datasets, ...models];
+    renderDonut('modalityDonut', 'Data modality', countBy(resources, primaryModality), 7);
+    renderDonut('licenseDonut', 'License status', countBy(resources, licenseStatus), 5);
+  }
+
+  function renderFrequencyBars({containerId, items, hrefBuilder, limit = 6, expandedLimit = 12, scaleMax = 0}){
+    const container = document.getElementById(containerId);
+    if(!container) return;
+    const ranked = items
+      .filter(item => coverageTotal(item) > 0)
+      .slice()
+      .sort((a,b) => coverageTotal(b) - coverageTotal(a) || (a.label || a.canon).localeCompare(b.label || b.canon));
+    if(!ranked.length){
+      container.textContent = 'No coverage data is available yet.';
+      return;
+    }
+    const maxTotal = Math.max(Number(scaleMax || 0), ...ranked.map(coverageTotal), 1);
+    container.classList.remove('text-muted', 'small');
+    container.innerHTML = `
+      <div class="rank-panel" data-frequency-panel="${esc(containerId)}">
+        <ol class="rank-list">
+          ${ranked.slice(0, expandedLimit).map((item, index) => {
+          const label = item.label || item.canon;
+          const ds = Number(item?.dsCount || 0);
+          const models = Number(item?.modelCount || 0);
+          const total = Math.max(ds + models, 1);
+          const dsWidth = ds ? Math.round((ds / total) * 100) : 0;
+          const modelWidth = models ? 100 - dsWidth : 0;
+          const totalWidth = Math.max(8, Math.round((coverageTotal(item) / maxTotal) * 100));
+          return `
+            <li class="rank-row${index >= limit ? ' is-hidden' : ''}">
+              <a href="${esc(hrefBuilder(item))}">${esc(label)}</a>
+              <span class="rank-count">${esc(countLabel(item))}</span>
+              <span class="rank-scale" aria-hidden="true">
+                <span class="rank-mix" style="width:${totalWidth}%">
+                  ${ds ? `<span class="rank-segment dataset" style="width:${dsWidth}%"></span>` : ''}
+                  ${models ? `<span class="rank-segment model" style="width:${modelWidth}%"></span>` : ''}
+                </span>
+              </span>
+            </li>
+          `;
+          }).join('')}
+        </ol>
+        ${ranked.length > limit ? `
+          <button class="pattern-toggle mt-3" type="button" data-frequency-toggle="${esc(containerId)}" data-collapsed-count="${limit}" data-expanded-count="${Math.min(expandedLimit, ranked.length)}" aria-expanded="false">
+            Show top ${Math.min(expandedLimit, ranked.length)}
+          </button>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  function resourceYear(item){
+    const candidates = [
+      item?.year,
+      item?.publication_year,
+      item?.published_year,
+      item?.added,
+      item?.date,
+      item?.created_at,
+      item?.updated_at
+    ];
+    for(const value of candidates){
+      const match = String(value ?? '').match(/\b(19|20)\d{2}\b/);
+      if(match){
+        const year = Number(match[0]);
+        if(year >= 1990 && year <= 2100) return year;
+      }
+    }
+    return null;
+  }
+
+  function buildYearRows(datasets, models){
+    const map = new Map();
+    function touch(year){
+      if(!map.has(year)) map.set(year, { year, datasets:0, models:0 });
+      return map.get(year);
+    }
+    datasets.forEach(item => {
+      const year = resourceYear(item);
+      if(year) touch(year).datasets += 1;
+    });
+    models.forEach(item => {
+      const year = resourceYear(item);
+      if(year) touch(year).models += 1;
+    });
+    return Array.from(map.values()).sort((a,b) => a.year - b.year);
+  }
+
+  function renderTimePattern(datasets, models){
+    const container = document.getElementById('timePatternBars');
+    if(!container) return;
+    const rawRows = buildYearRows(datasets, models).filter(row => row.datasets + row.models > 0);
+    if(!rawRows.length){
+      container.textContent = 'No year metadata is available yet.';
+      return;
+    }
+    const byYear = new Map(rawRows.map(row => [row.year, row]));
+    const firstYear = Math.min(...rawRows.map(row => row.year));
+    const lastYear = Math.max(...rawRows.map(row => row.year));
+    const rows = [];
+    for(let year = firstYear; year <= lastYear; year += 1){
+      rows.push(byYear.get(year) || { year, datasets: 0, models: 0 });
+    }
+    const visible = rows.length > 18 ? rows.slice(-18) : rows;
+    const max = Math.max(...visible.map(row => Math.max(row.datasets, row.models)), 1);
+    const width = Math.max(760, visible.length * 74 + 120);
+    const height = 260;
+    const pad = { left: 42, right: 32, top: 34, bottom: 42 };
+    const plotW = width - pad.left - pad.right;
+    const plotH = height - pad.top - pad.bottom;
+    const xAt = (index) => visible.length === 1
+      ? pad.left + plotW / 2
+      : pad.left + (index / (visible.length - 1)) * plotW;
+    const yAt = (value) => pad.top + ((max - value) / max) * plotH;
+    const pointString = (field) => visible.map((row, index) => `${xAt(index).toFixed(1)},${yAt(row[field]).toFixed(1)}`).join(' ');
+    const ticks = [0, .25, .5, .75, 1].map(frac => Math.round(max * frac));
+    const uniqueTicks = [...new Set(ticks)].sort((a,b) => a - b);
+    container.classList.remove('text-muted', 'small');
+    container.innerHTML = `
+      <div class="time-chart-wrap">
+        <svg class="time-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Dataset and model coverage by year">
+          ${uniqueTicks.map(tick => {
+            const y = yAt(tick);
+            return `
+              <line class="time-grid-line" x1="${pad.left}" y1="${y.toFixed(1)}" x2="${width - pad.right}" y2="${y.toFixed(1)}"></line>
+              <text class="time-y-label" x="${pad.left - 10}" y="${(y + 4).toFixed(1)}">${tick}</text>
+            `;
+          }).join('')}
+          <line class="time-axis" x1="${pad.left}" y1="${height - pad.bottom}" x2="${width - pad.right}" y2="${height - pad.bottom}"></line>
+          <polyline class="time-line-dataset" points="${pointString('datasets')}"></polyline>
+          <polyline class="time-line-model" points="${pointString('models')}"></polyline>
+          ${visible.map((row, index) => {
+            const x = xAt(index);
+            const dsY = yAt(row.datasets);
+            const modelY = yAt(row.models);
+            const title = `${row.year}: ${row.datasets} dataset${row.datasets === 1 ? '' : 's'}, ${row.models} model${row.models === 1 ? '' : 's'}`;
+            const overlap = Math.abs(dsY - modelY) < 24;
+            const modelLabelY = modelY > height - pad.bottom - 26
+              ? modelY - 10
+              : modelY + (overlap ? 22 : -10);
+            return `
+              <g>
+                <title>${esc(title)}</title>
+                <circle class="time-dot dataset" cx="${x.toFixed(1)}" cy="${dsY.toFixed(1)}" r="4.8"></circle>
+                <circle class="time-dot model" cx="${x.toFixed(1)}" cy="${modelY.toFixed(1)}" r="4.8"></circle>
+                ${row.datasets ? `<text class="time-value" x="${x.toFixed(1)}" y="${(dsY - 10).toFixed(1)}">${row.datasets}</text>` : ''}
+                ${row.models ? `<text class="time-value" x="${x.toFixed(1)}" y="${modelLabelY.toFixed(1)}">${row.models}</text>` : ''}
+                <text class="time-year" x="${x.toFixed(1)}" y="${height - 15}">${row.year}</text>
+              </g>
+            `;
+          }).join('')}
+        </svg>
+      </div>
+    `;
+  }
+
+  function buildInsightIndex(tasks, apps){
+    const taskItems = tasks.map(item => ({
+      ...item,
+      typeLabel: 'Task',
+      href: `benchmark_task.html?key=${encodeURIComponent(item.canon)}&label=${encodeURIComponent(item.label || item.canon)}`,
+      searchText: [item.searchText, item.label, item.canon, 'task'].map(normStr).filter(Boolean).join(' ')
+    }));
+    const appItems = apps.map(item => ({
+      ...item,
+      typeLabel: 'Application',
+      href: `benchmark_application.html?key=${encodeURIComponent(item.canon)}&label=${encodeURIComponent(item.label || item.canon)}`,
+      searchText: [item.searchText, item.label, item.canon, 'application'].map(normStr).filter(Boolean).join(' ')
+    }));
+    return [...taskItems, ...appItems].sort((a,b) =>
+      (a.label || a.canon).localeCompare(b.label || b.canon) ||
+      (a.typeLabel || '').localeCompare(b.typeLabel || '')
+    );
+  }
+
+  function defaultInsightItems(items){
+    const filtered = items
+      .filter(item => coverageTotal(item) >= 2)
+      .sort((a,b) =>
+        coverageTotal(b) - coverageTotal(a) ||
+        (a.label || a.canon).localeCompare(b.label || b.canon) ||
+        (a.typeLabel || '').localeCompare(b.typeLabel || '')
+      );
+    return filtered.length ? filtered : items;
+  }
+
+  async function init(){
+    // Keep your existing site paths:
+    // - data/datasets.json is an object keyed by id (we read Object.values)
+    // - data/models.json is an array
+    const [datasets, models, benchmarkPayload, taskVocabularyPayload] = await Promise.all([
+      loadJsonSafe('data/datasets.json'),
+      loadJsonSafe('data/models.json'),
+      (async () => {
+        try{
+          const res = await fetch('data/benchmark-results.json', {cache:'no-store'});
+          if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+          return await res.json();
+        }catch(err){
+          console.warn('Could not load benchmark-results.json', err);
+          return { benchmarks: [] };
+        }
+      })(),
+      (async () => {
+        try{
+          const res = await fetch('data/task-vocabulary.json', {cache:'no-store'});
+          if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+          return await res.json();
+        }catch(err){
+          console.warn('Could not load task-vocabulary.json', err);
+          return {};
+        }
+      })()
+    ]);
+    const taskVocabulary = buildTaskVocabulary(taskVocabularyPayload);
+    const benchmarkBoards = Array.isArray(benchmarkPayload?.benchmarks) ? benchmarkPayload.benchmarks : [];
+
+    document.getElementById('statDatasets').textContent = String(datasets.length || 0);
+    document.getElementById('statModels').textContent   = String(models.length || 0);
+    renderCatalogComposition(datasets, models);
+
+    // Build PNG-first index for TASKS
+	let tasks = buildMergedIndex({
+	  datasets,
+	  models,
+	  extractor: (obj, kind) =>
+		kind === 'dataset'
+		  ? getDatasetTasks(obj)
+		  : getModelTasks(obj),
+	  normalizer: (raw) => normalizeTaskTerm(raw, taskVocabulary),
+	  imageGetter: (obj, kind) =>
+		kind === 'dataset'
+		  ? (obj.image_url || obj.thumbnail || '')
+		  : getModelCardImage(obj)
+	})
+    tasks = mergeBenchmarkTasks(tasks, benchmarkBoards, datasets, taskVocabulary);
+    tasks = tasks.filter(item => !isApplicationOnlyTerm(item));
+
+    // Build PNG-first index for APPLICATIONS
+    let apps = buildMergedIndex({
+      datasets, models,
+      extractor: (obj, kind) => kind === 'dataset' ? getDatasetApps(obj) : getModelApps(obj),
+      normalizer: normalizeApplicationTerm,
+      imageGetter: (obj, kind) => kind === 'dataset'
+        ? (obj.image_url || obj.thumbnail || '')
+        : getModelCardImage(obj)
+    });
+    apps = mergeDatasetTaskMatchesIntoApplications(apps, datasets);
+
+    document.getElementById('statTasks').textContent = String(tasks.length || 0);
+    document.getElementById('statApps').textContent  = String(apps.length || 0);
+    document.getElementById('taskPatternCount').textContent = `· ${tasks.length || 0} categories`;
+    document.getElementById('appPatternCount').textContent = `· ${apps.length || 0} categories`;
+
+    const coverageScaleMax = Math.max(
+      ...tasks.map(coverageTotal),
+      ...apps.map(coverageTotal),
+      1
+    );
+
+    renderFrequencyBars({
+      containerId: 'taskFrequencyBars',
+      items: tasks,
+      scaleMax: coverageScaleMax,
+      hrefBuilder: (x) => `benchmark_task.html?key=${encodeURIComponent(x.canon)}&label=${encodeURIComponent(x.label || x.canon)}`
+    });
+    renderFrequencyBars({
+      containerId: 'appFrequencyBars',
+      items: apps,
+      scaleMax: coverageScaleMax,
+      hrefBuilder: (x) => `benchmark_application.html?key=${encodeURIComponent(x.canon)}&label=${encodeURIComponent(x.label || x.canon)}`
+    });
+    renderTimePattern(datasets, models);
+
+    const insights = buildInsightIndex(tasks, apps);
+    const defaultInsights = defaultInsightItems(insights);
+    gridState.insight.all = insights.slice();
+    gridState.insight.defaultAll = defaultInsights.slice();
+
+    renderIndexGrid({
+      items: defaultInsights,
+      elId: 'insightGrid',
+      noteId: 'insightGridNote',
+      hrefBuilder: (x) => x.href || '#',
+      kind: 'insight',
+      reset: true
+    });
+
+    // search
+    const searchInputs = [...document.querySelectorAll('[data-insight-search]')];
+    searchInputs.forEach(input => {
+      input.addEventListener('input', (e)=> {
+        const value = e.target.value;
+        searchInputs.forEach(peer => {
+          if(peer !== e.target) peer.value = value;
+        });
+        applyFilter(value);
+      });
+    });
+
+    // show more buttons
+    document.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-show-more]');
+      const lessBtn = e.target.closest('button[data-show-less]');
+      const frequencyBtn = e.target.closest('button[data-frequency-toggle]');
+      if(frequencyBtn){
+        const target = frequencyBtn.getAttribute('data-frequency-toggle') || '';
+        const panel = [...document.querySelectorAll('[data-frequency-panel]')]
+          .find(node => node.getAttribute('data-frequency-panel') === target);
+        if(!panel) return;
+        const expanded = frequencyBtn.getAttribute('aria-expanded') !== 'true';
+        const expandedCount = frequencyBtn.getAttribute('data-expanded-count') || '12';
+        panel.querySelectorAll('.rank-row.is-hidden').forEach(row => {
+          row.style.display = expanded ? 'grid' : '';
+        });
+        frequencyBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        frequencyBtn.textContent = expanded ? 'Show less' : `Show top ${expandedCount}`;
+        return;
+      }
+      if(lessBtn){
+        const kind = lessBtn.getAttribute('data-show-less');
+        if(kind === 'insight'){
+          renderIndexGrid({
+            items: gridState.insight.defaultAll,
+            elId: 'insightGrid',
+            noteId: 'insightGridNote',
+            hrefBuilder: (x) => x.href || '#',
+            kind: 'insight',
+            reset: true
+          });
+        }
+        return;
+      }
+      if(!btn) return;
+      const kind = btn.getAttribute('data-show-more');
+      if(kind === 'insight'){
+        renderIndexGrid({
+          items: gridState.insight.defaultAll,
+          elId: 'insightGrid',
+          noteId: 'insightGridNote',
+          hrefBuilder: (x) => x.href || '#',
+          kind: 'insight',
+          reset: false
+        });
+      }
+    });
+
+    // url preset query
+    const params = new URLSearchParams(location.search);
+    const q = params.get('q');
+    if(q){
+      searchInputs.forEach(input => { input.value = q; });
+      applyFilter(q);
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

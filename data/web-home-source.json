@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "source": "https://www.openconstruction.org/",
+  "policy": "Public Home/Search surface only; desktop workspace code remains local.",
+  "files": {
+    "index.html": {
+      "url": "https://www.openconstruction.org/index.html",
+      "sha256": "67687d1eb63a1ffb475f401ce5bbe7d6516f18aedaaec110713318c02e8de7ee"
+    },
+    "search.html": {
+      "url": "https://www.openconstruction.org/search.html",
+      "sha256": "cd833f44c769b5ee1badb607358bbb26c1c2b46e7b8326fa8fa57833e097f88e"
+    },
+    "assets/css/shared-site.css": {
+      "url": "https://www.openconstruction.org/assets/css/shared-site.css",
+      "sha256": "c16f8ff40f1de49f3357ac4cdfc23dc180b27371e2bad0a8793da701594aa5f8"
+    },
+    "assets/js/config.js": {
+      "url": "https://www.openconstruction.org/assets/js/config.js",
+      "sha256": "acb7b320d85067084776ad0165f19c40140b4b40b098bc325ccdee68778af7a9"
+    },
+    "assets/js/auth.js": {
+      "url": "https://www.openconstruction.org/assets/js/auth.js",
+      "sha256": "ad9a3c5a890fb84e174398f14f9c17d7e5bc1f8c0fea9fd6039a3a957e14a856"
+    },
+    "assets/js/recommendations.js": {
+      "url": "https://www.openconstruction.org/assets/js/recommendations.js",
+      "sha256": "56007f14ab17146d2c9678e595b7cb193a6c2c715178961471303c04dbc5dfd6"
+    },
+    "assets/js/search.js": {
+      "url": "https://www.openconstruction.org/assets/js/search.js",
+      "sha256": "07825d5f926ee675a161cd549046d7bb024c4310c45ccd2cb7ff725b0f4dc10e"
+    },
+    "assets/js/site-shell.js": {
+      "url": "https://www.openconstruction.org/assets/js/site-shell.js",
+      "sha256": "f896cfc92a18a3456894831698d470b17c0a0b51e217b932a0bd10419c693e70"
+    },
+    "assets/js/visit-logger.js": {
+      "url": "https://www.openconstruction.org/assets/js/visit-logger.js",
+      "sha256": "9f2647177ca57e775c56401113551c594dcc18d75e60a57efc39e4d6728af62e"
+    },
+    "assets/img/footer-email.svg": {
+      "url": "https://www.openconstruction.org/assets/img/footer-email.svg",
+      "sha256": "28b045ed86edcfa906b041923b4788c0b967b746389c8870942f80e72782182d"
+    }
+  }
+}

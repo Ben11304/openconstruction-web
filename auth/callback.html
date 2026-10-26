@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta name="oc-auth-mode" content="gateway"><script src="/openconstruction-web/web/config.js"></script><script src="/openconstruction-web/web/connection.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Signing in · OpenConstruction</title>
+  <meta name="robots" content="noindex">
+  
+  
+  
+  <link href="/openconstruction-web/desktop/vendor/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/css/shared-site.css?v=20260819-settings-layout" rel="stylesheet">
+<link href="/openconstruction-web/desktop/desktop.css" rel="stylesheet"><link href="/openconstruction-web/desktop/app-layout.css" rel="stylesheet"><link href="/openconstruction-web/desktop/skills.css" rel="stylesheet"><link href="/openconstruction-web/web/web.css" rel="stylesheet"><script src="/openconstruction-web/web/adapter.js"></script><script src="/openconstruction-web/desktop/desktop.js" defer></script></head>
+<body>
+<main class="container oc-container py-5">
+	  <div class="oc-auth-card mx-auto" style="max-width:520px">
+	    <h1 class="h4 fw-bold">Finishing sign in</h1>
+	    <p id="statusText" class="text-muted mb-0">Connecting your OpenConstruction account...</p>
+	    <a id="retryLink" class="btn btn-outline-primary btn-sm mt-3 d-none" href="sign-in.html">Try signing in again</a>
+	  </div>
+	</main>
+<script src="/openconstruction-web/desktop/vendor/supabase.js"></script>
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/auth.js?v=20260819-auth-cta-balance"></script>
+<script src="../assets/js/site-shell.js?v=20260827-insights-nav"></script>
+<script>
+  (async () => {
+    const status = document.getElementById('statusText');
+    try {
+      await window.OCAuth.handleCallback();
+      const target = await window.OCAuth.resolvePostSignInHref(window.OCAuth.takeReturnTo());
+      window.location.replace(target);
+	    } catch (err) {
+		      status.textContent = window.OCAuth.authErrorMessage?.(err, 'Sign in could not be completed. Please try again.') || 'Sign in could not be completed. Please try again.';
+	      status.classList.remove('text-muted');
+	      status.classList.add('text-danger');
+	      document.getElementById('retryLink')?.classList.remove('d-none');
+	    }
+	  })();
+</script>
+</body>
+</html>
