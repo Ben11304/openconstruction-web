@@ -280,7 +280,7 @@ body:has(.oc-desktop-settings),body:has(.oc-desktop-workspace){height:100dvh;ove
 html[data-oc-resizing],html[data-oc-resizing] *{user-select:none!important;cursor:row-resize!important}
 html[data-oc-resizing=x],html[data-oc-resizing=x] *{cursor:col-resize!important}
 .oc-sidebar-projects,.oc-sidebar-sessions{display:flex;flex-direction:column;min-height:90px;overflow:hidden}
-.oc-sidebar-projects{flex:0.35}.oc-sidebar-sessions{flex:0.65;padding-top:10px}
+.oc-sidebar-projects{display:none}.oc-sidebar-sessions{flex:1;padding-top:0}
 .oc-agent-desktop .oc-sidebar-projects [data-research-projects],.oc-agent-desktop .oc-sidebar-sessions [data-research-sessions]{flex:1;max-height:none;min-height:0}
 .oc-agent-desktop .oc-sidebar-sessions .oc-research-sessions-head{margin-top:0}
 .oc-panel-divider-composer{position:absolute;left:14px;right:14px;top:-5px;height:9px}

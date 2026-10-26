@@ -74,11 +74,11 @@
         delete document.documentElement.dataset.ocResizing;
         update(); if (!cancel) persist();
       }
-      const left = separator('projects','Resize project sidebar','x',layout);
+      const left = separator('projects','Resize sessions sidebar','x',layout);
       const right = separator('inspector','Resize right panel','x',layout); right.sign = -1;
       left.handle.classList.add('oc-panel-divider-left'); right.handle.classList.add('oc-panel-divider-right');
 
-      // Keep existing controls and their listeners; only group their containers.
+      // Retain engine DOM hooks, but manage projects from the Projects page.
       const projectPane = document.createElement('div'); projectPane.className = 'oc-sidebar-projects';
       const sessionPane = document.createElement('div'); sessionPane.className = 'oc-sidebar-sessions';
       const projectNodes = [rail.querySelector('.oc-research-rail-head'),rail.querySelector('[data-research-create-project]'),rail.querySelector('[data-research-projects]')];
@@ -89,7 +89,7 @@
         const item = separator(name,label,'y',parent,second); item.ratio = true;
         splits.push({ item, parent, first, second, minimum });
       }
-      split('sidebar','Resize projects and sessions',rail,projectPane,sessionPane,90);
+
       split('workspace','Resize Input and Project',workspace,workspace.querySelector('.oc-ws-input'),workspace.querySelector('.oc-ws-project'),100);
       split('outputs','Resize output list and preview',outputLayout,outputLayout.querySelector('.oc-research-artifact-list'),outputLayout.querySelector('.oc-research-artifact-preview'),100);
       const input = separator('composer','Resize chat input','y',composer,composer.firstChild); input.sign = -1;
