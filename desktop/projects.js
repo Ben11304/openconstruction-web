@@ -31,8 +31,8 @@
     finally { busy = false; controls.forEach(el => { if(el.isConnected) el.disabled = false; }); configure(); }
   }
   function configure() {
-    $('createProjectButton').disabled = !me || me.user.role === 'viewer';
-    document.querySelectorAll('[data-new-project]').forEach(button => { button.disabled = !me || me.user.role === 'viewer'; });
+    $('createProjectButton').disabled = busy || !me || me.user.role === 'viewer';
+    document.querySelectorAll('[data-new-project]').forEach(button => { button.disabled = busy || !me || me.user.role === 'viewer'; });
     $('publishReleaseButton').disabled = !releaseReviewed;
     document.querySelectorAll('[data-project-scope]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.projectScope===scope)));
   }
@@ -180,27 +180,30 @@
     for (const key of ['mine','shared']) collections[key] = collections[key].map(p => p.id === sharingId ? {...p,access} : p); render();
   }
   function updateConfirmation(form) { const visible=form.elements.visibility.value==='public'; form.querySelector('[data-public-confirm]').hidden=!visible; form.elements.confirmPublic.required=visible;const scope=form.querySelector('[data-share-scope]');if(scope)scope.hidden=!visible; }
-  for (const form of [$('createProjectForm'),$('visibilityForm')]) form.elements.visibility.onchange=()=>updateConfirmation(form);
-  const showCreate = () => { $('createProjectForm').reset(); updateConfirmation($('createProjectForm')); $('createProjectDialog').querySelector('[data-error]').hidden = true; $('createProjectDialog').showModal(); };
-  $('createProjectButton').onclick = showCreate;
+  $('visibilityForm').elements.visibility.onchange=()=>updateConfirmation($('visibilityForm'));
+  async function createBlankProject() {
+    if (!me || me.user.role === 'viewer') return;
+    // Consume the shortcut before creating so Back/reload cannot repeat it.
+    const url = new URL(location.href); url.searchParams.delete('action');
+    history.replaceState(null,'',url);
+    notice('Opening your blank project…');
+    const created = await request('research/projects','POST',{name:'Untitled project',visibility:'private'});
+    const projectId = created.id || created.project?.id;
+    if (!projectId) throw new Error('The project response did not include an ID. Refresh projects to check whether it was created.');
+    url.searchParams.set('project',projectId); history.replaceState(null,'',url);
+    const sessionId = created.firstSession?.id || (await request(`research/projects/${enc(projectId)}/sessions`))[0]?.id || '';
+    localStorage.setItem('oc.desktop.selection',JSON.stringify({projectId,sessionId}));
+    location.assign('/openconstruction-web/research.html');
+  }
+  const startBlankProject = () => act(createBlankProject);
+  $('createProjectButton').onclick = startBlankProject;
   $('projectSearch').addEventListener('input',render);
   $('projectSort').onchange=render;
   document.querySelectorAll('[data-project-view]').forEach(button => { button.onclick=()=>{view=button.dataset.projectView;try{localStorage.setItem('oc.projects.view',view);}catch{}render();}; });
-  $('mainContent').addEventListener('click',event=>{if(event.target.closest('[data-new-project]')&&me&&me.user.role!=='viewer')showCreate();if(event.target.closest('[data-show-shared]'))void act(async()=>{scope='shared';await refresh();});});
+  $('mainContent').addEventListener('click',event=>{if(event.target.closest('[data-new-project]')&&me&&me.user.role!=='viewer')void startBlankProject();if(event.target.closest('[data-show-shared]'))void act(async()=>{scope='shared';await refresh();});});
   document.querySelectorAll('[data-close]').forEach(button => { button.onclick = () => button.closest('dialog').close(); });
   $('refreshProjects').onclick = () => { notice(''); return act(refresh); };
   document.querySelectorAll('[data-project-scope]').forEach(button=>{button.onclick=()=>act(async()=>{scope=button.dataset.projectScope;await refresh();});});
-  $('createProjectForm').onsubmit = event => {
-    event.preventDefault();
-    void act(async () => {
-      const form = event.target;
-      const created = await request('research/projects','POST',{name:form.elements.name.value.trim(), visibility:form.elements.visibility.value,confirmPublic:form.elements.confirmPublic.checked});
-      $('createProjectDialog').close(); notice('Project created. No agent run has started.');
-      scope='mine'; await refresh(); sharingId = created.id || created.project.id;
-      $('shareProjectName').textContent = form.elements.name.value.trim();
-      await loadSharing(); $('shareProjectDialog').showModal();
-    }, $('createProjectDialog'));
-  };
   const projectAction = event => {
     const share = event.target.closest('[data-share]'), open = event.target.closest('[data-open]'), overview = event.target.closest('[data-overview]'), enter = event.target.closest('[data-enter]');
     if (overview && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); navigateOverview(overview.dataset.overview); }
@@ -247,5 +250,5 @@
   $('projectCollaborators').onchange = event => { const select = event.target.closest('[data-role]'); if(select) void act(async () => { await request(`${sharingPath()}/${enc(select.dataset.role)}`,'PATCH',{role:select.value}); await loadSharing(); },$('shareProjectDialog')); };
   $('projectCollaborators').onclick = event => { const remove = event.target.closest('[data-remove]'); if(remove) void act(async () => { await request(`${sharingPath()}/${enc(remove.dataset.remove)}`,'DELETE',{}); await loadSharing(); },$('shareProjectDialog')); };
   if (window.OCDesktop?.platform !== 'web') { notice('Project collaboration is available on your hosted OC workspace. Local research remains available from Research.'); return; }
-  void act(async () => { try { await refresh(); } catch(error) { $('projectsList').innerHTML='<div class="oc-projects-empty"><h2>Projects could not be loaded.</h2><p>Use Refresh to try again.</p></div>'; $('projectsList').setAttribute('aria-busy','false'); $('projectActivity').textContent='Activity unavailable.'; $('runningTasksNote').textContent='Activity unavailable'; $('projectDatasetsNote').textContent='Dataset count unavailable'; throw error; } if(new URLSearchParams(location.search).get('action') === 'new' && !$('createProjectButton').disabled) showCreate(); });
+  void act(async () => { try { await refresh(); } catch(error) { $('projectsList').innerHTML='<div class="oc-projects-empty"><h2>Projects could not be loaded.</h2><p>Use Refresh to try again.</p></div>'; $('projectsList').setAttribute('aria-busy','false'); $('projectActivity').textContent='Activity unavailable.'; $('runningTasksNote').textContent='Activity unavailable'; $('projectDatasetsNote').textContent='Dataset count unavailable'; throw error; } if(new URLSearchParams(location.search).get('action') === 'new') await createBlankProject(); });
 })();

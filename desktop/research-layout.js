@@ -3,13 +3,20 @@
   let agentTab = 'Runtime';
   let modelAdvancedOpen = false;
   let provenanceProject='';
+  let currentProject, renaming = false;
   const saved = () => { try { return JSON.parse(localStorage.getItem('oc.desktop.selection') || '{}'); } catch { return {}; } };
   const api = window.OCDesktopLayout = {
     ready: false,
     isInspectorOpen: () => Boolean(active),
     selection: saved,
-    rememberSelection(projectId, sessionId) {
+    rememberSelection(projectId, sessionId, project) {
       if (projectId && sessionId) localStorage.setItem('oc.desktop.selection', JSON.stringify({projectId, sessionId}));
+      currentProject = project;
+      const rename = root?.querySelector('[data-rename-project]');
+      if (rename) {
+        rename.textContent = project?.name || 'Untitled project';
+        rename.disabled = renaming || !project || project.access?.canEdit === false;
+      }
       if(window.OCDesktop?.platform==='web'&&projectId&&projectId!==provenanceProject){
         provenanceProject=projectId;
         document.getElementById('ocProjectProvenance')?.remove();
@@ -33,6 +40,29 @@
       const stage = root.querySelector('.oc-research-stage');
       const toolbar = root.querySelector('.oc-research-header-actions');
       stage.querySelector('.oc-research-stage-head').append(toolbar);
+      if (window.OCDesktop?.platform === 'web') {
+        const name = document.createElement('button');
+        name.type = 'button'; name.className = 'btn btn-outline-secondary btn-sm';
+        name.dataset.renameProject = ''; name.disabled = true;
+        name.setAttribute('aria-label','Rename project'); name.title = 'Click to rename project';
+        name.textContent = 'Untitled project';
+        const error = document.createElement('p'); error.setAttribute('role','alert'); error.hidden = true;
+        stage.querySelector('.oc-research-stage-head > div').prepend(name,error);
+        name.onclick = async () => {
+          if (!currentProject || renaming) return;
+          const projectId = currentProject.id, sessionId = saved().sessionId;
+          const value = window.prompt('Project name',currentProject.name)?.trim();
+          if (!value || value === currentProject.name) return;
+          if (value.length > 120) { error.textContent = 'Use a project name of 120 characters or fewer.'; error.hidden = false; return; }
+          renaming = true; name.disabled = true; error.hidden = true;
+          try {
+            const response = await fetch(`/api/research/projects/${encodeURIComponent(projectId)}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:value})});
+            if (!response.ok) { const result = await response.json(); throw new Error(result.error || 'Could not rename project.'); }
+            await window.OCResearchWorkspace.openSession(projectId,sessionId);
+          } catch (e) { error.textContent = e.message; error.hidden = false; }
+          finally { renaming = false; name.disabled = !currentProject || currentProject.access?.canEdit === false; }
+        };
+      }
       root.querySelector('.oc-research-header').remove();
       toolbar.querySelector('[data-research-tools-toggle]').textContent = 'Show panel';
       toolbar.querySelector('[data-research-refresh]').setAttribute('aria-label', 'Refresh session');

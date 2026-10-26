@@ -89,7 +89,7 @@
 
   function renderConversation(){
     window.OCDesktopAgents?.update({sessionId:state.sessionId,messages:state.session?.messages||[]});
-    window.OCDesktopLayout?.rememberSelection(state.projectId, state.sessionId);
+    window.OCDesktopLayout?.rememberSelection(state.projectId, state.sessionId, state.projects.find(project=>project.id===state.projectId));
     window.OCDesktopWorkspace?.select({projectId:state.projectId,sessionId:state.sessionId,projectName:state.projects.find(project=>project.id===state.projectId)?.name});
     window.OCDesktopSkills?.sync({sessionId:state.sessionId,projectId:state.projectId});
     window.OCDesktopTrace?.sync({session:state.session,sessionId:state.sessionId,projectId:state.projectId});

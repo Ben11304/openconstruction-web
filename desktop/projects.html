@@ -59,18 +59,10 @@
   </div>
   <div id="projectsList" aria-live="polite" aria-busy="true"><p class="oc-projects-loading">Loading your projects…</p></div>
   <section class="oc-projects-activity" aria-labelledby="recentActivityTitle"><div class="oc-projects-section-head"><h2 id="recentActivityTitle">Recent activity</h2><span>Across your projects</span></div><div id="projectActivity"><p class="oc-platform-muted">Loading activity…</p></div></section>
-  <section id="projectGettingStarted" class="oc-projects-start" aria-labelledby="projectStartTitle" hidden><h2 id="projectStartTitle">Make room for your next idea.</h2><p>Three simple steps to start researching with OpenConstruction.</p><div class="oc-projects-steps"><button type="button" data-new-project><span>01</span><strong>Create a project</strong><small>Give your research a name and a private space.</small></button><a href="/openconstruction-web/dataset.html"><span>02</span><strong>Find your dataset</strong><small>Explore the catalog and add data to your project.</small></a><a href="/openconstruction-web/research.html"><span>03</span><strong>Start researching</strong><small>Open your project, choose a model and begin.</small></a></div></section>
+  <section id="projectGettingStarted" class="oc-projects-start" aria-labelledby="projectStartTitle" hidden><h2 id="projectStartTitle">Make room for your next idea.</h2><p>Three simple steps to start researching with OpenConstruction.</p><div class="oc-projects-steps"><button type="button" data-new-project><span>01</span><strong>Create a project</strong><small>Open a blank private workspace and start editing.</small></button><a href="/openconstruction-web/dataset.html"><span>02</span><strong>Find your dataset</strong><small>Explore the catalog and add data to your project.</small></a><a href="/openconstruction-web/research.html"><span>03</span><strong>Start researching</strong><small>Open your project, choose a model and begin.</small></a></div></section>
   </div>
   <section id="projectOverview" aria-labelledby="projectOverviewTitle" hidden></section>
 </main>
-<dialog id="createProjectDialog" class="oc-platform-dialog" aria-labelledby="createProjectTitle"><form id="createProjectForm" class="oc-platform-form">
-  <div class="oc-platform-section-head"><h2 id="createProjectTitle">New project</h2><button type="button" class="oc-platform-close" data-close aria-label="Close">×</button></div>
-  <label>Project name<input name="name" maxlength="120" placeholder="e.g. Concrete carbon study" required></label>
-  <label>Visibility<select name="visibility"><option value="private">Private — only you and invited collaborators</option><option value="public">Public — anyone can read without signing in</option></select></label>
-  <label class="oc-platform-check" data-public-confirm hidden><input name="confirmPublic" type="checkbox"><span>I want this project to be public. It appears in Community only after I publish a reviewed version from Sharing. Draft changes remain private.</span></label>
-  <p class="oc-platform-muted">Creates a research project with a session. No agent run starts. Private is the default.</p>
-  <p data-error role="alert" hidden></p><div class="oc-platform-actions"><button type="button" class="oc-platform-button" data-close>Cancel</button><button type="submit" class="oc-platform-button oc-platform-primary">Create project</button></div>
-</form></dialog>
 <dialog id="shareProjectDialog" class="oc-platform-dialog" aria-labelledby="shareProjectTitle">
   <div class="oc-platform-section-head"><h2 id="shareProjectTitle">Sharing</h2><button type="button" class="oc-platform-close" data-close aria-label="Close">×</button></div>
   <p id="shareProjectName"></p><p id="shareProjectRole" class="oc-platform-muted"></p>
