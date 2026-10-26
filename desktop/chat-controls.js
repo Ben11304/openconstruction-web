@@ -35,7 +35,7 @@
     const selected = details?.effective?.modelId;
     const profile = models.find(model => model.id === selected);
     const modelSelect = q('[data-chat-model]'); modelSelect.replaceChildren();
-    option(modelSelect, '', 'Project default');
+    option(modelSelect, '', details?.overrides?.modelId ? 'Project default' : profile ? (profile.name || profile.model).replace(/^Codex · /, '') + ' (default)' : 'Choose model');
     const saved = document.createElement('optgroup'); saved.label = 'Connected models';
     for (const model of models) option(saved, 'profile:' + model.id, (model.name || model.model).replace(/^Codex · /, ''));
     modelSelect.append(saved);

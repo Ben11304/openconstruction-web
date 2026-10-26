@@ -1,5 +1,5 @@
 (() => {
-  let root, inspector, active = 'workspace';
+  let root, inspector, active = null;
   let agentTab = 'Runtime';
   let modelAdvancedOpen = false;
   let provenanceProject='';
@@ -120,7 +120,7 @@
       hint.textContent = '30 MiB max · Enter to send · Shift+Enter for a new line';
       api.ready = true;
       window.OCDesktopAgents?.mount(stage);
-      api.showInspector(window.innerWidth >= 1180 ? 'workspace' : null);
+      api.showInspector(null);
       window.OCDesktopPanels?.mount(root);
       inspector.addEventListener('keydown', event => {
         if (event.key === 'Escape') { api.showInspector(null); toolbar.querySelector('button').focus(); }
@@ -143,7 +143,7 @@
       toggle.setAttribute('aria-expanded', String(Boolean(view)));
       toggle.setAttribute('aria-controls', 'ocDesktopInspector');
       inspector.id = 'ocDesktopInspector';
-      toggle.textContent = view ? 'Hide panel' : 'Show panel';
+      toggle.textContent = 'Files';
       window.OCDesktopPanels?.refresh();
     },
     organizeSettings(view) {

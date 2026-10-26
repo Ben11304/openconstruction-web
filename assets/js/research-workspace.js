@@ -127,8 +127,8 @@
         ${item.content ? `<button type="button" class="oc-memory-save-message" data-memory-message="${escapeHtml(item.id)}">Save to memory</button>` : ''}
       </article>${activity(item, false)}`).join('') : `<div class="oc-research-empty">
         <span class="oc-research-empty-icon" aria-hidden="true">✦</span>
-        <h4>Start a research question</h4>
-        <p>Ask the agent to investigate a topic, compare evidence, or prepare a report. Its work will appear here.</p>
+        <h4>What would you like to work on?</h4>
+        <p>Describe a task or attach a document to begin.</p>
       </div>`;
     const remaining = state.runs.slice().reverse().filter(candidate => !renderedRuns.has(candidate.id));
     html += chat.renderRuns(remaining.filter(candidate => !ACTIVE_RUNS.has(candidate.status)));

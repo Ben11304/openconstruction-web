@@ -3,7 +3,7 @@
   document.documentElement.dataset.ocPlatform='web';
   let sidebarState;
   try{sidebarState=localStorage.getItem('oc.web.sidebar.v1');}catch{}
-  document.documentElement.dataset.ocSidebar=sidebarState==='hidden'||(!sidebarState&&window.matchMedia('(max-width: 760px)').matches)?'hidden':'visible';
+  document.documentElement.dataset.ocSidebar=sidebarState==='hidden'||(!sidebarState&&(location.pathname.endsWith('/openconstruction-web/research.html')||window.matchMedia('(max-width: 760px)').matches))?'hidden':'visible';
   const jsonHeaders = {'Content-Type':'application/json','X-OC-Workspace':'research'};
   const id = encodeURIComponent;
   const notesKey = 'oc.web.project-notes.v1';

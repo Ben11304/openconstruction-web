@@ -14,6 +14,7 @@
   window.OCDesktopSkills.mount(root);
   window.OCDesktopChatControls.mount(root);
   window.OCDesktopSlash?.mount(root);
+  window.OCResearchFocus?.mount(root);
   root.querySelector('.oc-research-rail').append(banner);
   let mounted = false, refreshing = false;
   document.querySelectorAll('[data-research-page]').forEach(button => { button.disabled = true; });
