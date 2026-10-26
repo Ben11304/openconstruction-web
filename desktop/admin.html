@@ -81,7 +81,7 @@
   </section>
 
   <section class="oc-admin-panel" data-admin-panel="compute" hidden>
-    <p class="oc-admin-warning">Live gateway admission control · RAM and CPU are reservation budgets, not OS-enforced limits. Shared model memory and direct/native engine access are outside these budgets.</p>
+    <p id="computeEnforcement" class="oc-admin-warning">Live gateway admission control · RAM and CPU are reservation budgets, not OS-enforced limits. Shared model memory and direct/native engine access are outside these budgets.</p>
     <p id="computeNotice" class="oc-admin-notice" role="status" aria-live="polite" hidden></p>
     <div id="computeMetrics" class="oc-admin-metric-grid"></div>
     <article class="oc-admin-card"><div class="oc-admin-card-head"><div><p class="oc-admin-eyebrow">PROJECT-ATTACHED RUNTIME</p><h2>Compute sessions</h2><p>One reservation per project, shared by its agents. Closing a browser tab does not release it. A waiting session queues capacity, never the user's prompt.</p></div><button id="computeRefresh" class="oc-admin-button" type="button">Refresh compute</button></div>
