@@ -67,7 +67,7 @@
 
   async function deleteProject(projectId) {
     if (!confirm('Delete this research project and its sessions?')) return false;
-    await request(`projects/${id(projectId)}`,{method:'DELETE'});
+    await request(`projects/${id(projectId)}`,{method:'DELETE',body:{confirmationId:projectId}});
     const saved=notes();delete saved[projectId];saveNotes(saved);return true;
   }
 
