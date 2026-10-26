@@ -1,6 +1,14 @@
 /* Compact research chrome. Existing controls retain their runtime handlers. */
 (() => {
   window.OCResearchFocus = {
+    syncFiles(root) {
+      const toggle = root.querySelector('[data-research-tools-toggle]');
+      const action = root.querySelector('[data-focus-files-expand]');
+      if (!toggle || !action) return;
+      const open = toggle.getAttribute('aria-expanded') === 'true';
+      const label = open ? 'Collapse file panel' : 'Expand file panel';
+      toggle.setAttribute('aria-label', label); action.textContent = label;
+    },
     mount(root) {
       if (root.classList.contains('oc-focus-workspace')) return;
       root.classList.add('oc-focus-workspace');
@@ -16,7 +24,25 @@
       const nav = root.querySelector('.oc-agent-view-tabs');
       if (nav) actions.prepend(nav);
       const files = actions.querySelector('[data-research-tools-toggle]');
-      files.textContent = 'Files'; files.title = 'Project files and research outputs';
+      const fileControl = document.createElement('div'); fileControl.className = 'oc-focus-files';
+      files.before(fileControl); fileControl.append(files);
+      files.dataset.focusFilesArrow = ''; files.removeAttribute('title');
+      files.innerHTML = '<svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m12 5-5 5 5 5"/></svg>';
+      const popup = document.createElement('div'); popup.className = 'oc-focus-files-popup'; popup.hidden = true;
+      popup.id = 'ocFocusFilesPopup'; popup.setAttribute('role', 'group'); popup.setAttribute('aria-label', 'Files and outputs');
+      popup.innerHTML = '<strong>Files and outputs</strong><p>Browse project documents and results.</p><button type="button" data-focus-files-expand>Expand file panel</button>';
+      fileControl.append(popup);
+      function hideFilesPopup() { popup.hidden = true; }
+      fileControl.addEventListener('pointerenter', event => { if (event.pointerType !== 'touch') popup.hidden = false; });
+      fileControl.addEventListener('pointerleave', () => { if (!fileControl.contains(document.activeElement)) hideFilesPopup(); });
+      fileControl.addEventListener('focusin', () => { popup.hidden = false; });
+      fileControl.addEventListener('focusout', event => { if (!fileControl.contains(event.relatedTarget)) hideFilesPopup(); });
+      fileControl.addEventListener('keydown', event => {
+        if (event.key === 'Escape') { event.stopPropagation(); files.focus(); hideFilesPopup(); }
+      });
+      popup.querySelector('button').onclick = () => { files.click(); files.focus(); hideFilesPopup(); };
+      files.addEventListener('click', hideFilesPopup);
+      window.OCResearchFocus.syncFiles(root);
       const menu = document.createElement('details'); menu.className = 'oc-focus-menu';
       const summary = document.createElement('summary'); summary.textContent = '···'; summary.setAttribute('aria-label', 'More session actions');
       const contents = document.createElement('div'); contents.className = 'oc-focus-menu-body';
@@ -47,6 +73,7 @@
         if (root.classList.contains('oc-focus-sidebar-open')) { closeSidebar(); mobile.focus(); }
       });
       document.addEventListener('pointerdown', event => {
+        if (!fileControl.contains(event.target)) hideFilesPopup();
         for (const details of root.querySelectorAll('.oc-focus-menu[open],.oc-focus-options[open]')) if (!details.contains(event.target)) details.open = false;
       });
       root.querySelector('#ocResearchPrompt').placeholder = 'Describe a task, or type / for commands';

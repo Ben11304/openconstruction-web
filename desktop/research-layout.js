@@ -143,7 +143,8 @@
       toggle.setAttribute('aria-expanded', String(Boolean(view)));
       toggle.setAttribute('aria-controls', 'ocDesktopInspector');
       inspector.id = 'ocDesktopInspector';
-      toggle.textContent = 'Files';
+      if (!toggle.hasAttribute('data-focus-files-arrow')) toggle.textContent = 'Files';
+      window.OCResearchFocus?.syncFiles(root);
       window.OCDesktopPanels?.refresh();
     },
     organizeSettings(view) {
