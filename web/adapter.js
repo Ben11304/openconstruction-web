@@ -105,7 +105,7 @@
     listProjects,createProject,updateProject,deleteProject,exportWorkspace,importWorkspace,
     researchStatus:async()=>{await request('projects');return{connected:true,runtime:{state:'ready',stage:'OcWorkspace is ready.',managed:false}};},
     codexStatus:()=>host('codex/status'),
-    loginCodex:async()=>{const result=await host('codex/login',{method:'POST'});if(result.url)window.open(result.url,'_blank','noopener,noreferrer');return result;},
+    loginCodex:()=>host('codex/login',{method:'POST'}),
     cancelCodexLogin:()=>host('codex/cancel',{method:'POST'}),
     codexModels:()=>host('codex/models'),
     connectCodexModel:value=>host('codex/connect',{method:'POST',body:value}),

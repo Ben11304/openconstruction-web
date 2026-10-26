@@ -7,6 +7,7 @@
     card.innerHTML = `<div class="oc-codex-heading"><img class="oc-codex-mark" src="/openconstruction-web/desktop/assets/codex.png" alt="" width="28" height="28"><h3>Codex</h3><span data-codex-badge>Checking…</span><div class="oc-provider-actions"><button type="button" class="btn btn-primary" data-codex-login>Login</button><button type="button" class="btn btn-outline-secondary" data-codex-cancel hidden>Cancel login</button><button type="button" class="btn btn-outline-secondary" data-codex-manage aria-expanded="false" aria-controls="ocCodexDetails" hidden>Manage</button></div></div>
       <div class="oc-provider-details" id="ocCodexDetails" hidden>
       <p data-codex-status role="status" aria-live="polite">Checking sign-in status…</p>
+      <div data-codex-device hidden><p>Open the sign-in page on this device and enter this one-time code:</p><p><strong data-codex-code></strong></p><a data-codex-verify target="_blank" rel="noopener noreferrer">Open ChatGPT sign-in</a><p class="oc-codex-help">You are connecting a ChatGPT account to this OC host. If device login is disabled, enable it in ChatGPT Security settings or ask your workspace administrator. Keep this code private.</p></div>
       <form data-codex-form hidden><label>Codex model<select name="model" required></select></label><label class="oc-codex-current"><input type="checkbox" name="current" checked> Also use for the current research project and session</label><p class="oc-codex-help">Your selection becomes the default for new research sessions.</p><button type="submit" class="btn btn-primary">Use in Research</button></form>
       <div class="oc-codex-actions"><button type="button" class="btn btn-outline-secondary" data-codex-logout hidden>Sign out</button></div>
       <p class="oc-codex-help">Sign in with your ChatGPT account in the browser. No API key needed.</p></div>`;
@@ -21,12 +22,23 @@
     };
     q('.oc-codex-current').hidden = !selection().sessionId;
     const statusText = text => {q('[data-codex-status]').textContent = text;};
+    const showDevice = state => {
+      const device = state.pending && state.device;
+      let url;
+      try {url=new URL(device?.verificationUrl);} catch {}
+      const valid=device && url?.protocol==='https:' && ['auth.openai.com','chatgpt.com'].includes(url.hostname) && !url.username && !url.password;
+      q('[data-codex-device]').hidden=!valid;
+      q('[data-codex-code]').textContent=valid ? device.userCode : '';
+      if(valid) q('[data-codex-verify]').href=url.href;
+      else q('[data-codex-verify]').removeAttribute('href');
+    };
     async function refresh() {
       if(refreshing || version !== generation || !card.isConnected) return;
       refreshing = true;
       try {
         const state = await api.codexStatus(); if(version !== generation || !card.isConnected) return;
         connected = state.connected;
+        showDevice(state);
         q('[data-codex-manage]').hidden=!connected;
         if(state.pending || state.error || (connected && loginFlow)) expand(true);
         if(connected) loginFlow=false;
@@ -54,7 +66,7 @@
       try {await fn();} catch(error) {expand(true);statusText(error.message);}
       finally {busy=false;card.querySelectorAll('button').forEach(b=>{b.disabled=false;});}
     }
-    q('[data-codex-login]').onclick=()=>action(async()=>{loginFlow=true;expand(true);statusText('Opening your browser…');await api.loginCodex();await refresh();});
+    q('[data-codex-login]').onclick=()=>action(async()=>{loginFlow=true;expand(true);statusText(api.platform==='web' ? 'Preparing device sign-in…' : 'Opening your browser…');const result=await api.loginCodex();showDevice(result);await refresh();statusText(result.device ? 'Open ChatGPT sign-in and enter the code above, then return here.' : 'Complete sign-in in your browser, then return here.');});
     q('[data-codex-cancel]').onclick=()=>action(async()=>{loginFlow=false;await api.cancelCodexLogin();await refresh();statusText('Login cancelled.');});
     q('[data-codex-logout]').onclick=()=>action(async()=>{await api.logoutCodex();modelsLoaded=false;expand(false);await refresh();statusText('Signed out of Codex for OpenConstruction.');});
     q('[data-codex-form]').onsubmit=event=>{
