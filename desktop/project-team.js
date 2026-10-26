@@ -38,7 +38,8 @@
     function render(){
       if(disposed||!details)return;
       const model=models.find(m=>m.id===details.effective.modelId),overrides=details.overrides;
-      const items=[{value:'',label:'Use project default'},...models.map(m=>({value:m.id,label:m.name||m.model||m.id}))];
+      const available=catalog.filter(m=>!models.some(p=>profiles[p.id]===m.id));
+      const items=[{value:'',label:'Use project default'},...models.map(m=>({value:m.id,label:m.name||m.model||m.id})),...available.map(m=>({value:'codex:'+m.id,label:'Codex · '+(m.name||m.id)}))];
       if(overrides.modelId&&!models.some(m=>m.id===overrides.modelId))items.push({value:overrides.modelId,label:'Model unavailable',disabled:true});
       options(q('[data-agent-model]'),items,overrides.modelId||'');
       q('[data-effective-model]').textContent='Current: '+(model?.name||model?.model||'No available model');
@@ -55,7 +56,7 @@
       if(composer){
         const short=m=>(m?.name||m?.model||'No model').replace(/^Codex\s*[·:]\s*/, '');
         const inheritedModel=models.find(m=>m.id===inheritedModelId)||(!overrides.modelId?model:undefined);
-        options(composer.querySelector('[data-composer-model]'),[{value:'',label:inheritedModel?'Default: '+short(inheritedModel):'Project default'},...models.map(m=>({value:m.id,label:short(m)})),...items.filter(i=>i.disabled)],overrides.modelId||'');
+        options(composer.querySelector('[data-composer-model]'),[{value:'',label:inheritedModel?'Default: '+short(inheritedModel):'Project default'},...items.slice(1).map(i=>({...i,label:i.label.replace(/^Codex\s*[·:]\s*/, '')}))],overrides.modelId||'');
         options(composer.querySelector('[data-composer-effort]'),choices.map(c=>({...c,label:c.value==='inherit'?(overrides.thinkingMode?'Default':'Default: '+effectiveEffort):c.value==='auto'?'Auto':c.label})),effort);
         composer.querySelector('[data-composer-model]').title='Model for the next message: '+(model?.name||model?.model||'Project default');
         composer.querySelector('[data-composer-effort]').title='Thinking effort for the next message';
@@ -86,6 +87,14 @@
           if(!['always_allow','ask_for_dangerous'].includes(value))throw Error('Unknown permission mode.');
           await request(route,'PATCH',{approvalMode:value});session.approvalMode=value;
         }else{
+          if(field==='model'&&value.startsWith('codex:')){
+            const chosen=catalog.find(m=>'codex:'+m.id===value);
+            if(!chosen)throw Error('Choose an available Codex model.');
+            // Register the profile only; apply settings once below, to this agent.
+            const result=await window.OCDesktop.connectCodexModel({model:chosen.id,useAsDefault:false});
+            value=result.modelId;profiles[value]=result.model;
+            models=await request('models');
+          }
           const latest=await request(route+'/settings');
           if(field==='model'&&value&&!models.some(m=>m.id===value))throw Error('Choose a connected model.');
           const chosenInfo=info(field==='model'?value:latest.effective.modelId);

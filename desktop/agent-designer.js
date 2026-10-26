@@ -13,6 +13,16 @@
     if(host.querySelector('dialog'))return;
     const dialog=document.createElement('dialog');dialog.className='oc-team-dialog oc-designer oc-builder';
     let metadata,draft,jobId='',timer,closed=false,busy=false,creating=false,dirty=false,epoch=0,startedAt=0,elapsed;
+    const connectedModels=new Map();
+    async function selectedModel(){
+      const value=val('modelId');
+      if(!value.startsWith('codex:'))return value;
+      if(!connectedModels.has(value)){
+        const result=await window.OCDesktop.connectCodexModel({model:value.slice(6),useAsDefault:false});
+        connectedModels.set(value,result.modelId);
+      }
+      return connectedModels.get(value);
+    }
     const base=`/api/research/projects/${encodeURIComponent(projectId)}/team`;
     async function api(path='',method='GET',body){
       const r=await fetch(base+path,{method,headers:{'Content-Type':'application/json','X-OC-Workspace':'research'},...(body?{body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(15000)});
@@ -118,7 +128,8 @@
         }catch(e){if(closed||generation!==epoch)return;await stop();error.textContent=e.message;status.textContent='Could not update the draft. Your previous version is preserved.';sync();}
       }
       try{
-        const job=await api('/designs','POST',{mode,templateId:val('templateId'),need:val('need'),name:val('name'),parents:parents(),...(val('modelId')?{modelId:val('modelId')}:{ }),
+        const modelId=await selectedModel();if(closed||generation!==epoch)return;
+        const job=await api('/designs','POST',{mode,templateId:val('templateId'),need:val('need'),name:val('name'),parents:parents(),...(modelId?{modelId}:{ }),
           ...(refine?{draft,feedback:val('feedback')}:{})});
         if(closed||generation!==epoch){await api('/designs/'+job.id,'DELETE').catch(()=>{});return;}
         jobId=job.id;void poll();
@@ -136,7 +147,7 @@
     form.onsubmit=async e=>{
       e.preventDefault();if(!bossMode())readDraft();sync();if(create.disabled||closed)return;
       creating=true;sync();error.textContent='';
-      try{await api('','POST',{...(bossMode()?{isBoss:true}:{...draft,parents:parents(),designReviewed:true}),...(val('modelId')?{modelId:val('modelId')}:{})});creating=false;await close();await onCreated();}
+      try{const modelId=await selectedModel();if(closed)return;await api('','POST',{...(bossMode()?{isBoss:true}:{...draft,parents:parents(),designReviewed:true}),...(modelId?{modelId}:{})});creating=false;await close();await onCreated();}
       catch(e){creating=false;error.textContent=e.message;sync();}
     };
     try{
@@ -149,8 +160,14 @@
       q('[data-runtime]').innerHTML=metadata.runtimeNotes.map(s=>`<li>${esc(s)}</li>`).join('');
       q('[data-sources]').textContent=`${metadata.skill.name} v${metadata.skill.version} · ${metadata.handbook.id}\n`+metadata.handbook.sources.map(s=>s.file+' SHA-256: '+s.sha256).join('\n');
       status.textContent='Pick a starting point and describe the task. No BOSS or model is needed for a template.';sync();
-      const r=await fetch('/api/research/models',{headers:{'X-OC-Workspace':'research'},signal:AbortSignal.timeout(15000)});
-      if(r.ok&&!closed)for(const m of await r.json()){const option=document.createElement('option');option.value=m.id;option.textContent=m.name||m.id;form.elements.namedItem('modelId').append(option);}
+      const [r,codexStatus,catalog]=await Promise.all([
+        fetch('/api/research/models',{headers:{'X-OC-Workspace':'research'},signal:AbortSignal.timeout(15000)}),
+        window.OCDesktop?.codexStatus?.().catch(()=>({}))||{},window.OCDesktop?.codexModels?.().catch(()=>[])||[]]);
+      if(!r.ok)throw Error('Could not load agent models.');
+      const models=await r.json(),profiles=codexStatus.profiles||(codexStatus.modelId?{[codexStatus.modelId]:codexStatus.model}:{});
+      if(closed)return;
+      const items=[...models,...catalog.filter(m=>!models.some(p=>profiles[p.id]===m.id)).map(m=>({id:'codex:'+m.id,name:'Codex · '+(m.name||m.id)}))];
+      form.elements.namedItem('modelId').innerHTML='<option value="">Use project default</option>'+items.map(m=>`<option value="${esc(m.id)}">${esc(m.name||m.id)}</option>`).join('');
     }catch(e){if(!closed)error.textContent=e.message;}
   }
   window.OCAgentDesigner={open,reviewState,canCreate,hasBoss,canCreateBoss};
