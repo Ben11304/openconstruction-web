@@ -133,7 +133,6 @@
     const remaining = state.runs.slice().reverse().filter(candidate => !renderedRuns.has(candidate.id));
     html += chat.renderRuns(remaining.filter(candidate => !ACTIVE_RUNS.has(candidate.status)));
     html += remaining.filter(candidate => ACTIVE_RUNS.has(candidate.status)).map(candidate => chat.renderRun(candidate)).join('');
-    if (state.sessionId) html += chat.renderSessionFiles();
     if (transcript._renderedHtml !== html) {
       const scrollTop = transcript.scrollTop;
       const follow = transcript.scrollHeight - transcript.clientHeight - scrollTop < 80;
