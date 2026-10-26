@@ -464,7 +464,7 @@
     composer.value = '';
     await refreshSession();
     startPolling();
-    message('Research run started.');
+    message('');
   }
 
   function bindEvents(){
