@@ -24,7 +24,7 @@
     skeleton: document.getElementById('oerSkeleton')
   };
 
-  const placeholderImg = 'assets/img/placeholder/placeholder.png';
+  const placeholderImg = 'assets/img/previews/0088a2707332b749e38d1585.webp';
   const LICENSE_URLS = {
     'Apache 2.0': 'https://www.apache.org/licenses/LICENSE-2.0',
     'CC0': 'https://creativecommons.org/public-domain/cc0/',

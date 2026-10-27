@@ -7,6 +7,19 @@
   const jsonHeaders = {'Content-Type':'application/json','X-OC-Workspace':'research'};
   const id = encodeURIComponent;
   const notesKey = 'oc.web.project-notes.v1';
+  let dashboardPromise, profilePromise;
+  window.OCWebDashboard = (refresh = false) => {
+    if (refresh) dashboardPromise = null;
+    return dashboardPromise ||= fetch('/api/platform/project-dashboard',{cache:'no-store'}).then(async response => {
+      const value = await response.json();
+      if (!response.ok) throw new Error(value.error || 'Projects could not be loaded.');
+      return value;
+    }).catch(error => { dashboardPromise = null; throw error; });
+  };
+  window.OCWebProfile = () => {
+    if (location.pathname.endsWith('/openconstruction-web/desktop/projects.html')) return window.OCWebDashboard().then(value => value.profile);
+    return profilePromise ||= fetch('/api/platform/me',{cache:'no-store'}).then(response => response.ok ? response.json() : null).catch(error => { profilePromise = null; throw error; });
+  };
 
   async function request(route, {method='GET', body, raw=false}={}) {
     const response = await fetch('/api/research/' + route, {

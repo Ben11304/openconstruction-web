@@ -17,7 +17,7 @@
   <meta property="og:title" content="Reported Results | OpenConstruction">
   <meta property="og:description" content="Review reported results for specific OpenConstruction datasets and tasks.">
   <meta property="og:url" content="https://www.openconstruction.org/benchmark_results.html">
-  <meta property="og:image" content="https://www.openconstruction.org/assets/img/icon.png">
+  <meta property="og:image" content="https://www.openconstruction.org/assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp">
 
   
   
@@ -166,7 +166,7 @@
 <nav class="navbar navbar-expand-lg bg-white sticky-top oc-nav">
   <div class="container oc-container">
     <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
-      <img src="assets/img/icon.png" alt="OpenConstruction logo" class="oc-logo">
+      <img src="assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp" alt="OpenConstruction logo" class="oc-logo">
       <span class="brand-wordmark">
         <span class="oc-open">OpenConstruction</span>
         <span class="oc-construction">Open Science</span>
@@ -222,7 +222,7 @@
 
 <footer class="py-4 mt-3 oc-site-footer">
   <div class="container oc-container small text-muted text-center">
-    <div><img src="assets/img/icon.png" alt="OpenConstruction logo" width="24" height="24" style="vertical-align:-5px; margin-right:4px;"> &copy; <span id="yearNow"></span> OpenConstruction Open Science Initiative</div>
+    <div><img src="assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp" alt="OpenConstruction logo" width="24" height="24" style="vertical-align:-5px; margin-right:4px;"> &copy; <span id="yearNow"></span> OpenConstruction Open Science Initiative</div>
     <div class="mt-1">
       <small>
         Licensed under Apache 2.0.
@@ -646,7 +646,7 @@
     const taskDefinition = normalizedTask.entry?.description || board.task_description || board.summary;
     const datasetHref = dataset?.id ? `datasets/detail.html?id=${encodeURIComponent(dataset.id)}` : (board.dataset_url || '#');
     const datasetLabel = normStr(dataset?.name || board.dataset_name || board.dataset_id);
-    const datasetImg = dataset?.image_url || (dataset?.id ? `assets/img/datasets/${encodeURIComponent(dataset.id)}.png` : 'assets/img/icon.png');
+    const datasetImg = dataset?.image_url || (dataset?.id ? `assets/img/datasets/${encodeURIComponent(dataset.id)}.png` : 'assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp');
     const metricSummary = metricDefs.length
       ? metricDefs.map(col => col.label).join(', ')
       : (primaryDef?.label || '-');

@@ -55,7 +55,7 @@
   const sortInput = document.getElementById('searchSort');
   const clearFiltersButton = document.getElementById('clearSearchFilters');
   if (!input || !form || !resultsRoot) return;
-  const avatarFallback = 'assets/img/contributors/avatar.png';
+  const avatarFallback = 'assets/img/previews/6643f80db550f5bc6e4e068a.webp';
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const text = value => Array.isArray(value) ? value.map(text).filter(Boolean).join(', ') : String(value || '').trim();
   const normalize = value => text(value).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase();

@@ -1,3 +1,55 @@
 <!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Đăng nhập · OpenConstruction</title><link rel="stylesheet" href="./login.css"><script src="./config.js"></script><script src="./connection.js"></script><script src="./login.js" defer></script></head>
-<body><main><a id="home" href="../index.html">OpenConstruction</a><h1>Đăng nhập workspace</h1><p>Dùng tài khoản do quản trị viên máy chủ cấp.</p><form><label>Email<input name="email" type="email" autocomplete="username" required></label><label>Mật khẩu<input name="password" type="password" autocomplete="current-password" required></label><button>Đăng nhập</button></form><p id="message" role="status"></p></main></body></html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Đăng nhập · OpenConstruction</title>
+  <link rel="icon" href="../assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp">
+  <link rel="stylesheet" href="./login.css">
+  <script src="./config.js"></script>
+  <script src="./connection.js"></script>
+  <script src="./login.js" defer></script>
+</head>
+<body>
+  <main class="login-window" aria-labelledby="login-title">
+    <header class="window-header">
+      <a id="home" class="app-brand" href="../index.html" aria-label="OpenConstruction · Trang chủ">
+        <img src="../assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp" alt="" width="28" height="28">
+        <span>OpenConstruction</span>
+      </a>
+      <span class="workspace-label">Workspace</span>
+    </header>
+    <div class="login-content">
+      <div class="welcome-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M3.5 9h17M9 9v10.5"/></svg>
+      </div>
+      <h1 id="login-title">Chào mừng trở lại</h1>
+      <p class="intro">Đăng nhập để tiếp tục công việc của bạn.</p>
+      <form aria-label="Đăng nhập workspace">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="320" placeholder="ten@tochuc.vn" required>
+        </div>
+        <div class="field">
+          <label for="password">Mật khẩu</label>
+          <div class="password-field">
+            <input id="password" name="password" type="password" autocomplete="current-password" maxlength="256" placeholder="Nhập mật khẩu" aria-describedby="caps-lock" required>
+            <button class="password-toggle" type="button" aria-label="Hiện mật khẩu" aria-controls="password" aria-pressed="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/><path class="eye-slash" d="m4 4 16 16"/></svg>
+            </button>
+          </div>
+          <p id="caps-lock" class="field-hint" role="status" hidden>Caps Lock đang bật.</p>
+        </div>
+        <p id="message" class="message" role="status" aria-live="polite" aria-atomic="true" hidden></p>
+        <button class="sign-in" type="submit"><span class="button-spinner" aria-hidden="true"></span><span class="button-label">Đăng nhập</span><svg class="button-arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></button>
+      </form>
+      <p class="account-help">Sử dụng tài khoản do quản trị viên cấp.<br>Liên hệ quản trị viên nếu bạn cần hỗ trợ đăng nhập.</p>
+    </div>
+    <footer class="window-footer">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="8.5" width="11" height="8" rx="2"/><path d="M7 8.5V6a3 3 0 0 1 6 0v2.5m-3 3v2"/></svg>
+      <span>OpenConstruction · Không gian nghiên cứu</span>
+    </footer>
+  </main>
+</body>
+</html>

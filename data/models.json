@@ -23,7 +23,7 @@
     "license": "Apache 2.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2019.102894",
     "code_url": "https://github.com/wujixiu/helmet-detection",
-    "thumbnail": "assets/img/models/GDUT-HWD.png"
+    "thumbnail": "assets/img/previews/2aa9dac77a709511d19231d6.webp"
   },
   {
     "id": "Construction-Activity-Scenes",
@@ -50,7 +50,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2020.103334",
     "code_url": "https://github.com/HannahHuanLIU/AEC-image-captioning",
-    "thumbnail": "assets/img/models/Construction-Activity-Scenes.png"
+    "thumbnail": "assets/img/previews/d5476fc39f74519852d4156e.webp"
   },
   {
     "id": "Kenki-Posi",
@@ -77,7 +77,7 @@
     "license": "GPL-3.0",
     "paper_url": "https://doi.org/10.1080/01691864.2020.1869586",
     "code_url": "https://github.com/RunqiuBao/kenki-positioning-vSLAM",
-    "thumbnail": "assets/img/models/Kenki-Posi.gif"
+    "thumbnail": "assets/img/previews/a2e5064b99775d3af511ccb2.webp"
   },
   {
     "id": "CDE",
@@ -100,7 +100,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1108/SASBE-04-2021-0066",
     "code_url": "https://github.com/ruoxinx/site-dust-detect",
-    "thumbnail": "assets/img/models/CDE.png",
+    "thumbnail": "assets/img/previews/3e10754983fb1d14596e914f.webp",
     "contributor": "ruoxinx",
     "contributor_url": "https://github.com/ruoxinx"
   },
@@ -125,7 +125,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.autcon.2021.103828",
     "code_url": "https://github.com/ruoxinx/PPE-Detection-Pose",
-    "thumbnail": "assets/img/models/CPPE.png",
+    "thumbnail": "assets/img/previews/636db8eb5c0cbad019fddc02.webp",
     "contributor": "ruoxinx",
     "contributor_url": "https://github.com/ruoxinx"
   },
@@ -158,7 +158,7 @@
     "license": "Academic Use Only (University of Cambridge)",
     "paper_url": "https://doi.org/10.1061/JCCEE5.CPENG-5212",
     "code_url": "https://github.com/mac137/ConSLAM",
-    "thumbnail": "assets/img/models/ConSLAM.png",
+    "thumbnail": "assets/img/previews/70008c60aebea7075dc69db2.webp",
     "contributor": "CIT Lab",
     "contributor_url": "https://cit.eng.cam.ac.uk/about-cit"
   },
@@ -188,7 +188,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.autcon.2022.104703",
     "code_url": "https://github.com/S1mpleyang/ConstructionActionRecognition",
-    "thumbnail": "assets/img/models/CMA.png"
+    "thumbnail": "assets/img/previews/19fcf9a3da031575bb58d527.webp"
   },
   {
     "id": "VisualSiteDiary",
@@ -210,7 +210,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2024.105483",
     "code_url": "https://github.com/joonv2/VisualSiteDiary",
-    "thumbnail": "assets/img/models/VisualSiteDiary.gif",
+    "thumbnail": "assets/img/previews/08b71fba5cdbc391fedfe698.webp",
     "contributor": "Yoonhwa Jung",
     "contributor_url": "https://lsu.edu/eng/cm/people/faculty/yoonhwa.php",
     "added_date": "2026-04-23"
@@ -239,7 +239,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2024.105415",
     "code_url": "https://github.com/SenseableSpace/Detection-Small-Construction-Tools-Synthetic-Images",
-    "thumbnail": "assets/img/models/Small-Construction-Tools.png",
+    "thumbnail": "assets/img/previews/bd505db1586e87b6ebb848f1.webp",
     "contributor": "Choongwan Koo",
     "contributor_url": "https://github.com/SenseableSpace/Detection-Small-Construction-Tools-Synthetic-Images"
   },
@@ -266,7 +266,7 @@
     "license": "Unspecified",
     "paper_url": "http://dx.doi.org/10.36680/j.itcon.2025.057",
     "code_url": "https://github.com/amr21006/PhD_Safety_Management_Object_Detection",
-    "thumbnail": "assets/img/models/OSHA-safety.png"
+    "thumbnail": "assets/img/previews/17aba4081420a24a03403e26.webp"
   },
   {
     "id": "repetitive-action",
@@ -289,7 +289,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2024.105726",
     "code_url": "https://github.com/Chenxy875/Repetitive-Actions-Counting-Method-for-Construction-Workers-Ergonomic-Assessments",
-    "thumbnail": "assets/img/models/repetitive-action.gif",
+    "thumbnail": "assets/img/previews/794299becbdf4c02b769c381.webp",
     "contributor": "yantaolab",
     "contributor_url": "https://github.com/yantaolab"
   },
@@ -315,7 +315,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2020.103085",
     "code_url": "https://github.com/ciber-lab/pictor-ppe",
-    "thumbnail": "assets/img/models/Pictor-v3.gif",
+    "thumbnail": "assets/img/previews/cc6c8077f9a78fc9df4b1e99.webp",
     "contributor": "ciber-lab",
     "contributor_url": "https://github.com/ciber-lab"
   },
@@ -342,7 +342,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1109/ACCESS.2023.3296793",
     "code_url": "https://github.com/SMART-NYUAD/ABECIS",
-    "thumbnail": "assets/img/models/ABECIS.png"
+    "thumbnail": "assets/img/previews/8a427839c4429b2fbc2ca880.webp"
   },
   {
     "id": "MGCAR",
@@ -367,7 +367,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2025.106428",
     "code_url": "https://github.com/JimmyTsai-Yun/MGCAR",
-    "thumbnail": "assets/img/models/MGCAR.png",
+    "thumbnail": "assets/img/previews/a37793869add37097af46135.webp",
     "contributor": "Construction API Lab",
     "contributor_url": "https://con-api.team/"
   },
@@ -393,7 +393,7 @@
     "license": "FI-NCAL",
     "paper_url": "https://doi.org/10.3390/buildings15183352",
     "code_url": "https://github.com/fraunhofer-italia/AID-AI-Infraction-Detection",
-    "thumbnail": "assets/img/models/AID-AI-Infraction-Detection.png"
+    "thumbnail": "assets/img/previews/4e0fff2d8f61238333f0f662.webp"
   },
   {
     "id": "ETHcavation",
@@ -422,7 +422,7 @@
     "license": "Unspecified",
     "paper_url": "https://arxiv.org/abs/2410.04250",
     "code_url": "https://github.com/leggedrobotics/rsl_panoptic_mapping",
-    "thumbnail": "assets/img/models/ETHcavation.gif",
+    "thumbnail": "assets/img/previews/cb78fbc2236f7e3dfd3be9ce.webp",
     "added_date": "2025-09-28",
     "contributor": "Robotic Systems Lab",
     "contributor_url": "https://rsl.ethz.ch/"
@@ -448,7 +448,7 @@
     "license": "Unspecified",
     "paper_url": "https://openreview.net/pdf?id=1LmsiOaMTy",
     "code_url": "https://github.com/clementinboittiaux/buildee",
-    "thumbnail": "assets/img/models/Buildee.gif",
+    "thumbnail": "assets/img/previews/95080333a9affd93905740a8.webp",
     "added_date": "2025-09-28",
     "contributor": "Laboratoire d'Informatique Gaspard-Monge (LIGM)",
     "contributor_url": "https://ligm.univ-eiffel.fr/"
@@ -477,7 +477,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1007/978-3-031-25082-8_15",
     "code_url": "https://github.com/YUZ128pitt/OpenConstruction",
-    "thumbnail": "assets/img/models/Open.png",
+    "thumbnail": "assets/img/previews/33f970c69217e66e25a1cffb.webp",
     "contributor": "ruoxinx",
     "contributor_url": "https://github.com/ruoxinx"
   },
@@ -505,7 +505,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2023.105227",
     "code_url": "https://github.com/almosenja/Worker-Safety-Twin",
-    "thumbnail": "assets/img/models/Worker-Safety-Twin.gif"
+    "thumbnail": "assets/img/previews/9e944d4529cc6766a3949baa.webp"
   },
   {
     "id": "compliance-checking",
@@ -529,7 +529,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2024.105849",
     "code_url": "https://github.com/kakke14/Automated-inspection-and-compliance-checking",
-    "thumbnail": "assets/img/models/compliance-checking.png",
+    "thumbnail": "assets/img/previews/6983c43d36089555df10afb2.webp",
     "contributor": "Construction Automation and Information Technologies Lab",
     "contributor_url": "https://teizer.com/team/"
   },
@@ -554,7 +554,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2024.105404",
     "code_url": "https://github.com/Chenxy875/URRE-Net",
-    "thumbnail": "assets/img/models/URRE-Net.gif",
+    "thumbnail": "assets/img/previews/7e42164952378d9b74a0131c.webp",
     "contributor": "yantaolab",
     "contributor_url": "https://github.com/yantaolab"
   },
@@ -582,7 +582,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2024.105846",
     "code_url": "https://github.com/juuuungwon/LMs_ConstructionSafety",
-    "thumbnail": "assets/img/models/LMs_ConstructionSafety.png"
+    "thumbnail": "assets/img/previews/016f31cc507a0465fc0c0da9.webp"
   },
   {
     "id": "ego",
@@ -609,7 +609,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2025.106048",
     "code_url": "https://github.com/JiuyiX/Tripping-Hazard-Detection-based-on-OVOD",
-    "thumbnail": "assets/img/models/ego.png",
+    "thumbnail": "assets/img/previews/b57097df3113207d6d49b388.webp",
     "contributor": "Yangming Research Group",
     "contributor_url": "https://shiyangming.com/"
   },
@@ -638,7 +638,7 @@
     "license": "GNU 3.0",
     "paper_url": "https://doi.org/10.1016/j.neucom.2025.129485",
     "code_url": "https://github.com/5204338/yolov5_node",
-    "thumbnail": "assets/img/models/YOLO-FAS.gif"
+    "thumbnail": "assets/img/previews/164cd30bdd90b3c42544bfb5.webp"
   },
   {
     "id": "MTKF",
@@ -662,7 +662,7 @@
     "license": "GNU 3.0",
     "paper_url": "https://doi.org/10.1016/j.dibe.2024.100559",
     "code_url": "https://github.com/TJSG337/MTKF",
-    "thumbnail": "assets/img/models/MTKF.png"
+    "thumbnail": "assets/img/previews/3c239851f2d5f313c5546841.webp"
   },
   {
     "id": "SOC-YOLO",
@@ -687,7 +687,7 @@
     "license": "GNU 3.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2023.104856",
     "code_url": "https://github.com/pms5343/SOC-YOLO",
-    "thumbnail": "assets/img/models/SOC-YOLO.png"
+    "thumbnail": "assets/img/previews/4797182aef0d176ae801584d.webp"
   },
   {
     "id": "SORD",
@@ -712,7 +712,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2024.105953",
     "code_url": "https://github.com/HuangBugWei/DA-MaskRCNN",
-    "thumbnail": "assets/img/models/SORD.png",
+    "thumbnail": "assets/img/previews/54b1e4c4b6d1b278bb9dcf73.webp",
     "contributor": "Construction API Lab",
     "contributor_url": "https://con-api.team/"
   },
@@ -740,7 +740,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.3390/app15105364",
     "code_url": "https://github.com/sugar-fifty-doge/FLE-YOLO",
-    "thumbnail": "assets/img/models/FLE-YOLO.png"
+    "thumbnail": "assets/img/previews/1eccbd2300da59ad2202ee36.webp"
   },
   {
     "id": "VR-Point-Cloud-Analysis",
@@ -765,7 +765,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.3390/buildings14072127",
     "code_url": "https://github.com/3dcovim/VR-Point-Cloud-Analysis",
-    "thumbnail": "assets/img/models/VR-Point-Cloud-Analysis.png",
+    "thumbnail": "assets/img/previews/eaff6453e986086b5f64b5d2.webp",
     "contributor": "3D Co-ViM Lab",
     "contributor_url": "https://3dcovim.cms.unex.es/team/"
   },
@@ -795,7 +795,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2021.103931",
     "code_url": "https://github.com/wenjie-liao/StructGAN_v1",
-    "thumbnail": "assets/img/models/structgan-v1.png",
+    "thumbnail": "assets/img/previews/277fc1b406d69c2414ed1fbe.webp",
     "contributor": "Xinzheng Lu",
     "contributor_url": "https://www.civil.tsinghua.edu.cn/ceen/info/1063/1221.htm"
   },
@@ -823,7 +823,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1002/eqe.3632",
     "code_url": "https://github.com/wenjie-liao/StructGAN-PHY",
-    "thumbnail": "assets/img/models/structgan-phy.png",
+    "thumbnail": "assets/img/previews/5232754ca6376fa1939bccc1.webp",
     "contributor": "Xinzheng Lu",
     "contributor_url": "https://www.civil.tsinghua.edu.cn/ceen/info/1063/1221.htm"
   },
@@ -853,7 +853,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.eswa.2022.118530",
     "code_url": "https://github.com/wenjie-liao/StructGAN-TXT-TxtImg2Img",
-    "thumbnail": "assets/img/models/structgan-txt-txtimg2img.png",
+    "thumbnail": "assets/img/previews/8e6687fae4083f4bad3fca13.webp",
     "contributor": "Xinzheng Lu",
     "contributor_url": "https://www.civil.tsinghua.edu.cn/ceen/info/1063/1221.htm"
   },
@@ -880,7 +880,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.compind.2022.103610",
     "code_url": "https://github.com/CrossStyle/Image2Triplets",
-    "thumbnail": "assets/img/models/image2triplets.png"
+    "thumbnail": "assets/img/previews/fa94cb2b977565224a09060f.webp"
   },
   {
     "id": "mr-visual-warning",
@@ -907,7 +907,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.autcon.2022.104252",
     "code_url": "https://github.com/Mercer-S/MR-visual-warning",
-    "thumbnail": "assets/img/models/mr-visual-warning.png"
+    "thumbnail": "assets/img/previews/d9e3a5b8bb763c919ff4bdf2.webp"
   },
   {
     "id": "synthetic-truss-bridges",
@@ -933,7 +933,7 @@
     "license": "GPL-3.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2023.105176",
     "code_url": "https://github.com/GeoTechUVigo/synthetic_truss_bridges",
-    "thumbnail": "assets/img/models/synthetic-truss-bridges.png"
+    "thumbnail": "assets/img/previews/2f595a3660368cd2a24a42af.webp"
   },
   {
     "id": "truss-bridge-pointcloud-segmentation",
@@ -959,7 +959,7 @@
     "license": "GPL-3.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2023.104659",
     "code_url": "https://github.com/GeoTechUVigo/truss_bridge_pointcloud_segmentation",
-    "thumbnail": "assets/img/models/truss-bridge-pointcloud-segmentation.gif"
+    "thumbnail": "assets/img/previews/1a8496ea1fc9ee56ff659c5c.webp"
   },
   {
     "id": "floorplangan",
@@ -982,7 +982,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.autcon.2022.104470",
     "code_url": "https://github.com/luozn15/FloorplanGAN",
-    "thumbnail": "assets/img/models/floorplangan.png"
+    "thumbnail": "assets/img/previews/06ff37d7d847dfccfbc1e910.webp"
   },
   {
     "id": "cloud2bim",
@@ -1005,7 +1005,7 @@
     "license": "GPL-3.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2025.106303",
     "code_url": "https://github.com/VaclavNezerka/Cloud2BIM",
-    "thumbnail": "assets/img/models/cloud2bim.png"
+    "thumbnail": "assets/img/previews/9b334d6602c8ea505bee9479.webp"
   },
   {
     "id": "bfa-yolo",
@@ -1036,7 +1036,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.aei.2025.103289",
     "code_url": "https://github.com/CVEO/BFA-YOLO",
-    "thumbnail": "assets/img/models/bfa-yolo.png"
+    "thumbnail": "assets/img/previews/0e9971e1be8db0a2321b339d.webp"
   },
   {
     "id": "MLSTRUCT-FP_benchmarks",
@@ -1061,7 +1061,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.autcon.2023.105132",
     "code_url": "https://github.com/MLSTRUCT/MLSTRUCT-FP_benchmarks",
-    "thumbnail": "assets/img/models/MLSTRUCT-FP_benchmarks.png",
+    "thumbnail": "assets/img/previews/e29c9142088287f8eb59ec7c.webp",
     "contributor": "MLSTRUCT Research Group",
     "contributor_url": "https://github.com/MLSTRUCT"
   },
@@ -1092,7 +1092,7 @@
     "license": "BSD 3-Clause",
     "paper_url": "https://doi.org/10.1016/j.autcon.2022.104690",
     "code_url": "https://github.com/Helmholtz-AI-Energy/TBBRDet",
-    "thumbnail": "assets/img/models/TBBRDet.gif",
+    "thumbnail": "assets/img/previews/e0c73ebb443771060c7bfaab.webp",
 	"added_date": "2026-09-26",
 	"contributor": "Yu Hou",
     "contributor_url": "https://www.yuhou.info/"
@@ -1122,7 +1122,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1080/01431161.2024.2391589",
     "code_url": "https://github.com/yueyisui/OccFacade",
-    "thumbnail": "assets/img/models/OccFaçade.jpeg",
+    "thumbnail": "assets/img/previews/fb71af6ec668e90e71967a53.webp",
     "contributor": "skyearth team",
     "contributor_url": "https://en.skyearth.org/team/"
   },
@@ -1149,7 +1149,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.eswa.2025.128768",
     "code_url": "https://github.com/fyongl6/MultiWorker3DPose",
-    "thumbnail": "assets/img/models/MultiWorker3DPose.png"
+    "thumbnail": "assets/img/previews/32e9311f7e0c4a6fc29a86c7.webp"
   },
   {
     "id": "SkeySpot",
@@ -1175,7 +1175,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.48550/arXiv.2508.10449",
     "code_url": "https://github.com/HAIx-Lab/SkeySpot",
-    "thumbnail": "assets/img/models/SkeySpot.png"
+    "thumbnail": "assets/img/previews/643ec32e77f14496af46fc4b.webp"
   },
   {
     "id": "Vitruvio",
@@ -1201,7 +1201,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.autcon.2024.105498",
     "code_url": "https://github.com/CDInstitute/Vitruvio",
-    "thumbnail": "assets/img/models/Vitruvio.png"
+    "thumbnail": "assets/img/previews/c28ba55e5d2b6a23949cd80e.webp"
   },
   {
     "id": "BCon",
@@ -1225,7 +1225,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.autcon.2025.106562",
     "code_url": "https://github.com/SinaDavari/bcon",
-    "thumbnail": "assets/img/models/BCon.png",
+    "thumbnail": "assets/img/previews/219a909b392620f390a884dd.webp",
     "added_date": "2025-10-5"
   },
   {
@@ -1251,7 +1251,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.autcon.2025.106601",
     "code_url": "https://github.com/ITalab/client-to-bim",
-    "thumbnail": "assets/img/models/client-to-bim.png",
+    "thumbnail": "assets/img/previews/499cadc70e0b8b2b1150e2ff.webp",
     "added_date": "2025-10-15",
     "contributor": "Syed Haseeb Shah",
     "contributor_url": "https://github.com/QuantumNovice"
@@ -1278,7 +1278,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.autcon.2025.106584",
     "code_url": "https://github.com/RogerLiang0725/ResBIM",
-    "thumbnail": "assets/img/models/ResBIM.png",
+    "thumbnail": "assets/img/previews/5116df280f1614c9eb8405a5.webp",
     "added_date": "2025-10-20",
     "contributor": "Xing Liang",
     "contributor_url": "https://github.com/RogerLiang0725"
@@ -1305,7 +1305,7 @@
     "license": "GNU 2.1",
     "paper_url": "https://doi.org/10.1016/j.autcon.2018.08.018",
     "code_url": "https://github.com/CyberbuildLab/masonry-cc",
-    "thumbnail": "assets/img/models/masonry-cc.png",
+    "thumbnail": "assets/img/previews/a86ceb9b618c3aeb34e37aa7.webp",
     "added_date": "2025-11-2",
     "contributor": "Cyberbuild Lab",
     "contributor_url": "https://github.com/CyberbuildLab"
@@ -1335,7 +1335,7 @@
     "license": "Apache 2.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2018.01.014",
     "code_url": "https://github.com/CyberbuildLab/4PlCS",
-    "thumbnail": "assets/img/models/4PlCS.png",
+    "thumbnail": "assets/img/previews/0d38089740603affd3874430.webp",
     "added_date": "2025-11-2",
     "contributor": "Cyberbuild Lab",
     "contributor_url": "https://github.com/CyberbuildLab"
@@ -1364,7 +1364,7 @@
     "license": "Unspecified",
     "paper_url": "http://www.doi.org/10.35490/EC3.2025.353",
     "code_url": "https://github.com/CyberbuildLab/BE-OLS",
-    "thumbnail": "assets/img/models/BE-OLS.png",
+    "thumbnail": "assets/img/previews/0cfc1f6826c55df8cb2586bb.webp",
     "added_date": "2025-11-2",
     "contributor": "Cyberbuild Lab",
     "contributor_url": "https://github.com/CyberbuildLab"
@@ -1390,7 +1390,7 @@
     "license": "Apache 2.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2025.106636",
     "code_url": "https://github.com/CyberbuildLab/pcd-bim-matching-confidence",
-    "thumbnail": "assets/img/models/pcd-bim-matching-confidence.png",
+    "thumbnail": "assets/img/previews/90273c26473e98fbca948747.webp",
     "added_date": "2025-11-2",
     "contributor": "Cyberbuild Lab",
     "contributor_url": "https://github.com/CyberbuildLab"
@@ -1419,7 +1419,7 @@
     "license": "AGPL 3.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2025.106632",
     "code_url": "https://github.com/YuchenWang1/BMKG-DCoT",
-    "thumbnail": "assets/img/models/BMKG-DCoT.png",
+    "thumbnail": "assets/img/previews/5fc3e58f602a34c7ef9c8ac9.webp",
     "added_date": "2025-11-03",
     "contributor": "Yuchen Wang",
     "contributor_url": "https://github.com/YuchenWang1"
@@ -1451,7 +1451,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.autcon.2025.106609",
     "code_url": "https://github.com/RainGo111/BIM_updating",
-    "thumbnail": "assets/img/models/BIM_updating.png",
+    "thumbnail": "assets/img/previews/0643723f1bc362bb40edd1ff.webp",
     "added_date": "2025-11-4",
     "contributor": "Yu Zhang",
     "contributor_url": "https://github.com/RainGo111"
@@ -1479,7 +1479,7 @@
     "license": "ODC-BY",
     "paper_url": "https://doi.org/10.1111/mice.12658",
     "code_url": "https://doi.org/10.17603/ds2-gqvg-qx37",
-    "thumbnail": "assets/img/models/DoriaNET.png",
+    "thumbnail": "assets/img/previews/fa914c55ef2af9bde1d2e204.webp",
     "added_date": "2025-11-4",
     "contributor": "ciber-lab",
     "contributor_url": "https://github.com/ciber-lab"
@@ -1507,7 +1507,7 @@
     "license": "CC BY 4.0",
     "paper_url": "https://doi.org/10.3390/rs17030421",
     "code_url": "https://github.com/3dcovim/TLSynth",
-    "thumbnail": "assets/img/models/TLSynth.png",
+    "thumbnail": "assets/img/previews/679a7cc8c48f3355470e5103.webp",
     "added_date": "2025-11-11",
     "contributor": "3D Co-ViM Lab",
     "contributor_url": "https://3dcovim.cms.unex.es/team/"
@@ -1539,7 +1539,7 @@
     "license": "GNU 3.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2022.104430",
     "code_url": "https://github.com/eesd-epfl/LOD3_buildings",
-    "thumbnail": "assets/img/models/LOD3.png",
+    "thumbnail": "assets/img/previews/5bd3ce0a032f0060d942da5b.webp",
     "added_date": "2025-11-13",
     "contributor": "DISC Lab",
     "contributor_url": "https://disclab.pantoja-rosero.com/"
@@ -1567,7 +1567,7 @@
     "license": "GPL-3.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2025.106567",
     "code_url": "https://github.com/bgpantojar/DamageSegmentationXR",
-    "thumbnail": "assets/img/models/DamageSegmentationXR.png",
+    "thumbnail": "assets/img/previews/edf586dced0b5118757444db.webp",
     "added_date": "2025-11-13",
     "contributor": "DISC Lab",
     "contributor_url": "https://disclab.pantoja-rosero.com/"
@@ -1598,7 +1598,7 @@
     "license": "GPL-3.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2023.104842",
     "code_url": "https://github.com/eesd-epfl/DADT_buildings",
-    "thumbnail": "assets/img/models/dadt-buildings-model.png",
+    "thumbnail": "assets/img/previews/8b58b2a47f5374620ffbb912.webp",
     "added_date": "2025-11-14",
     "contributor": "DISC Lab",
     "contributor_url": "https://disclab.pantoja-rosero.com/"
@@ -1629,7 +1629,7 @@
     "license": "GPL-3.0",
     "paper_url": "https://doi.org/10.1016/j.conbuildmat.2022.128054",
     "code_url": "https://github.com/eesd-epfl/crack_kinematics",
-    "thumbnail": "assets/img/models/crack_kinematics.png",
+    "thumbnail": "assets/img/previews/491fb5fd4d240ea70793dde0.webp",
     "added_date": "2025-11-15",
     "contributor": "DISC Lab",
     "contributor_url": "https://disclab.pantoja-rosero.com/"
@@ -1660,7 +1660,7 @@
     "license": "GPL-3.0",
     "paper_url": "https://doi.org/10.1016/j.conbuildmat.2022.128264",
     "code_url": "https://github.com/eesd-epfl/topo_crack_detection",
-    "thumbnail": "assets/img/models/topo_crack_detection.png",
+    "thumbnail": "assets/img/previews/b6340b4905911d3f057f5d3d.webp",
     "added_date": "2025-11-16",
     "contributor": "DISC Lab",
     "contributor_url": "https://disclab.pantoja-rosero.com/"
@@ -1688,7 +1688,7 @@
     "license": "GPL-3.0",
     "paper_url": "https://doi.org/10.1007/s10518-023-01726-7",
     "code_url": "https://github.com/eesd-epfl/FEM_buildings",
-    "thumbnail": "assets/img/models/FEM_buildings.png",
+    "thumbnail": "assets/img/previews/95810dab0e4cc0e14a3e6723.webp",
     "added_date": "2025-11-17",
     "contributor": "DISC Lab",
     "contributor_url": "https://disclab.pantoja-rosero.com/"
@@ -1717,7 +1717,7 @@
     "license": "GPL-3.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2022.104632",
     "code_url": "https://github.com/eesd-epfl/stone_masonry_GDT",
-    "thumbnail": "assets/img/models/stone_masonry_GDT.gif",
+    "thumbnail": "assets/img/previews/b7e32ca42cc085be2138fe8f.webp",
     "added_date": "2025-11-17",
     "contributor": "DISC Lab",
     "contributor_url": "https://disclab.pantoja-rosero.com/"
@@ -1747,7 +1747,7 @@
     "license": "Unspecified",
     "paper_url": "https://arxiv.org/abs/2505.24838",
     "code_url": "https://github.com/ghadinehme/VideoCAD",
-    "thumbnail": "assets/img/models/VideoCAD.gif",
+    "thumbnail": "assets/img/previews/ad2b3035d0bf3055fd1f573d.webp",
     "added_date": "2025-11-26",
     "contributor": "DeCoDE",
     "contributor_url": "https://decode.mit.edu/"
@@ -1778,7 +1778,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1061/JCCEE5.CPENG-6595",
     "code_url": "https://github.com/CI3LAB/KG-LLM-inspection-work-packaging",
-    "thumbnail": "assets/img/models/KG-LLM-inspection-work-packaging.png",
+    "thumbnail": "assets/img/previews/3caf67caadc050dfd859bd7d.webp",
     "added_date": "2025-12-05",
     "contributor": "CI3Lab",
     "contributor_url": "https://cicubelab.civil.hku.hk/"
@@ -1806,7 +1806,7 @@
     "license": "Modified BSD",
     "paper_url": "https://doi.org/10.1016/j.softx.2025.102367",
     "code_url": "https://github.com/LBNL-ETA/EnergyPlus-MCP",
-    "thumbnail": "assets/img/models/EnergyPlus-MCP.png",
+    "thumbnail": "assets/img/previews/97e88968635bba832c33efdd.webp",
     "added_date": "2025-12-08",
     "contributor": "Lawrence Berkeley National Laboratory",
     "contributor_url": "https://www.lbl.gov/"
@@ -1835,7 +1835,7 @@
     "license": "CC BY-NC-SA 4.0",
     "paper_url": "https://arxiv.org/abs/2312.14132",
     "code_url": "https://github.com/naver/dust3r",
-    "thumbnail": "assets/img/models/DUSt3R.png",
+    "thumbnail": "assets/img/previews/c47d2481bb709b46dd6677f8.webp",
     "added_date": "2025-12-09"
   },
   {
@@ -1868,7 +1868,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.compenvurbsys.2025.102366",
     "code_url": "https://github.com/kunifujiwara/VoxCity",
-    "thumbnail": "assets/img/models/VoxCity.png",
+    "thumbnail": "assets/img/previews/549df36cb40691619cce9dd1.webp",
     "added_date": "2026-01-07",
     "contributor": "Urban Analytics Lab",
     "contributor_url": "https://ual.sg/"
@@ -1897,7 +1897,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1061/JCCEE5.CPENG-6386",
     "code_url": "https://github.com/dcy0577/Text2BIM",
-    "thumbnail": "assets/img/models/Text2BIM.gif",
+    "thumbnail": "assets/img/previews/2d3d26c8abc54150e250332f.webp",
     "added_date": "2026-01-10",
     "contributor": "Changyu Du",
     "contributor_url": "https://github.com/dcy0577"
@@ -1928,7 +1928,7 @@
     "license": "GPL-3.0",
     "paper_url": "https://arxiv.org/abs/2506.07217",
     "code_url": "https://github.com/ZihanDDD/BIMgent",
-    "thumbnail": "assets/img/models/BIMgent.gif",
+    "thumbnail": "assets/img/previews/44b3b8029e6aec5cb2c221e4.webp",
     "added_date": "2026-01-10",
     "contributor": "Zihan Deng",
     "contributor_url": "https://github.com/ZihanDDD"
@@ -1956,7 +1956,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.aei.2025.103574",
     "code_url": "https://github.com/dcy0577/BIM-Command-Recommendation",
-    "thumbnail": "assets/img/models/BIM-Command-Recommendation.gif",
+    "thumbnail": "assets/img/previews/b8c28df930e7b92896007965.webp",
     "added_date": "2026-01-10",
     "contributor": "Changyu Du",
     "contributor_url": "https://github.com/dcy0577"
@@ -1986,7 +1986,7 @@
     "license": "Apache 2.0",
     "paper_url": "https://doi.org/10.1007/s42524-024-4006-x",
     "code_url": "https://github.com/KarleKong/openBIMdisk",
-    "thumbnail": "assets/img/models/openBIMdisk.png",
+    "thumbnail": "assets/img/previews/f0fdb7d7724e3891accb55e9.webp",
     "added_date": "2026-01-10",
     "contributor": "Lingming Kong",
     "contributor_url": "https://github.com/KarleKong"
@@ -2015,7 +2015,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.aei.2022.101641",
     "code_url": "https://github.com/RWTH-E3D/ifcnet-models",
-    "thumbnail": "assets/img/models/SpaRSE-BIM.png",
+    "thumbnail": "assets/img/previews/517f71a18442b879b6a6f770.webp",
     "added_date": "2026-01-11",
     "contributor": "Christoph Emunds",
     "contributor_url": "https://github.com/cemunds"
@@ -2043,7 +2043,7 @@
     "license": "CC BY-NC-SA 4.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2025.106751",
     "code_url": "https://github.com/tubayildizli/MultiLabel_SewerDefect_SSL",
-    "thumbnail": "assets/img/models/MultiLabel_SewerDefect_SSL.png",
+    "thumbnail": "assets/img/previews/3ced5536b89a8e3f44547086.webp",
     "added_date": "2026-01-17",
     "contributor": "Tugba Yildizli",
     "contributor_url": "https://www.tudelft.nl/en/staff/t.yildizli/"
@@ -2074,7 +2074,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.aei.2026.104320",
     "code_url": "https://github.com/WangYong921/BDAChat",
-    "thumbnail": "assets/img/models/BDAChat.png",
+    "thumbnail": "assets/img/previews/509266749315c3ff18f19022.webp",
     "added_date": "2026-01-20",
     "contributor": "Urban Infrastructure Safety and Resilience Research Center",
     "contributor_url": "https://homepage.hit.edu.cn/zhaichanghai?lang=en"
@@ -2108,7 +2108,7 @@
     "license": "BSD-3-Clause-style license (Carnegie Mellon University)",
     "paper_url": "https://arxiv.org/abs/1911.09296",
     "code_url": "https://github.com/DIUx-xView/xView2_baseline",
-    "thumbnail": "assets/img/models/xView2_baseline.png",
+    "thumbnail": "assets/img/previews/88b8bdca211a21616f99c291.webp",
     "added_date": "2026-01-30",
     "contributor": "CMU SEI",
     "contributor_url": "https://www.sei.cmu.edu/"
@@ -2138,7 +2138,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.autcon.2026.106772",
     "code_url": "https://github.com/kmk0119804/Weak_and_Self-supervision",
-    "thumbnail": "assets/img/models/Weak_and_Self-supervision_model.png",
+    "thumbnail": "assets/img/previews/130c70c07ae4d9f1de15f536.webp",
     "added_date": "2026-01-30",
     "contributor": "Smart Infrastructure Laboratory",
     "contributor_url": "https://hongjo.github.io/#home"
@@ -2162,7 +2162,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1016/j.aei.2025.104277",
     "code_url": "https://github.com/bilab-nyu/smart-safety-trajectory",
-    "thumbnail": "assets/img/models/smart-safety-trajectory.png",
+    "thumbnail": "assets/img/previews/c03a0f064a79e7165dca1527.webp",
     "added_date": "2026-02-05",
     "contributor": "Building Informatics and Visualization Lab",
     "contributor_url": "https://bilab.engineering.nyu.edu/about"
@@ -2221,7 +2221,7 @@
     "license": "CC BY 4.0",
     "paper_url": "https://doi.org/10.1016/j.jobe.2026.115399",
     "code_url": "https://github.com/ZhaohuiChen-Ziv/ADPT",
-    "thumbnail": "assets/img/models/ADPT.png",
+    "thumbnail": "assets/img/previews/eecc052490918e67560f0663.webp",
     "added_date": "2026-02-06",
     "contributor": "Zhaohui Chen",
     "contributor_url": "https://scholar.google.com/citations?hl=en&user=g28lZgsAAAAJ&view_op=list_works&sortby=pubdate"
@@ -2252,7 +2252,7 @@
     ],
     "paper_url": "https://doi.org/10.1016/j.autcon.2026.106828",
     "code_url": "https://github.com/M-Twin4US/C-scan_Simulation",
-    "thumbnail": "assets/img/models/C-scan_Simulation.png",
+    "thumbnail": "assets/img/previews/e21701ccc827a25556fc6c08.webp",
     "added_date": "2026-02-27",
     "contributor": "Huamei Zhu",
     "contributor_url": "https://scholar.google.com/citations?hl=en&user=yGxI4poAAAAJ&view_op=list_works&sortby=pubdate"
@@ -2279,7 +2279,7 @@
     "license": "CC BY-NC 4.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2026.106881",
     "code_url": "https://github.com/songguoarchitect/GED-building-layout",
-    "thumbnail": "assets/img/models/GED-building-layout.png",
+    "thumbnail": "assets/img/previews/322c77b2dfa9d842415d8eee.webp",
     "added_date": "2026-03-24",
     "contributor": "Song Guo",
     "contributor_url": "https://songguoarchitect.github.io/"
@@ -2308,7 +2308,7 @@
     "license": "Apache 2.0",
     "paper_url": "https://doi.org/10.1016/j.apenergy.2024.123431",
     "code_url": "https://github.com/Gangjiang1/EPlus-LLM",
-    "thumbnail": "assets/img/models/EPlus-LLM.png",
+    "thumbnail": "assets/img/previews/07b7a0ea7b2073f882695c09.webp",
     "added_date": "2026-03-25",
     "contributor": "Gang Jiang",
     "contributor_url": "https://gangjiang1.github.io/"
@@ -2337,7 +2337,7 @@
     "license": "Unspecified",
     "paper_url": "https://doi.org/10.1016/j.energy.2025.134548",
     "code_url": "https://github.com/Gangjiang1/Prompting-for-Auto-building-Modeling",
-    "thumbnail": "assets/img/models/Prompting-for-Auto-building-Modeling.png",
+    "thumbnail": "assets/img/previews/aa726d7dcec3b49b3144a877.webp",
     "added_date": "2026-03-25",
     "contributor": "Gang Jiang",
     "contributor_url": "https://gangjiang1.github.io/"
@@ -2368,7 +2368,7 @@
     "license": "CC BY-NC 4.0",
     "paper_url": "https://doi.org/10.1016/j.dibe.2026.100912",
     "code_url": "https://github.com/mvg-inatech/3d_bridge_segmentation",
-    "thumbnail": "assets/img/models/3d_bridge_segmentation_model.png",
+    "thumbnail": "assets/img/previews/d5a8eb26c2c4ee8ccc0a7cef.webp",
     "added_date": "2026-03-31",
     "contributor": "Maximilian Kellner",
     "contributor_url": "https://publica.fraunhofer.de/entities/person/6aa0188b-5023-4f46-ac07-0512c34e4c57"
@@ -2399,7 +2399,7 @@
     "license": "Research and educational purpose only",
     "paper_url": "https://doi.org/10.48550/arXiv.2510.11004",
     "code_url": "https://github.com/DelosLiang/masse",
-    "thumbnail": "assets/img/models/masse.png",
+    "thumbnail": "assets/img/previews/a05e538a9028d8d01186bdf7.webp",
     "added_date": "2026-04-05",
     "contributor": "Smart Infrastructure TEchnologies (SITE) Lab",
     "contributor_url": "https://www.mei-lab.com/"
@@ -2430,7 +2430,7 @@
     "Paper": "Early-stage architecture design assistance by LLMs and knowledge graphs",
     "paper_url": "https://doi.org/10.1016/j.autcon.2025.106756",
     "code_url": "https://github.com/danruili/ArchLogicRAG",
-    "thumbnail": "assets/img/models/archlogicrag.png",
+    "thumbnail": "assets/img/previews/e83db3966cca7e4ad1073eba.webp",
     "added_date": "2026-04-12",
     "contributor": "Danrui Li",
     "contributor_url": "https://danruili.github.io/danruili/"
@@ -2461,7 +2461,7 @@
     "license": "GPL-3.0",
     "paper_url": "https://doi.org/10.1145/3604915.3608889",
     "code_url": "https://github.com/danruili/ArchSeek",
-    "thumbnail": "assets/img/models/archseek.png",
+    "thumbnail": "assets/img/previews/d5c78cf3f8485dca2fe300f5.webp",
     "added_date": "2026-04-13",
     "contributor": "Danrui Li",
     "contributor_url": "https://danruili.github.io/danruili/"
@@ -2489,7 +2489,7 @@
     "license": "Research and educational purpose only",
     "paper_url": "https://doi.org/10.3390/designs10020043",
     "code_url": "https://github.com/mahmoudaraafat1-netizen/BIM-NLP-Scheduling",
-    "thumbnail": "assets/img/models/BIM-NLP-Scheduling.png",
+    "thumbnail": "assets/img/previews/04ceea0bde5d6f9c19905088.webp",
     "added_date": "2026-04-16",
     "contributor": "Mahmoud Donia",
     "contributor_url": "https://sciprofiles.com/profile/MahmoudDonia1"
@@ -2522,7 +2522,7 @@
     "Paper": "Rethinking Scientific Modeling: Toward Physically Consistent and Simulation-Executable Programmatic Generation",
     "paper_url": "https://doi.org/10.48550/arXiv.2602.07083",
     "code_url": "https://github.com/Jovanqing/AutoBM",
-    "thumbnail": "assets/img/models/AutoBM.png",
+    "thumbnail": "assets/img/previews/8906e1e03f778f9d98880ea7.webp",
     "added_date": "2026-04-20",
     "contributor": "Kaoshan Dai",
     "contributor_url": "https://acem.scu.edu.cn/info/1282/10761.htm"
@@ -2552,7 +2552,7 @@
     "Paper": "BuildingMultiView:powering multi-scale building characterization with large language models and Multi-perspective imagery",
     "paper_url": "https://doi.org/10.1016/j.jag.2025.105034",
     "code_url": "https://github.com/ai4city-hkust/buildingmultiview",
-    "thumbnail": "assets/img/models/buildingmultiview.png",
+    "thumbnail": "assets/img/previews/ef4909b63e3fb273f46f4aef.webp",
     "added_date": "2026-04-20",
     "contributor": "AI4City Lab",
     "contributor_url": "https://github.com/ai4city-hkust"
@@ -2581,7 +2581,7 @@
     "paper": "LiGuard: A Streamlined Open-Source Framework for Rapid & Interactive Lidar Research",
     "paper_url": "https://doi.org/10.1109/TIV.2026.3688927",
     "code_url": "https://github.com/Urbanity-Lab/LiGuard-2.x",
-    "thumbnail": "assets/img/models/LiGuard.png",
+    "thumbnail": "assets/img/previews/edc62b8aaf9feb8e046424b8.webp",
     "added_date": "2026-04-30",
     "contributor": "Urbanity Lab",
     "contributor_url": "https://www.cecs.ucf.edu/sagarwal/"
@@ -2611,7 +2611,7 @@
     "paper": "Cross-platform framework for semantic BIM-to-XR data exchange in immersive construction informatics",
     "paper_url": "https://doi.org/10.1016/j.autcon.2026.106994",
     "code_url": "https://github.com/isaddiq/BIMUniXchange",
-    "thumbnail": "assets/img/models/BIMUniXchange.jpg",
+    "thumbnail": "assets/img/previews/ec95735a5e260284a1452c37.webp",
     "added_date": "2026-05-06",
     "contributor": "Saddiq Ur Rehman",
     "contributor_url": "https://isaddiq.github.io/#home"
@@ -2639,7 +2639,7 @@
     "paper": "Utilizing domain knowledge: Robust machine learning for building energy performance prediction with small, inconsistent datasets",
     "paper_url": "https://doi.org/10.1016/j.knosys.2024.111774",
     "code_url": "https://github.com/chenxiachan/Component_based_Machine_Learning",
-    "thumbnail": "assets/img/models/Component_based_Machine_Learning.png",
+    "thumbnail": "assets/img/previews/32a125228abc02507a92b36a.webp",
     "added_date": "2026-05-06",
     "contributor": "Xia Chen",
     "contributor_url": "https://chenxiachan.github.io/"
@@ -2670,7 +2670,7 @@
     "paper": "Toward better integration of solar energy in transportation systems: machine learning benchmarks for day-ahead photovoltaic power forecasting",
     "paper_url": "https://doi.org/10.1016/j.tra.2026.105040",
     "code_url": "https://github.com/zhesun-0209/NYSolarForecastLab",
-    "thumbnail": "assets/img/models/PV-Forecasting.png",
+    "thumbnail": "assets/img/previews/7a472afecf87fd068eb76040.webp",
     "added_date": "2026-05-18",
     "contributor": "Zhaoyao Bao",
     "contributor_url": "https://scholar.google.com/citations?user=KccupyUAAAAJ&hl=en"
@@ -2700,7 +2700,7 @@
     "paper": "TunCO2, an open-source digital toolbox for accounting and optimising decarbonisation in tunnelling",
     "paper_url": "https://doi.org/10.1016/j.tust.2025.107028",
     "code_url": "https://github.com/X-Chen1997/TunCO2",
-    "thumbnail": "assets/img/models/TunCO2.png",
+    "thumbnail": "assets/img/previews/d57a0877aef02e17bf0bce58.webp",
     "added_date": "2026-05-22",
     "contributor": "Qian-Bing Zhang",
     "contributor_url": "https://www.monash.edu/engineering/qianbingzhang"
@@ -2728,7 +2728,7 @@
     "paper": "iWatchRoad: Scalable Detection and Geospatial Visualization of Potholes for Smart Cities",
     "paper_url": "https://doi.org/10.1145/3799830.3799873",
     "code_url": "https://github.com/smlab-niser/iWatchRoad",
-    "thumbnail": "assets/img/models/iWatchRoad.png",
+    "thumbnail": "assets/img/previews/489e158f294da95da951ede3.webp",
     "added_date": "2026-06-06",
     "contributor": "Rishi Raj Sahoo",
     "contributor_url": "https://codewithric.github.io/website/"
@@ -2759,7 +2759,7 @@
     "paper": "Self-supervised learning for BIM element classification using a joint embedding predictive architecture",
     "paper_url": "https://doi.org/10.1016/j.autcon.2026.107075",
     "code_url": "https://github.com/jackswl/bim-jepa",
-    "thumbnail": "assets/img/models/bim-jepa.png",
+    "thumbnail": "assets/img/previews/52d4e00e1bac04c0f7a62f13.webp",
     "added_date": "2026-06-13",
     "contributor": "Beadz Lab",
     "contributor_url": "https://nusbeadz.github.io/"
@@ -2788,7 +2788,7 @@
     "paper": "Self-supervised learning for BIM element classification using a joint embedding predictive architecture",
     "paper_url": "https://doi.org/10.1016/j.autcon.2026.107048",
     "code_url": "https://github.com/StoStruct/ContextAware_CV_CorrosionBridge",
-    "thumbnail": "assets/img/models/ContextAware_CV_CorrosionBridge.png",
+    "thumbnail": "assets/img/previews/bdf37f9b162dcfcf9d935cb8.webp",
     "added_date": "2026-06-19",
     "contributor": "StoStruct",
     "contributor_url": "https://stostruct.com/"
@@ -2818,7 +2818,7 @@
     "paper": "SCSegamba: Lightweight Structure-Aware Vision Mamba for Crack Segmentation in Structures",
     "paper_url": "https://doi.org/10.48550/arXiv.2503.01113",
     "code_url": "https://github.com/Karl1109/SCSegamba",
-    "thumbnail": "assets/img/models/SCSegamba.gif",
+    "thumbnail": "assets/img/previews/758bc585b7290f01e0d5aac3.webp",
     "added_date": "2026-06-24",
     "contributor": "Hui Liu",
     "contributor_url": "https://github.com/Karl1109"
@@ -2851,7 +2851,7 @@
     "paper": "BIMStruct3D: A Fully Automated Hybrid Learning Scan-to-BIM Pipeline with Integrated Topology Refinement",
     "paper_url": "https://doi.org/10.48550/arXiv.2604.24311",
     "code_url": "https://github.com/humantecheu/pystruct3d",
-    "thumbnail": "assets/img/models/PyStruct3D.png",
+    "thumbnail": "assets/img/previews/ce3b57fac25315949d4c243d.webp",
     "added_date": "2026-06-25",
     "contributor": "Mahdi Chamseddine",
     "contributor_url": "https://av.dfki.de/members/chamseddine/"
@@ -2885,7 +2885,7 @@
     "paper": "IL3D: A Large-Scale Indoor Layout Dataset for LLM-Driven 3D Scene Generation",
     "paper_url": "https://doi.org/10.48550/arXiv.2510.12095",
     "code_url": "https://github.com/WenxuZhou/IL3D",
-    "thumbnail": "assets/img/models/IL3D.png",
+    "thumbnail": "assets/img/previews/ae4c1e754a7bba3b167aad62.webp",
     "added_date": "2026-07-14",
     "contributor": "Wenxu Zhou",
     "contributor_url": "https://wenxuzhou.github.io/"
@@ -2918,7 +2918,7 @@
     "paper": "Text2Onto-Agent: An LLM Agent-Based End-to-End Automated Ontology Construction Method and a Case Study of Green Building Domain Modeling",
     "paper_url": "https://doi.org/10.1061/JCEMD4.COENG-18479",
     "code_url": "https://github.com/pipiyapi/T2OA",
-    "thumbnail": "assets/img/models/T2OA.png",
+    "thumbnail": "assets/img/previews/644a96875ab136ae9f40d2ae.webp",
     "added_date": "2026-07-29",
     "contributor": "Hainan Chen",
     "contributor_url": "https://scholar.google.com/citations?user=QMjeNeEAAAAJ&hl=zh-CN"
@@ -2948,7 +2948,7 @@
     "paper": "Model predictive control of a phase change material–enhanced switchable insulation system using long short-term memory networks and genetic optimization",
     "paper_url": "https://doi.org/10.1016/j.autcon.2026.107066",
     "code_url": "https://github.com/imadafla/surrogate-mpc-eplus",
-    "thumbnail": "assets/img/models/surrogate-mpc-eplus.png",
+    "thumbnail": "assets/img/previews/c1a5d59950d59ea63d8226cc.webp",
     "added_date": "2026-07-29",
     "contributor": "Imad Ait Laasri",
     "contributor_url": "https://scholar.google.com/citations?user=eyGE7LUAAAAJ&hl=fr"
@@ -2977,7 +2977,7 @@
     "paper": "Artificial intelligence design agent for automated operation of structural software using knowledge graphs and numerical models",
     "paper_url": "https://doi.org/10.1016/j.autcon.2026.107144",
     "code_url": "https://github.com/jinxindev/etabs-copilot",
-    "thumbnail": "assets/img/models/ETABS-Copilot.png",
+    "thumbnail": "assets/img/previews/f75e67a69dd84f1ad51ceadf.webp",
     "added_date": "2026-08-09",
     "contributor": "Smart Infrastructure Lab",
     "contributor_url": "https://www.stevens.edu/page-basic/smart-infrastructure-lab"
@@ -3005,7 +3005,7 @@
     "paper": "Less is More: Reinforcement Learning-powered Training Data Quality Evaluation and Sampling for Enhancing Computer Vision in Construction",
     "paper_url": "https://doi.org/10.22260/ISARC2026/0218",
     "code_url": "https://github.com/Lovecicinnuswzq/RL-powered-Data-Quality-Evaluation",
-    "thumbnail": "assets/img/models/rl-powered-data-quality-evaluation.png",
+    "thumbnail": "assets/img/previews/e716929d7d846b335a08b9b1.webp",
     "added_date": "2026-08-11",
     "contributor": "Human-centered Construction and Infrastructure (HCI) Group",
     "contributor_url": "https://sites.google.com/view/jinwoo-kim"
@@ -3041,7 +3041,7 @@
     "paper": "FARM: Find Anything using Relational Spatial Memory",
     "paper_url": "https://doi.org/10.48550/arXiv.2606.15476",
     "code_url": "https://goldengait.github.io/farm/",
-    "thumbnail": "assets/img/models/FARM-Project.gif",
+    "thumbnail": "assets/img/previews/ee9f5afdf0f7278fceb0a479.webp",
     "added_date": "2026-08-11",
     "contributor": "Siming He",
     "contributor_url": "https://www.linkedin.com/in/siming-he/"
@@ -3072,7 +3072,7 @@
     "license": "CC BY-NC 4.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2026.107190",
     "code_url": "https://github.com/Blessing988/CrackGeoFM",
-    "thumbnail": "assets/img/models/crackgeofm.png",
+    "thumbnail": "assets/img/previews/cba7b499f31718a946f0c649.webp",
     "added_date": "2026-08-19",
     "contributor": "SMART Lab",
     "contributor_url": "https://aboaharmstrong.vercel.app/home"
@@ -3100,7 +3100,7 @@
     "Paper": "Why floor plan object detection breaks under real scans: a controlled study of robustness limits",
     "paper_url": "https://doi.org/10.1016/j.autcon.2026.107193",
     "code_url": "https://github.com/andreacar/floorplan-detection-scan-robustness",
-    "thumbnail": "assets/img/models/floorplan_scan_robustness.png",
+    "thumbnail": "assets/img/previews/6a1fa2035367cd76552c2bd8.webp",
     "added_date": "2026-08-19",
     "contributor": "Andrea Carrara",
     "contributor_url": "https://scholar.google.com/citations?user=UFHGodQAAAAJ",
@@ -3141,7 +3141,7 @@
       }
     ],
     "code_url": "https://beum1998.github.io/",
-    "thumbnail": "assets/img/models/augmented-bim-log.gif",
+    "thumbnail": "assets/img/previews/7d0e4a6bbc3814e0a2a743d7.webp",
     "added_date": "2026-08-26",
     "contributor": "Building Informatics Group (BIG)",
     "contributor_url": "http://big.yonsei.ac.kr/"
@@ -3192,7 +3192,7 @@
       }
     ],
     "code_url": "http://big.yonsei.ac.kr/xppm/",
-    "thumbnail": "assets/img/models/IDMxPPM.png",
+    "thumbnail": "assets/img/previews/3fe85b1b54699a079dd7c899.webp",
     "added_date": "2026-08-27",
     "contributor": "Building Informatics Group (BIG)",
     "contributor_url": "http://big.yonsei.ac.kr/"
@@ -3239,7 +3239,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.48550/arXiv.2608.27456",
     "code_url": "https://urbanground.github.io/",
-    "thumbnail": "assets/img/models/urbanground.png",
+    "thumbnail": "assets/img/previews/480a1ba9e490f99605c552e5.webp",
     "added_date": "2026-09-07",
     "contributor": "Tianjie Ju",
     "contributor_url": "https://jometeorie.github.io/"
@@ -3268,7 +3268,7 @@
     "license": "CC BY 4.0",
     "paper_url": "https://doi.org/10.1016/j.autcon.2026.107242",
     "code_url": "https://github.com/dominik00257-del/bim-bpc-supplementary",
-    "thumbnail": "assets/img/models/bim-bpc.png",
+    "thumbnail": "assets/img/previews/404a92fa9e6cc00e4368ce4c.webp",
     "added_date": "2026-09-08",
     "contributor": "Dominik Metelski",
     "contributor_url": "https://scholar.google.com/citations?user=t1XDXZsAAAAJ"
@@ -3299,7 +3299,7 @@
     "license": "CC BY 4.0",
     "paper_url": "https://doi.org/10.1016/j.aei.2026.105103",
     "code_url": "https://github.com/lzaiplg/Cmvu2net",
-    "thumbnail": "assets/img/models/cmvu2-net.png",
+    "thumbnail": "assets/img/previews/35139ea99e832034d75de6f8.webp",
     "added_date": "2026-09-09",
     "contributor": "Shaofei Jiang",
     "contributor_url": "https://scholar.google.com/citations?hl=en&user=a2uHhUsAAAAJ&view_op=list_works&sortby=pubdate"
@@ -3330,7 +3330,7 @@
     "license": "MIT",
     "paper_url": "https://doi.org/10.1061/JCCEE5.CPENG-7415",
     "code_url": "https://github.com/angshuman311/PyPBEE",
-    "thumbnail": "assets/img/models/pypbee.png",
+    "thumbnail": "assets/img/previews/b53a25ebd8622d4769197700.webp",
     "added_date": "2026-09-12",
     "contributor": "Angshuman Deb",
     "contributor_url": "https://scholar.google.com/citations?hl=en&user=dNDqAyAAAAAJ&view_op=list_works&sortby=pubdate"
@@ -3363,7 +3363,7 @@
   "license": "CC BY 4.0",
   "paper_url": "https://doi.org/10.1016/j.cacaie.2026.100096",
   "code_url": "https://github.com/YimingXiao98/CrisiSense-RAG",
-  "thumbnail": "assets/img/models/crisissense-rag.png",
+  "thumbnail": "assets/img/previews/5e9bf9d108a5182e8276d32e.webp",
   "added_date": "2026-09-16",
   "contributor": "Yiming Xiao",
   "contributor_url": "https://scholar.google.com/citations?hl=en&user=-R4lQU0AAAAJ&view_op=list_works&sortby=pubdate"
@@ -3394,7 +3394,7 @@
   "paper":"Hybrid semantic segmentation framework for reinforced concrete bridge point clouds",
   "paper_url": "https://doi.org/10.1016/j.autcon.2026.107255",
   "code_url": "https://github.com/TaoYang-code/HyBridgeSeg-A-Hybrid-Semantic-Segmentation-Framework-for-Reinforced-Concrete-Bridge-Point-Clouds",
-  "thumbnail": "assets/img/models/hybridgeseg.png",
+  "thumbnail": "assets/img/previews/5224ee133e20fb2bd3bc055b.webp",
   "added_date": "2026-09-17",
   "contributor": "Smart Digital Lab (SDL)",
   "contributor_url": "https://www.yangzou.org/"
@@ -3426,7 +3426,7 @@
   "paper":"Postural risk analysis for the manual demolition process leveraging a novel REBA assessment tool",
   "paper_url": "https://doi.org/10.1016/j.jsr.2026.09.018",
   "code_url": "https://github.com/umic-iitm/rebapose",
-  "thumbnail": "assets/img/models/rebapose.png",
+  "thumbnail": "assets/img/previews/9bc6b3331045957215a4a496.webp",
   "added_date": "2026-10-15",
   "contributor": "Nikhil Bugalia",
   "contributor_url": "https://scholar.google.com/citations?hl=en&user=HkL3d8oAAAAJ&view_op=list_works&sortby=pubdate"

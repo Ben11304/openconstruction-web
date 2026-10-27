@@ -90,6 +90,18 @@
     $('projectActivity').innerHTML = events.length ? `<ul>${events.map(e => `<li><span class="oc-activity-dot" aria-hidden="true"></span><div><strong>${esc(e.title)}</strong><button class="oc-projects-text-button" data-open="${esc(e.project.id)}">${esc(e.project.name)}</button></div><time datetime="${new Date(e.time).toISOString()}">${esc(dateLabel(e.time))}</time></li>`).join('')}</ul>${!tasksKnown ? `<p class="oc-platform-muted">${detailsLoading ? 'Loading task activity…' : 'Some task activity is unavailable. Refresh to try again.'}</p>` : ''}` : `<p class="oc-platform-muted">${detailsLoading ? 'Loading activity…' : 'Your project activity will appear here.'}</p>`;
   }
   async function loadDetails(version) {
+    if (window.OCWebDashboard) {
+      try {
+        const result = await request('platform/project-dashboard?details=1');
+        if (version !== generation) return;
+        details = new Map(Object.entries(result.details));
+      } catch {
+        if (version !== generation) return;
+        details = new Map();
+      }
+      detailsLoading = false; renderOverview(); render(); renderProjectOverview();
+      return;
+    }
     const queue = allProjects();
     await Promise.all(Array.from({length:Math.min(3,queue.length)},async () => {
       while (queue.length && version === generation) {
@@ -104,7 +116,15 @@
   }
   async function refresh() {
     const version = ++generation;
-    const [profile,mine,shared,published] = await Promise.all([request('platform/me'),request('research/projects?scope=mine'),request('research/projects?scope=shared'),scope === 'public' ? request('public/projects') : Promise.resolve(null)]).catch(error => { detailsLoading=false; if(me)renderOverview(); throw error; });
+    let profile, mine, shared, published;
+    try {
+      if (window.OCWebDashboard) {
+        const [dashboard, publicProjects] = await Promise.all([window.OCWebDashboard(Boolean(me)),scope === 'public' ? request('public/projects') : null]);
+        ({profile,mine,shared} = dashboard); published = publicProjects;
+      } else {
+        [profile,mine,shared,published] = await Promise.all([request('platform/me'),request('research/projects?scope=mine'),request('research/projects?scope=shared'),scope === 'public' ? request('public/projects') : null]);
+      }
+    } catch(error) { detailsLoading=false; if(me)renderOverview(); throw error; }
     projectPages.reset();
     me = profile;
     collections = {mine,shared,public:published?.projects || collections.public};

@@ -5,7 +5,7 @@
   const imageFallback = img => {
     if (!(img instanceof HTMLImageElement) || !img.hasAttribute('data-oc-image-fallback')) return;
     img.removeAttribute('data-oc-image-fallback');
-    img.src = '/openconstruction-web/assets/img/placeholder/placeholder.png';
+    img.src = '/openconstruction-web/assets/img/previews/0088a2707332b749e38d1585.webp';
     img.classList.add('is-fallback');
     const note = img.closest('.media-wrap')?.querySelector('[data-media-fallback-note]');
     if (note) note.hidden = false;
@@ -15,7 +15,7 @@
     document.querySelectorAll('img[data-oc-image-fallback]').forEach(img => { if (img.complete && !img.naturalWidth) imageFallback(img); });
     const routes = web ? {Home:'/openconstruction-web/index.html',Workspace:'/openconstruction-web/desktop/projects.html',Research:'/openconstruction-web/research.html',Catalog:'/openconstruction-web/dataset.html',Admin:'/openconstruction-web/desktop/admin.html'} : {Home:'/openconstruction-web/index.html',Workspace:'/openconstruction-web/desktop/platform.html',Research:'/openconstruction-web/research.html',Catalog:'/openconstruction-web/dataset.html',Admin:'/openconstruction-web/desktop/admin.html',Notes:'/openconstruction-web/desktop/workspace.html'};
     const current = location.pathname;
-    const home = current === '/' || current === routes.Home;
+    const home = current === '/' || current === routes.Home || current === routes.Home.replace(/index\.html$/, '');
     document.body.classList.toggle('oc-home-page', home && !web);
     document.body.classList.toggle('oc-web-home', home && web);
     // Home is the inherited OpenConstruction web experience. Keep the desktop
@@ -36,7 +36,7 @@
     }
     const rail = document.createElement('nav'); rail.id = 'oc-app-sidebar'; rail.className = 'oc-app-rail'; rail.setAttribute('aria-label', 'Application');
     const brand = document.createElement('a'); brand.className = 'oc-app-brand'; brand.href = '/openconstruction-web/index.html'; brand.title = 'OpenConstruction Home'; brand.setAttribute('aria-label', 'OpenConstruction Home');
-    brand.innerHTML = '<img src="/openconstruction-web/assets/img/icon.png" alt="" width="42" height="42">';
+    brand.innerHTML = '<img src="/openconstruction-web/assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp" alt="" width="42" height="42">';
     rail.append(brand);
     if(web){
       const create=document.createElement('a');create.className='oc-sidebar-create';create.href='/openconstruction-web/desktop/projects.html?action=new';
@@ -60,8 +60,14 @@
       reload.onclick=()=>location.reload();rail.append(reload);
     }
     const account = document.createElement('button'); account.type = 'button'; account.className = 'oc-app-account'; account.title = 'Account and settings';
+    const signIn = web ? document.createElement('a') : null;
+    if (web) {
+      signIn.className = 'oc-web-sign-in'; signIn.textContent = 'Sign in';
+      signIn.href = '/openconstruction-web/web/login.html?next=' + encodeURIComponent('/openconstruction-web/desktop/projects.html');
+      account.hidden = true;
+    }
     account.setAttribute('aria-label','Account and settings');account.setAttribute('aria-haspopup','menu');account.setAttribute('aria-expanded','false');
-    const defaultAvatar = '/openconstruction-web/assets/img/contributors/avatar.png?v=builder-beaver-1';
+    const defaultAvatar = '/openconstruction-web/assets/img/previews/6643f80db550f5bc6e4e068a.webp?v=builder-beaver-1';
     const accountAvatar = document.createElement('img');
     accountAvatar.className = 'oc-account-avatar'; accountAvatar.alt = ''; accountAvatar.width = 32; accountAvatar.height = 32;
     accountAvatar.addEventListener('error', () => {
@@ -103,7 +109,7 @@
       const toggle=document.createElement('button');toggle.type='button';toggle.className='oc-sidebar-toggle';toggle.setAttribute('aria-controls',rail.id);
       toggle.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
       const title=document.createElement('a');title.className='oc-web-wordmark';title.href='/openconstruction-web/index.html';title.setAttribute('aria-label','OpenConstruction Home');
-      title.innerHTML='<img src="/openconstruction-web/assets/img/icon.png" alt="" width="36" height="36"><span>OpenConstruction</span>';
+      title.innerHTML='<img src="/openconstruction-web/assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp" alt="" width="36" height="36"><span>OpenConstruction</span>';
       const search=document.createElement('a');search.href='/openconstruction-web/search.html';search.className='oc-topbar-search';search.setAttribute('aria-label','Search catalog');search.title='Search catalog';
       search.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>';
       const searchForm=document.createElement('form');searchForm.className='oc-topbar-search-form';searchForm.id='oc-web-search';searchForm.action='/openconstruction-web/search.html';searchForm.method='get';searchForm.hidden=true;searchForm.setAttribute('role','search');
@@ -115,7 +121,7 @@
       search.onclick=event=>{event.preventDefault();setSearchOpen(true);};searchClose.onclick=()=>setSearchOpen(false);
       searchForm.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setSearchOpen(false);}});
       searchForm.addEventListener('submit',event=>{searchInput.value=searchInput.value.trim();if(!searchInput.value){event.preventDefault();searchInput.focus();}});
-      header.append(toggle,title,search,searchForm,account);document.body.prepend(header);
+      header.append(toggle,title,search,searchForm,signIn,account);document.body.prepend(header);
       if(current==='/openconstruction-web/search.html')setSearchOpen(true,false);
       const backdrop=document.createElement('button');backdrop.type='button';backdrop.className='oc-sidebar-backdrop';backdrop.tabIndex=-1;backdrop.setAttribute('aria-label','Close sidebar');document.body.append(backdrop);
       // Keep the same destinations on Home, catalog, research and account pages.
@@ -148,9 +154,11 @@
       window.addEventListener('storage',event=>{if(event.key==='oc.web.sidebar.v1')applySidebar(event.newValue==='hidden');});
       applySidebar(document.documentElement.dataset.ocSidebar==='hidden');
     }
-    if(web || document.querySelector('meta[name="oc-auth-mode"][content="gateway"]')) {
-      fetch('/api/platform/me',{credentials:'same-origin',cache:'no-store'}).then(response=>response.ok?response.json():null).then(profile=>{
+    if ((web || document.querySelector('meta[name="oc-auth-mode"][content="gateway"]')) && (!web || !window.OCWebConnection || window.OCWebConnection.hasSession())) {
+      const profileRequest = web && window.OCWebProfile ? window.OCWebProfile() : fetch('/api/platform/me',{credentials:'same-origin',cache:'no-store'}).then(response=>response.ok?response.json():null);
+      profileRequest.then(profile=>{
         if(!profile?.user)return;
+        if (web) { signIn.hidden = true; account.hidden = false; }
         const avatar = profile.user.avatarUrl || profile.user.avatar_url || profile.user.picture;
         if (typeof avatar === 'string' && avatar.trim()) {
           try {

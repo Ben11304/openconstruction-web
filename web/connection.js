@@ -10,6 +10,16 @@
   const loginURL = base + 'web/login.html';
   const getToken = () => { try { return sessionStorage.getItem(key) || ''; } catch { return ''; } };
   const setToken = value => { if(value) sessionStorage.setItem(key,value); else sessionStorage.removeItem(key); };
+  const isWorkspacePage = pathname => {
+    if (!pathname.startsWith(base)) return false;
+    const page = pathname.slice(base.length);
+    return page === 'research.html' || page === 'account.html' || /^desktop\/(?:projects|platform|admin|workspace|settings)\.html$/.test(page);
+  };
+  const signInURL = next => loginURL + '?next=' + encodeURIComponent(next);
+  const returnTo = () => location.pathname + location.search + location.hash;
+  // Static Pages cannot enforce sessions. Gate workspace navigation here; the
+  // gateway continues to authorize every private API request independently.
+  if (isWorkspacePage(location.pathname) && !getToken()) location.replace(signInURL(returnTo()));
   const status = message => {
     const show = () => {
       let banner = document.getElementById('oc-connection-status');
@@ -19,6 +29,8 @@
     if(document.body) show(); else document.addEventListener('DOMContentLoaded',show,{once:true});
   };
   window.OCWebConnection = {
+    signInURL,
+    hasSession: () => Boolean(getToken()),
     async signIn(email,password) {
       const response = await nativeFetch(backend.origin+'/auth/browser-session',{method:'POST',credentials:'omit',redirect:'error',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password}),signal:AbortSignal.timeout(20000)});
       const result = await response.json();
@@ -43,8 +55,9 @@
     try {
       const response = await nativeFetch(target,{method:request.method,headers,credentials:'omit',redirect:'error',cache:'no-store',signal:request.signal,...(!['GET','HEAD'].includes(request.method)?{body:await request.arrayBuffer()}:{})});
       status('');
-      if(response.status===401 && !url.pathname.startsWith('/api/public/') && !location.pathname.endsWith('/web/login.html')) {
-        setToken(''); location.assign(loginURL+'?next='+encodeURIComponent(location.pathname+location.search));
+      if(response.status===401 && !url.pathname.startsWith('/api/public/')) {
+        setToken('');
+        if (isWorkspacePage(location.pathname)) location.assign(signInURL(returnTo()));
       }
       return response;
     } catch(error) {
@@ -58,6 +71,9 @@
     const anchor = event.target.closest?.('a[href]');
     if(!anchor) return;
     const url = new URL(anchor.href,location.href);
+    if (!event.defaultPrevented && url.origin === location.origin && isWorkspacePage(url.pathname) && !getToken()) {
+      event.preventDefault(); location.assign(signInURL(url.pathname + url.search + url.hash)); return;
+    }
     if(url.origin === location.origin && /^\/projects(?:\/|$)/.test(url.pathname)) { event.preventDefault(); location.assign(backend.origin+url.pathname+url.search); return; }
     if(url.origin !== location.origin || !url.pathname.startsWith('/api/')) return;
     event.preventDefault();

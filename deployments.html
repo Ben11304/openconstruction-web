@@ -17,7 +17,7 @@
   <meta property="og:title" content="OpenConstruction · Workflows">
   <meta property="og:description" content="Explore open AEC datasets, models, workflows, benchmarks, tools, schema, and educational resources on OpenConstruction.">
   <meta property="og:url" content="https://www.openconstruction.org/deployments.html">
-  <meta property="og:image" content="https://www.openconstruction.org/assets/img/icon.png">
+  <meta property="og:image" content="https://www.openconstruction.org/assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp">
 
   
   
@@ -172,7 +172,7 @@
 <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top oc-nav">
   <div class="container">
     <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
-      <img src="assets/img/icon.png" alt="OpenConstruction logo" class="oc-logo" height="44" width="44">
+      <img src="assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp" alt="OpenConstruction logo" class="oc-logo" height="44" width="44">
     <span class="brand-wordmark">
       <span class="oc-open">OpenConstruction</span>
       <span class="oc-construction">Open Science</span>
@@ -325,7 +325,7 @@
 <footer class="py-4 mt-3 oc-site-footer">
   <div class="container oc-container small text-muted text-center">
     <div>
-      <img src="assets/img/icon.png" alt="OpenConstruction logo" width="24" height="24" style="vertical-align:-5px; margin-right:4px;"> © <span id="yearNow"></span> OpenConstruction Open Science Initiative
+      <img src="assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp" alt="OpenConstruction logo" width="24" height="24" style="vertical-align:-5px; margin-right:4px;"> © <span id="yearNow"></span> OpenConstruction Open Science Initiative
     </div>
     <div class="mt-1">
       <small>
@@ -392,13 +392,13 @@ function workflowMediaFallbackHtml(){
   return '<span class="thumb-fallback-note" data-media-fallback-note hidden>Preview unavailable</span>';
 }
 function workflowImageErrorHandler(){
-  return "this.onerror=null;this.src='assets/img/placeholder/placeholder.png';this.classList.add('is-fallback');const n=this.closest('.thumb-link')?.querySelector('[data-media-fallback-note]');if(n)n.hidden=false;";
+  return "this.onerror=null;this.src='assets/img/previews/0088a2707332b749e38d1585.webp';this.classList.add('is-fallback');const n=this.closest('.thumb-link')?.querySelector('[data-media-fallback-note]');if(n)n.hidden=false;";
 }
 
 function workflowFallbackMedia(u){
   const providerText = [u.provider, u.links?.source, ...(Array.isArray(u.organizations) ? u.organizations : [])].join(' ').toLowerCase();
   if (providerText.includes('wakecap')) {
-    return [{ type:'image', url:'assets/img/use-cases/wakecap.png', alt:'Aramco construction site' }];
+    return [{ type:'image', url:'assets/img/previews/55c99f7146572d6ea91cc21a.webp', alt:'Aramco construction site' }];
   }
   return [];
 }

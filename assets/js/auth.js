@@ -858,7 +858,7 @@
     }
     const headerProfile = await profileHeaderData(user);
     if (currentUser?.id && currentUser.id !== user.id) return;
-    const avatar = headerProfile.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || relHref('assets/img/contributors/avatar.png');
+    const avatar = headerProfile.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture || relHref('assets/img/previews/6643f80db550f5bc6e4e068a.webp');
     const name = headerProfile.display_name || userDisplayName(user);
     const menuIcon = name => ({
       workspace: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5h14v13H5z"></path><path d="M9 5.5v13"></path><path d="M5 9.5h14"></path></svg>',

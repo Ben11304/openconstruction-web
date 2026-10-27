@@ -826,7 +826,7 @@ function renderGrid(){
 function cardHTML(ds){
   const id   = ds.id || ds.name;
   const slug = encodeURIComponent(id);
-  const img  = ds.image_url || 'assets/img/placeholder/placeholder.png';
+  const img  = ds.image_url || 'assets/img/previews/0088a2707332b749e38d1585.webp';
   const detailHref = `datasets/detail.html?id=${slug}`;
   const displayTitle = formatDatasetTitle(ds.name);
 

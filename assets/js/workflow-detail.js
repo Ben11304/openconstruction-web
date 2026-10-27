@@ -36,7 +36,7 @@ function mediaFallbackNote(label = 'Preview unavailable'){
 }
 
 function mediaImageErrorHandler(){
-  return "this.onerror=null;this.src='../assets/img/placeholder/placeholder.png';this.classList.add('is-fallback');const n=this.closest('.media-wrap')?.querySelector('[data-media-fallback-note]');if(n)n.hidden=false;";
+  return "this.onerror=null;this.src='../assets/img/previews/0088a2707332b749e38d1585.webp';this.classList.add('is-fallback');const n=this.closest('.media-wrap')?.querySelector('[data-media-fallback-note]');if(n)n.hidden=false;";
 }
 
 function normalizeList(val){
@@ -109,7 +109,7 @@ function vimeoId(urlValue){
 function fallbackWorkflowMedia(item){
   const providerText = [item.provider, item.links?.source, ...normalizeList(item.organizations)].join(' ').toLowerCase();
   if (providerText.includes('wakecap')) {
-    return [{ type: 'image', url: 'assets/img/use-cases/wakecap.png', alt: 'Aramco construction site' }];
+    return [{ type: 'image', url: 'assets/img/previews/55c99f7146572d6ea91cc21a.webp', alt: 'Aramco construction site' }];
   }
   return [];
 }

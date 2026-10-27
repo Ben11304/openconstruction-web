@@ -17,7 +17,7 @@
   <meta property="og:title" content="Monthly Highlights">
   <meta property="og:description" content="A monthly record of new datasets, models, and contributors from the OpenConstruction community.">
   <meta property="og:url" content="https://www.openconstruction.org/monthly-highlights.html">
-  <meta property="og:image" content="https://www.openconstruction.org/assets/img/icon.png">
+  <meta property="og:image" content="https://www.openconstruction.org/assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp">
 
   
   
@@ -429,7 +429,7 @@
 <nav class="navbar navbar-expand-lg bg-white sticky-top oc-nav">
   <div class="container oc-container">
     <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
-      <img src="assets/img/icon.png" alt="OpenConstruction logo" class="oc-logo">
+      <img src="assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp" alt="OpenConstruction logo" class="oc-logo">
       <span class="brand-wordmark">
         <span class="oc-open">OpenConstruction</span>
         <span class="oc-construction">Open Science</span>
@@ -531,7 +531,7 @@
 
 <footer class="py-4 mt-3 oc-site-footer">
   <div class="container oc-container small text-muted text-center">
-    <div><img src="assets/img/icon.png" alt="OpenConstruction logo" width="24" height="24" style="vertical-align:-5px; margin-right:4px;"> &copy; <span id="yearNow"></span> OpenConstruction Open Science Initiative</div>
+    <div><img src="assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp" alt="OpenConstruction logo" width="24" height="24" style="vertical-align:-5px; margin-right:4px;"> &copy; <span id="yearNow"></span> OpenConstruction Open Science Initiative</div>
     <div class="mt-1">
       <small>
         Licensed under Apache 2.0.
@@ -966,7 +966,7 @@
     const renderFeaturedCards = (entries) => entries.map(({ type, item }) => {
       const title = itemTitle(item);
       const meta = resourceMeta(type, item) || 'OpenConstruction catalog resource';
-      const media = safeText(item.thumbnail || item.image_url) || (type === 'model' ? 'assets/img/models/_placeholder.png' : 'assets/img/placeholder/placeholder.png');
+      const media = safeText(item.thumbnail || item.image_url) || (type === 'model' ? 'assets/img/models/_placeholder.png' : 'assets/img/previews/0088a2707332b749e38d1585.webp');
       const detailHref = itemHref(type, item);
       const contributors = normalizeCardContributors(item, registry);
       return `
@@ -1032,7 +1032,7 @@
       const nameHtml = escapeHtml(entry.name);
       const avatar = image
         ? `<img class="headshot" src="${escapeHtml(image)}" alt="${escapeHtml(entry.name)}" loading="lazy" data-oc-image-fallback><div class="headshot is-initials" aria-hidden="true">${escapeHtml(initials(entry.name))}</div>`
-        : `<img class="headshot" src="assets/img/contributors/avatar.png" alt="${escapeHtml(entry.name)}" loading="lazy" data-oc-image-fallback><div class="headshot is-initials" aria-hidden="true">${escapeHtml(initials(entry.name))}</div>`;
+        : `<img class="headshot" src="assets/img/previews/6643f80db550f5bc6e4e068a.webp" alt="${escapeHtml(entry.name)}" loading="lazy" data-oc-image-fallback><div class="headshot is-initials" aria-hidden="true">${escapeHtml(initials(entry.name))}</div>`;
       const cardInner = `
         <div class="card-body contrib-card-wrap">
           ${avatar}

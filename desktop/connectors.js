@@ -1,6 +1,6 @@
 (() => {
   const logos=Object.freeze({
-    openconstruction:'/openconstruction-web/assets/img/icon.png',
+    openconstruction:'/openconstruction-web/assets/img/previews/e6d564f34998d4ea9fbbb4fc.webp',
     github:'/openconstruction-web/desktop/connector-logos/github.svg',
     huggingface:'/openconstruction-web/desktop/connector-logos/huggingface.svg',
     crossref:'/openconstruction-web/desktop/connector-logos/crossref.svg',
