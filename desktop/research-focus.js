@@ -18,8 +18,8 @@
       const project = root.querySelector('[data-rename-project]');
       if (project) {
         const identity = document.createElement('div'); identity.className = 'oc-focus-project';
-        const caption = document.createElement('small'); caption.textContent = 'Project workspace';
-        identity.append(project, caption); rail.prepend(identity);
+        identity.append(project); rail.prepend(identity);
+        window.OCResearchCompute?.mount(identity);
       }
       const nav = root.querySelector('.oc-agent-view-tabs');
       if (nav) actions.prepend(nav);

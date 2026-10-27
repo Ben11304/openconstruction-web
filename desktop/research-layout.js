@@ -12,6 +12,7 @@
     rememberSelection(projectId, sessionId, project) {
       if (projectId && sessionId) localStorage.setItem('oc.desktop.selection', JSON.stringify({projectId, sessionId}));
       currentProject = project;
+      window.OCResearchCompute?.select(projectId);
       const rename = root?.querySelector('[data-rename-project]');
       if (rename) {
         rename.textContent = project?.name || 'Untitled project';
