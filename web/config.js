@@ -1,1 +1,1 @@
-window.OC_WEB_CONFIG = {"backendOrigin":"https://cemetery-groundwater-brought-juvenile.trycloudflare.com","basePath":"/openconstruction-web/"};
+window.OC_WEB_CONFIG = {"backendOrigin":"https://irc-americas-dose-loop.trycloudflare.com","basePath":"/openconstruction-web/"};
