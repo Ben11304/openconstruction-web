@@ -1,24 +1,35 @@
 /* OC agent canvas: navy dispatch, slate workspace, amber replay. */
 .oc-agents{position:relative}
 .oc-agent-chat-layer{position:absolute;inset:0;pointer-events:none;z-index:2}
-.oc-agent-chat{position:absolute;pointer-events:auto;display:flex;flex-direction:column;width:370px;height:400px;min-width:270px;min-height:170px;max-width:100%;max-height:70vh;resize:both;overflow:hidden;border:1px solid #8ca5bb;border-radius:8px;background:#fff;box-shadow:0 10px 32px #18395326;font:12px/1.5 -apple-system,BlinkMacSystemFont,sans-serif}
-.oc-agent-chat-title{display:flex;align-items:center;gap:6px;flex:none;cursor:move;touch-action:none;padding:10px 12px;background:#edf3f8;border-bottom:1px solid #c5d0da;color:#193b59}
+.oc-agent-chat{position:absolute;pointer-events:auto;display:flex;flex-direction:column;width:440px;height:560px;min-width:290px;min-height:300px;max-width:100%;max-height:min(720px,70vh);resize:both;overflow:hidden;border:1px solid #dce2d8;border-radius:16px;background:#fff;box-shadow:0 16px 48px #26342318,0 2px 8px #26342308;font:14px/1.65 Inter,-apple-system,BlinkMacSystemFont,sans-serif;color:#2c352d}
+.oc-agent-chat-title{display:flex;align-items:center;gap:10px;flex:none;cursor:move;touch-action:none;padding:14px 16px;background:#fff;border-bottom:1px solid #edf0e9;color:#2c352d}
 .oc-agent-chat-title strong{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.oc-agent-chat-avatar{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:11px;background:#ecf1e7;color:#48613c;font-size:14px;font-weight:600}
+.oc-agent-chat-identity{flex:1;min-width:0;line-height:1.4}
+.oc-agent-chat-identity strong{display:block;font-size:14px;font-weight:600}
+.oc-agent-chat-identity small{display:block;font-size:11px;color:#6c7863;margin-top:2px}
+.oc-agent-chat-identity [data-state=running]{color:#536e44}.oc-agent-chat-identity [data-state=blocked]{color:#94661e}
 .oc-agent-chat-title{user-select:none}
 .oc-agent-chat .oc-chat-stop{border:1px solid #b8c8d6;border-radius:4px;padding:5px 8px;background:white;color:#8b3f46;font:inherit;cursor:pointer}
 .oc-agent-chat .oc-chat-markdown{font:inherit;max-width:100%;overflow-wrap:anywhere}.oc-agent-chat .oc-chat-markdown p{white-space:normal}.oc-agent-chat .oc-chat-markdown pre{white-space:pre-wrap}
-.oc-agent-chat-title button{background:transparent;border:0;color:#34536e;font-size:18px;line-height:1;padding:3px 6px;cursor:pointer}
-.oc-agent-chat-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none;padding:7px 12px;border-bottom:1px solid #e1e8ee;background:#f8fafc}
-.oc-agent-chat-actions .oc-node-settings-toggle{font:inherit;font-size:11px;line-height:1.4;border:1px solid #b8c8d6;border-radius:4px;padding:5px 7px;background:#fff;color:#34536e;white-space:nowrap;cursor:pointer}
+.oc-agent-chat-title button{display:grid;place-items:center;flex:none;width:30px;height:30px;background:transparent;border:0;border-radius:7px;color:#7c8477;font-size:20px;line-height:1;padding:0;cursor:pointer}
+.oc-agent-chat-title button:hover,.oc-agent-chat-title button[aria-expanded=true]{background:#f0f3ec;color:#364e2c}
+.oc-agent-chat-actions{display:flex;align-items:center;gap:2px;flex:none;padding:0;background:transparent}
+.oc-agent-chat-actions .oc-node-settings-toggle{font:inherit;border:0;padding:0;background:transparent;color:#7c8477;cursor:pointer}
+.oc-agent-chat-actions svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.oc-agent-chat-actions .needs-approval{color:#94661e;background:#fff5dd}
 .oc-node-settings{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:12px 14px;background:#f8fafc;color:#193b59}
 .oc-agent-chat-content>[hidden]{display:none!important}
-.oc-node-settings>label{display:block;margin:0 0 12px;font-size:12px;font-weight:600}
+.oc-node-settings>label,.oc-node-settings>div>label{display:block;margin:0 0 12px;font-size:12px;font-weight:600}
 .oc-node-settings select{display:block;box-sizing:border-box;width:100%;min-width:0;margin:5px 0;padding:7px 8px;border:1px solid #b4c5d3;border-radius:4px;background:white;color:#193b59;font:inherit;font-weight:400}
 .oc-node-settings select:disabled{opacity:.65;cursor:not-allowed}
 .oc-node-settings label>small{display:block;font-size:10px;font-weight:400;overflow-wrap:anywhere}
 .oc-node-settings .oc-node-settings-help,.oc-node-settings [data-settings-notice]{font-size:11px;line-height:1.5;margin:0 0 12px;color:#526577}
 .oc-node-settings [data-settings-notice].is-error{color:#993c37}
-.oc-node-settings>button{border:1px solid #b4c5d3;background:#fff;color:#193b59;border-radius:4px;padding:5px 8px;font:inherit;cursor:pointer}
+.oc-node-settings>button,.oc-node-settings>div>button{border:1px solid #b4c5d3;background:#fff;color:#193b59;border-radius:4px;padding:5px 8px;font:inherit;cursor:pointer}
+.oc-node-settings [data-cap-fields]{font-size:12px;overflow-wrap:anywhere}
+.oc-node-settings h3{font-size:14px;margin:20px 0 8px}
+.oc-node-settings [data-cap-notice]{font-size:12px;line-height:1.5}
 .oc-node-settings details{margin-top:16px;border-top:1px solid #d8e1e9;padding-top:10px}
 .oc-node-settings summary{cursor:pointer;font-weight:600}
 .oc-node-settings .oc-node-role{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.6}
@@ -27,46 +38,75 @@
 .oc-builder .oc-boss-choice small{display:block;margin-top:4px;font-weight:400}
 .oc-builder [data-boss-preview]{padding:0 2px;color:#193b59;font-size:12px;line-height:1.6}
 .oc-builder [hidden]{display:none!important}
-.oc-agent-chat.is-minimized{height:44px!important;min-height:44px;resize:none}.oc-agent-chat.is-minimized .oc-agent-chat-content{display:none}
+.oc-agent-chat.is-minimized{height:64px!important;min-height:64px;resize:none}.oc-agent-chat.is-minimized .oc-agent-chat-content{display:none}
 .oc-agent-chat-content{display:flex;flex-direction:column;flex:1;min-height:0}
-.oc-agent-chat-status{margin:0;padding:7px 12px;border-bottom:1px solid #e1e8ee;background:#f8fafc;color:#526577;font-size:10px}
-.oc-agent-chat-messages{flex:1;min-height:60px;overflow:auto;overscroll-behavior:contain;padding:12px;background:#f4f7fa}
-.oc-agent-chat-messages>article{box-sizing:border-box;min-width:0;max-width:100%;margin:0 12px 12px 0;padding:10px 12px;border:1px solid #c5d0da;border-radius:8px;background:#fff;color:#193b59;overflow-wrap:anywhere}
+.oc-agent-chat-status{margin:0;padding:9px 18px;background:#fff7e8;color:#8b641f;font-size:12px}
+.oc-agent-chat-approval{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;background:#fff8e9;color:#8b641f;font-size:12px;flex:none}
+.oc-agent-chat-approval button{border:0;background:transparent;color:#795016;font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:3px 0;white-space:nowrap}
+.oc-agent-chat-messages{flex:1;min-height:60px;overflow:auto;overscroll-behavior:contain;padding:22px 20px 16px;background:#fff;scrollbar-width:thin;scrollbar-color:#d9dfd3 transparent}
+.oc-agent-chat-messages>article{box-sizing:border-box;min-width:0;max-width:100%;margin:0 0 24px;padding:0;border:0;border-radius:0;background:transparent;color:#30392f;overflow-wrap:anywhere}
 .oc-agent-chat-messages>article:last-child{margin-bottom:0}
-.oc-agent-chat-messages>article.is-user,.oc-agent-chat-messages>article.is-queued{margin-left:12px;margin-right:0;background:#e9f2fa;border-color:#b4cce0;color:#174c77}
-.oc-agent-chat-messages>article.is-progress,.oc-agent-chat-messages>article.is-queued{border-style:dashed}
-.oc-agent-chat-messages>article.is-progress{background:#f0f4f7}
-.oc-agent-chat-messages>article.is-error{background:#fff3f2;border-color:#d6aaa7;color:#843d38}
-.oc-agent-chat-messages>article>strong{display:block;font-size:10px;line-height:1.4;color:#526577;margin-bottom:6px;overflow-wrap:anywhere}
-.oc-agent-chat-messages p{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere;margin:5px 0 0}
+.oc-agent-chat-messages>article.is-user,.oc-agent-chat-messages>article.is-queued{width:fit-content;max-width:88%;margin-left:auto;padding:10px 14px;border-radius:14px 14px 4px 14px;background:#eef2e9;color:#34472f}
+.oc-agent-chat-messages>article.is-user>.oc-agent-message-sender{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.oc-agent-chat-messages>article.is-queued{background:#f5f6f2}
+.oc-agent-chat-messages>article.is-progress{padding:0;background:transparent;color:#6c7863;font-size:12px}
+.oc-agent-chat-messages>article.is-error{padding:12px 14px;border-left:2px solid #bf8275;border-radius:6px;background:#fff7f3;color:#864d40}
+.oc-agent-chat-messages>article>strong{display:block;font-size:11px;line-height:1.4;color:#6c7863;margin-bottom:7px;font-weight:500;overflow-wrap:anywhere}
+.oc-agent-chat-messages p{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 0}
+.oc-agent-progress summary{display:flex;align-items:baseline;gap:7px;padding:3px 0;cursor:pointer;list-style:none;line-height:1.6}
+.oc-agent-progress summary::-webkit-details-marker{display:none}
+.oc-agent-progress summary::after{content:'⌄';color:#85917b;flex:none;margin-left:auto}
+.oc-agent-progress[open] summary::after{transform:rotate(180deg)}
+.oc-agent-progress summary strong{font-size:11px;font-weight:500;color:#637858;flex:none}
+.oc-agent-progress-preview{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.oc-agent-progress[open] .oc-agent-progress-preview{display:none}
+.oc-agent-progress>.oc-chat-markdown,.oc-agent-progress>p{padding:10px 0 0 14px;color:#6c7863}
+.oc-agent-activity-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#93a584;flex:none;align-self:baseline;margin-top:6px}
+.oc-agent-chat-empty{min-height:180px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;color:#6c7863;padding:16px 4px}
+.oc-agent-chat-empty>span{font-size:24px;color:#6e845c;margin-bottom:14px}
+.oc-agent-chat-empty h3{font-size:19px;font-weight:500;line-height:1.4;letter-spacing:-.025em;color:#3b4e32;margin:0 0 8px}
+.oc-agent-chat-empty p{font-size:13px;line-height:1.7;max-width:32ch}
 .oc-agent-chat-messages .oc-chat-markdown{overflow-x:auto;min-width:0}
 .oc-agent-chat-messages .oc-chat-markdown>:first-child{margin-top:0}
 .oc-agent-chat-messages .oc-chat-markdown>:last-child{margin-bottom:0}
 .oc-agent-chat form{flex:none;padding:10px;border-top:1px solid #d8e1e9}.oc-agent-chat textarea{box-sizing:border-box;display:block;resize:vertical;min-height:52px;max-height:130px;width:100%;padding:8px;border:1px solid #b4c5d3;border-radius:4px;font:inherit;background:#fff;color:#193b59}.oc-agent-chat form>div{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:7px}.oc-agent-chat [data-team-stop]{margin-right:auto}.oc-agent-chat small{font-size:9px;color:#617286}.oc-agent-chat [type=submit]{border:0;border-radius:4px;padding:6px 14px;background:#234d70;color:white;font:inherit;cursor:pointer}
-.oc-agent-chat form.oc-agent-composer{border-top:0;padding:10px;background:#fff}
-.oc-agent-chat .oc-agent-composer>.oc-composer-frame{display:block;margin:0;padding:10px 10px 8px;border:1px solid #e2e5e9;border-radius:20px;background:#fff;box-shadow:0 1px 3px #15202b08}
-.oc-composer-frame:focus-within{border-color:#9aa5b1}
-.oc-agent-chat .oc-agent-composer textarea{min-height:66px;max-height:150px;padding:2px 3px 9px;border:0;border-radius:0;resize:none;background:transparent;line-height:1.5;box-shadow:none;outline:none}
+.oc-agent-chat form.oc-agent-composer{border-top:0;padding:4px 14px 10px;background:#fff}
+.oc-agent-chat .oc-agent-composer>.oc-composer-frame{display:block;margin:0;padding:12px 12px 9px;border:1px solid #dfe5d8;border-radius:14px;background:#fcfdfb;box-shadow:0 2px 5px #26342304}
+.oc-agent-chat .oc-composer-frame:focus-within{border-color:#9aab8d;box-shadow:0 0 0 3px #637e4e09}
+.oc-agent-chat .oc-agent-composer textarea{min-height:38px;max-height:150px;padding:0 2px 5px;border:0;border-radius:0;resize:none;background:transparent;line-height:1.6;box-shadow:none;outline:none;color:#34402e}
+.oc-agent-chat .oc-agent-composer textarea::placeholder{color:#6c7863}
+.oc-agent-composer-hint{font-size:11px;line-height:1.5;color:#6c7863;text-align:center;margin:7px 0 0}
 .oc-composer-footer{display:flex;align-items:flex-end;gap:8px;margin-top:4px}
 .oc-composer-selectors{display:flex;align-items:center;flex:1;min-width:0;gap:4px;flex-wrap:wrap}
-.oc-composer-selectors select{box-sizing:border-box;min-width:0;max-width:100%;border:0;background:transparent;color:#626b75;font:inherit;font-size:10px;cursor:pointer;padding:5px 0;outline-offset:0}
-.oc-composer-selectors [data-composer-model]{flex:1 0 140px;max-width:180px}
+.oc-composer-selectors select{box-sizing:border-box;min-width:0;max-width:100%;border:0;background:transparent;color:#6c7863;font:inherit;font-size:11px;cursor:pointer;padding:5px 0;outline-offset:0}
+.oc-composer-selectors [data-composer-model]{flex:1 1 110px;max-width:190px}
 .oc-composer-selectors [data-composer-effort]{width:82px;flex:none}
 .oc-composer-selectors [data-composer-permissions]{width:118px;flex:none}
 .oc-composer-selectors [data-composer-permissions]:disabled{cursor:not-allowed}
 .oc-composer-selectors select:disabled{opacity:.6;cursor:wait}
+.oc-agent-chat .oc-composer-options{position:relative;font-size:11px;color:#6c7863;flex:none}
+.oc-agent-chat .oc-composer-options>summary{cursor:pointer;list-style:none;border-radius:5px;padding:5px 7px}
+.oc-agent-chat .oc-composer-options>summary::-webkit-details-marker{display:none}
+.oc-agent-chat .oc-composer-options>summary:hover,.oc-agent-chat .oc-composer-options[open]>summary{background:#eef2e8;color:#4a603d}
+.oc-agent-chat .oc-composer-options>div{position:absolute;z-index:4;right:0;bottom:calc(100% + 10px);width:220px;box-sizing:border-box;padding:14px;background:#fff;border:1px solid #e0e6da;border-radius:10px;box-shadow:0 8px 24px #26342316}
+.oc-agent-chat .oc-composer-options label{display:block;font-size:11px;color:#6d7c61}
+.oc-agent-chat .oc-composer-options label+label{margin-top:12px}
+.oc-agent-chat .oc-composer-options select{display:block;width:100%;margin-top:4px;border:1px solid #e3e8dd;border-radius:5px;padding:6px;color:#3c4c32;background:#fafcf7}
 .oc-composer-buttons{display:flex;align-items:center;gap:6px;flex:none}
-.oc-agent-chat .oc-composer-button{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;margin:0;padding:0;border:0;border-radius:50%;background:#111;color:#fff;cursor:pointer;flex:none}
+.oc-agent-chat .oc-composer-button{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0;padding:0;border:0;border-radius:10px;background:#49603c;color:#fff;cursor:pointer;flex:none}
 .oc-composer-button svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.oc-agent-chat .oc-composer-button:hover{background:#333}
-.oc-agent-chat .oc-composer-send:disabled{background:#e9ecef;color:#9aa1a9;cursor:default}
+.oc-agent-chat .oc-composer-button:hover{background:#354b2a}
+.oc-agent-chat .oc-composer-stop{background:#f3f5ef;color:#76816e;box-shadow:inset 0 0 0 1px #e1e6db}
+.oc-agent-chat .oc-composer-stop:hover{background:#e9eee2;color:#4e6440}
+.oc-agent-chat .oc-composer-send:disabled{background:#eff2e9;color:#b6bead;cursor:default}
 .oc-agent-chat .oc-composer-stop:disabled{opacity:.45;cursor:wait}
 .oc-composer-queue-count{font-size:10px;color:#626b75;white-space:nowrap;padding:2px 3px}
 .oc-composer-notice{font-size:10px;color:#993c37;margin:2px 3px 6px;overflow-wrap:anywhere}
 .oc-agent-chat :focus-visible{outline:2px solid #3478aa;outline-offset:2px}
+.oc-project-team .oc-agent-chat :focus-visible{outline-color:#6e865a}
 .oc-agents .oc-graph-canvas{height:clamp(420px,57vh,680px)}
 .oc-flow-edge.is-active path{filter:drop-shadow(0 0 4px #398ac0);stroke-width:3}
-@media(max-width:600px){.oc-agent-chat{width:calc(100% - 24px);left:12px!important}.oc-agents-toolbar{flex-wrap:wrap}}
+@media(max-width:600px){.oc-agent-chat{width:calc(100% - 24px);max-width:calc(100% - 24px);left:12px!important}.oc-agent-chat-title{gap:7px;padding:12px}.oc-agent-chat-messages{padding:18px 16px}.oc-agents-toolbar{flex-wrap:wrap}}
 .oc-project-team{position:relative;min-height:560px;font:13px/1.5 Inter,-apple-system,BlinkMacSystemFont,sans-serif;color:#233c54}
 .oc-project-team-visible>.oc-research-stage-head{display:none!important}
 .oc-team-toolbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid #dee5eb;flex-wrap:wrap}

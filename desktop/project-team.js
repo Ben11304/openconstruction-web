@@ -3,6 +3,35 @@
   const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const active = s => ['queued','running','blocked'].includes(s);
   const EFFORTS=['low','medium','high','xhigh','max'];
+  function capabilitySettings(host,{sessionId,isActive,onBusy=()=>{}}){
+    let state,pending=false,disposed=false;
+    const route='/api/research/sessions/'+encodeURIComponent(sessionId)+'/capabilities';
+    const key=s=>[s.libraryId,s.versionId||s.libraryVersionId,s.skillId].join('/');
+    const ref=s=>({libraryId:s.libraryId,versionId:s.versionId||s.libraryVersionId,skillId:s.skillId});
+    const q=s=>host.querySelector(s);
+    host.innerHTML='<h3>Agent resources</h3><p>Skills and connectors are assigned only to this agent. Tool limits also apply to connector and memory tools.</p><p data-cap-notice role="status"></p><div data-cap-fields></div><button type="button" data-cap-reload>Reload resources</button> <button type="button" data-cap-save>Save resources</button>';
+    function sync(){if(disposed)return;host.querySelectorAll('input,select,button').forEach(e=>e.disabled=pending||isActive()||(!state&&!e.hasAttribute('data-cap-reload')));}
+    function notice(message){if(!disposed)q('[data-cap-notice]').textContent=message;}
+    async function request(method='GET',body){const response=await fetch(route,{method,cache:'no-store',headers:{'Content-Type':'application/json','X-OC-Workspace':'research'},signal:AbortSignal.timeout(15000),...(body?{body:JSON.stringify(body)}:{})});const data=await response.json();if(!response.ok)throw Error(data.detail||data.error||'Resource update failed');return data;}
+    function render(){
+      if(disposed)return;
+      const c=state.capabilities,catalog=state.catalog;
+      const selected=new Set(c.skills.map(key)),skills=new Map([...catalog.skills,...c.skills].map(s=>[key(s),s]));
+      const checks=(items,kind,chosen)=>items.map(i=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-cap-${kind} value="${esc(i.id)}" ${chosen.includes(i.id)?'checked':''}> ${esc(i.name||i.id)}</label>`).join('');
+      const connectors=new Map([...catalog.connectors,...c.connectorIds.filter(id=>!catalog.connectors.some(x=>x.id===id)).map(id=>({id,name:id+' (unavailable)'}))].map(x=>[x.id,x]));
+      const tools=[...new Set([...catalog.tools,...(c.allowedToolNames||[]),...c.deniedToolNames])].sort();
+      q('[data-cap-fields]').innerHTML=`<details open><summary>Skills (${c.skills.length})</summary>${[...skills].map(([id,s])=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-cap-skill value="${esc(id)}" ${selected.has(id)?'checked':''}> ${esc(s.skillId)} <a href="/openconstruction-web/desktop/skills-detail.html?${esc(new URLSearchParams(ref(s)))}" target="_blank" rel="noopener">Review version ${esc(s.version)}</a></label>`).join('')||'<p>No catalog skills available.</p>'}<label><input type="checkbox" data-cap-reviewed> I reviewed the newly selected skills and their licenses.</label></details><details><summary>Connectors (${c.connectorIds.length})</summary>${checks([...connectors.values()],'connector',c.connectorIds)}</details><details><summary>Tools</summary><label>Access <select data-cap-mode><option value="all">All available tools, except denied</option><option value="selected">Only selected tools</option></select></label><p>Selecting a tool does not enable its connector. Deny takes precedence.</p><div style="max-height:260px;overflow:auto">${tools.map(name=>`<div style="margin:6px 0"><span>${esc(name)}</span> <label><input type="checkbox" data-cap-allow value="${esc(name)}" ${c.allowedToolNames?.includes(name)?'checked':''}> Allow</label> <label><input type="checkbox" data-cap-deny value="${esc(name)}" ${c.deniedToolNames.includes(name)?'checked':''}> Deny</label></div>`).join('')}</div></details>`;
+      q('[data-cap-mode]').value=c.allowedToolNames===null?'all':'selected';
+      state.skillOptions=skills;sync();
+    }
+    async function load(){if(pending||disposed)return;pending=true;onBusy(true);sync();try{state=await request();render();notice('Saved for this agent · revision '+state.capabilities.revision);}catch(e){notice(e.message);}finally{pending=false;sync();onBusy(false);}}
+    async function save(){if(pending||disposed||!state||isActive())return;pending=true;onBusy(true);sync();const selected=kind=>[...host.querySelectorAll(`[data-cap-${kind}]:checked`)].map(e=>e.value);try{
+      const capabilities=await request('PUT',{expectedRevision:state.capabilities.revision,skills:selected('skill').map(id=>ref(state.skillOptions.get(id))),connectorIds:selected('connector'),allowedToolNames:q('[data-cap-mode]').value==='all'?null:selected('allow'),deniedToolNames:selected('deny'),reviewed:q('[data-cap-reviewed]').checked});
+      state.capabilities=capabilities;render();notice('Resources saved for this agent only.');
+    }catch(e){notice(e.message+' Reload resources if another update was saved.');}finally{pending=false;sync();onBusy(false);}}
+    q('[data-cap-reload]').onclick=load;q('[data-cap-save]').onclick=save;sync();
+    return {load,sync,dispose(){disposed=true;},get busy(){return pending;}};
+  }
   function effortOptions(info){return info?.efforts?.length?EFFORTS.filter(e=>info.efforts.includes(e)):EFFORTS;}
   function runtimeChange(settings,field,value,info){
     const next={...settings.overrides};
@@ -117,7 +146,13 @@
   function messageBox(entry){
     const kind=['user','assistant','progress','queued','error'].includes(entry.kind)?entry.kind:'assistant';
     const markdown=['assistant','progress'].includes(kind)&&window.OCResearchChat?.markdown;
-    return `<article class="oc-agent-message is-${kind}"><strong class="oc-agent-message-sender">${esc(entry.role)}</strong>${markdown?`<div class="oc-chat-markdown">${window.OCResearchChat.markdown(entry.content)}</div>`:`<p>${esc(entry.content)}</p>`}</article>`;
+    const body=markdown?`<div class="oc-chat-markdown">${window.OCResearchChat.markdown(entry.content)}</div>`:`<p>${esc(entry.content)}</p>`;
+    if(kind==='progress'){
+      const latest=String(entry.content??'').trim().split(/\n\s*\n/).filter(Boolean).at(-1)||'Working on your request…';
+      const preview=latest.length>160?latest.slice(0,157)+'…':latest;
+      return `<article class="oc-agent-message is-progress"><details class="oc-agent-progress"><summary><span class="oc-agent-activity-dot" aria-hidden="true"></span><strong class="oc-agent-message-sender">${esc(entry.role)}</strong><span class="oc-agent-progress-preview">${esc(preview)}</span></summary>${body}</details></article>`;
+    }
+    return `<article class="oc-agent-message is-${kind}"><strong class="oc-agent-message-sender">${esc(entry.role)}</strong>${body}</article>`;
   }
   const MIN_ZOOM=.2,MAX_ZOOM=2.5;
   function zoomAt(view,scale,point){
@@ -188,45 +223,57 @@
     async function refresh(){if(!visible||!projectId||loading)return;loading=true;const requested=projectId;try{const [data,catalog]=await Promise.all([api(),availableModels()]);if(requested!==projectId)return;snapshot=data;models=catalog;error='';draw();await Promise.all([...chats.values()].map(refreshChat));}catch(e){if(requested===projectId){error=`Team connection unavailable: ${e.message}`;draw();}}finally{loading=false;}}
     function chatNotice(chat,message=''){const notice=chat.el.querySelector('[data-team-chat-status]');notice.textContent=message;notice.hidden=!message;}
     function syncComposer(chat){
-      const state=composerState({status:chat.run?.status,draft:chat.el.querySelector('textarea').value,sending:chat.sending,busy:chat.settingsBusy,stopping:chat.stopping,queued:chat.queued||0});
+      const state=composerState({status:chat.run?.status,draft:chat.el.querySelector('textarea').value,sending:chat.sending,busy:chat.settingsBusy||chat.capabilityBusy,stopping:chat.stopping,queued:chat.queued||0});
       const send=chat.el.querySelector('[type=submit]'),stop=chat.el.querySelector('[data-team-stop]'),queue=chat.el.querySelector('[data-team-queue-count]');
       const label=state.mode==='queue'?'Queue message':'Send message';send.disabled=state.sendDisabled;send.title=label;send.setAttribute('aria-label',label);send.dataset.mode=state.mode;send.querySelector('svg').innerHTML=COMPOSER_ICONS[state.mode];
       stop.hidden=!state.stopVisible;stop.disabled=state.stopDisabled;stop.title=chat.run?.status==='queued'?'Cancel queued task':'Stop current task';stop.setAttribute('aria-label',stop.title);
       queue.hidden=!state.queued;queue.textContent=state.queued?`${state.queued} queued`:'';
+      const presence=chat.el.querySelector('[data-team-presence]'),status=chat.run?.status;
+      presence.textContent=status==='blocked'?'Needs your approval':status==='running'?'Working on your request':status==='queued'?'Message queued':'Ready to help';
+      presence.dataset.state=active(status)?status:'idle';
+      const sessionButton=chat.el.querySelector('[data-team-open-session]');
+      sessionButton?.classList.toggle('needs-approval',status==='blocked');
+      if(sessionButton){sessionButton.title=status==='blocked'?'Review pending approvals':'Open full conversation and approvals';sessionButton.setAttribute('aria-label',sessionButton.title);}
+      chat.el.querySelector('[data-team-approval]').hidden=status!=='blocked';
+      chat.el.querySelector('[data-composer-hint]').textContent=state.mode==='queue'?'New messages will be queued.':'Enter to send · Shift+Enter for a new line';
     }
     async function refreshChat(chat){
       const requested=projectId;try{const data=await api(`/${chat.id}/chat`);if(requested!==projectId||!chats.has(chat.id))return;
         const runs=[...data.runs].sort((a,b)=>b.createdAt.localeCompare(a.createdAt));const run=runs.find(r=>['running','blocked'].includes(r.status))||runs.find(r=>r.status==='queued')||runs[0];
         chatNotice(chat,chat.error);
-        chat.run=run;chat.queued=runs.filter(r=>r.status==='queued').length;chat.settings?.sync();syncComposer(chat);
-        const entries=data.messages.map(m=>({id:m.id,kind:m.role==='user'?'user':'assistant',role:m.role==='user'?'You / assignment':chat.id,content:m.content}));
-        if(data.progress)entries.push({id:'live-progress',kind:'progress',role:chat.id+' · progress',content:data.progress});
-        if(data.response)entries.push({id:'live-response',kind:'assistant',role:chat.id,content:data.response});
+        chat.run=run;chat.queued=runs.filter(r=>r.status==='queued').length;chat.settings?.sync();chat.capabilities?.sync();syncComposer(chat);
+        const entries=data.messages.map(m=>({id:m.id,kind:m.role==='user'?'user':'assistant',role:m.role==='user'?'You':chat.name,content:m.content}));
+        if(data.progress)entries.push({id:'live-progress',kind:'progress',role:'Working',content:data.progress});
+        if(data.response)entries.push({id:'live-response',kind:'assistant',role:chat.name,content:data.response});
         const recorded=new Set(data.runs.filter(r=>r.userMessageId).map(r=>r.id));
         for(const queued of runs.filter(r=>r.status==='queued'&&!recorded.has(r.id)))entries.push({id:queued.id,kind:'queued',role:'Queued',content:queued.prompt});
         if(run?.error)entries.push({id:run.id+':error',kind:'error',role:'Error',content:run.error});
-        const key=JSON.stringify(entries);if(chat.key!==key){chat.key=key;const messages=chat.el.querySelector('[data-team-messages]'),bottom=messages.scrollHeight-messages.scrollTop-messages.clientHeight<80;messages.innerHTML=entries.map(messageBox).join('');if(bottom)messages.scrollTop=messages.scrollHeight;}
+        const key=JSON.stringify(entries);if(chat.key!==key){chat.key=key;const messages=chat.el.querySelector('[data-team-messages]'),bottom=messages.scrollHeight-messages.scrollTop-messages.clientHeight<80,top=messages.scrollTop,expanded=messages.querySelector('.oc-agent-progress')?.open;messages.innerHTML=entries.length?entries.map(messageBox).join(''):`<div class="oc-agent-chat-empty"><span aria-hidden="true">✦</span><h3>What would you like to work on?</h3><p>Ask ${esc(chat.name)} a question, explore your data, or share an idea.</p></div>`;if(expanded&&messages.querySelector('.oc-agent-progress'))messages.querySelector('.oc-agent-progress').open=true;messages.scrollTop=bottom?messages.scrollHeight:top;}
       }catch(e){chatNotice(chat,e.message);}
     }
     function open(id){const old=chats.get(id);if(old){old.el.hidden=false;old.el.classList.remove('is-minimized');old.el.style.zIndex=++z;old.el.querySelector('textarea').focus();return;}const agent=snapshot.agents.find(a=>a.id===id);if(!agent)return;
       const el=document.createElement('section');el.className='oc-agent-chat';el.setAttribute('aria-label',agent.name+' chat');el.style.cssText=`left:${20+chats.size*24}px;top:${100+chats.size*24}px;z-index:${++z}`;
-      el.innerHTML=`<header class="oc-agent-chat-title" tabindex="0"><strong>${esc(agent.name)} · ${esc(id)}</strong><button type="button" data-min aria-label="Minimize chat">−</button><button type="button" data-close aria-label="Close chat">×</button></header><div class="oc-agent-chat-content"><div class="oc-agent-chat-actions"></div><p class="oc-agent-chat-status" data-team-chat-status role="status">Loading conversation…</p><div class="oc-agent-chat-messages" data-team-messages role="log" aria-label="${esc(id)} conversation"></div>
-        <form class="oc-agent-composer"><div class="oc-composer-frame"><textarea rows="2" aria-label="Message ${esc(id)}" placeholder="Message ${esc(agent.name)}…"></textarea>
+      el.innerHTML=`<header class="oc-agent-chat-title" tabindex="0"><span class="oc-agent-chat-avatar" aria-hidden="true">${esc(agent.name.slice(0,1).toUpperCase())}</span><div class="oc-agent-chat-identity"><strong>${esc(agent.name)}</strong><small data-team-presence>Ready to help</small></div><div class="oc-agent-chat-actions"></div><button type="button" data-min aria-label="Minimize chat" title="Minimize chat">−</button><button type="button" data-close aria-label="Close chat" title="Close chat">×</button></header><div class="oc-agent-chat-content"><p class="oc-agent-chat-status" data-team-chat-status role="status">Loading conversation…</p><div class="oc-agent-chat-approval" data-team-approval role="status" hidden><span>A step needs your approval.</span><button type="button" data-team-review>Review request</button></div><div class="oc-agent-chat-messages" data-team-messages role="log" aria-label="${esc(id)} conversation"></div>
+        <form class="oc-agent-composer"><div class="oc-composer-frame"><textarea rows="1" aria-label="Message ${esc(id)}" placeholder="Ask ${esc(agent.name)} anything…"></textarea>
           <p class="oc-composer-notice" data-composer-notice role="status" hidden></p>
-          <div class="oc-composer-footer"><div class="oc-composer-selectors"><select data-composer-model aria-label="Message model" disabled><option>Model…</option></select><select data-composer-effort aria-label="Message thinking effort" disabled><option>Effort…</option></select><select data-composer-permissions aria-label="Message permissions" disabled><option value="ask_for_dangerous">Permissions: Ask</option><option value="always_allow">Always allow</option></select><span data-team-queue-count class="oc-composer-queue-count" aria-live="polite" hidden></span></div>
+          <div class="oc-composer-footer"><div class="oc-composer-selectors"><select data-composer-model aria-label="Message model" disabled><option>Model…</option></select><details class="oc-composer-options"><summary title="Thinking effort and action approvals">Options</summary><div><label>Thinking effort<select data-composer-effort aria-label="Message thinking effort" disabled><option>Effort…</option></select></label><label>Action approvals<select data-composer-permissions aria-label="Message permissions" disabled><option value="ask_for_dangerous">Permissions: Ask</option><option value="always_allow">Always allow</option></select></label></div></details><span data-team-queue-count class="oc-composer-queue-count" aria-live="polite" hidden></span></div>
             <div class="oc-composer-buttons"><button type="button" class="oc-composer-button oc-composer-stop" data-team-stop aria-label="Stop current task" title="Stop current task" hidden><svg viewBox="0 0 24 24" aria-hidden="true">${COMPOSER_ICONS.stop}</svg></button><button type="submit" class="oc-composer-button oc-composer-send" aria-label="Send message" title="Send message" disabled><svg viewBox="0 0 24 24" aria-hidden="true">${COMPOSER_ICONS.send}</svg></button></div>
-          </div></div></form></div>`;
-      const chat={id,el,key:'',sessionId:agent.sessionId,projectId,error:'',sending:false,stopping:false,settingsBusy:false,queued:0};chats.set(id,chat);layer.append(el);
-      el.onpointerdown=()=>el.style.zIndex=++z;el.querySelector('[data-close]').onclick=()=>{chat.settings?.dispose();el.remove();chats.delete(id);};el.querySelector('[data-min]').onclick=()=>el.classList.toggle('is-minimized');
+          </div></div><p class="oc-agent-composer-hint" data-composer-hint></p></form></div>`;
+      const chat={id,name:agent.name,el,key:'',sessionId:agent.sessionId,projectId,error:'',sending:false,stopping:false,settingsBusy:false,queued:0};chats.set(id,chat);layer.append(el);
+      el.onpointerdown=()=>el.style.zIndex=++z;el.querySelector('[data-close]').onclick=()=>{chat.settings?.dispose();chat.capabilities?.dispose();el.remove();chats.delete(id);};el.querySelector('[data-min]').onclick=()=>el.classList.toggle('is-minimized');
       const settingsHost=document.createElement('section');settingsHost.className='oc-node-settings';settingsHost.hidden=true;settingsHost.setAttribute('aria-label',agent.name+' settings');el.querySelector('.oc-agent-chat-content').append(settingsHost);
-      chat.settings=agentSettings(settingsHost,{sessionId:chat.sessionId,role:agent.role,isActive:()=>chat.sending||active(chat.run?.status),composer:el.querySelector('form'),onBusy:busy=>{chat.settingsBusy=busy;syncComposer(chat);}});
-      const settingsButton=document.createElement('button');settingsButton.type='button';settingsButton.className='oc-node-settings-toggle';settingsButton.textContent='Settings';settingsButton.setAttribute('aria-expanded','false');el.querySelector('.oc-agent-chat-actions').append(settingsButton);
-      settingsButton.onclick=()=>{const show=settingsHost.hidden;settingsHost.hidden=!show;el.querySelector('[data-team-messages]').hidden=show;el.querySelector('form').hidden=show;settingsButton.textContent=show?'Back to chat':'Settings';settingsButton.setAttribute('aria-expanded',String(show));if(show)void chat.settings.load();else el.querySelector('textarea').focus();};
+      const runtimeHost=document.createElement('div'),capabilityHost=document.createElement('div');settingsHost.append(runtimeHost,capabilityHost);
+      chat.capabilities=capabilitySettings(capabilityHost,{sessionId:chat.sessionId,isActive:()=>chat.sending||active(chat.run?.status)||chat.queued>0,onBusy:busy=>{chat.capabilityBusy=busy;syncComposer(chat);}});
+      chat.settings=agentSettings(runtimeHost,{sessionId:chat.sessionId,role:agent.role,isActive:()=>chat.sending||active(chat.run?.status),composer:el.querySelector('form'),onBusy:busy=>{chat.settingsBusy=busy;syncComposer(chat);}});
+      const settingsButton=document.createElement('button');settingsButton.type='button';settingsButton.className='oc-node-settings-toggle';settingsButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16M8 4v6m8 4v6"/></svg>';settingsButton.title='Chat settings';settingsButton.setAttribute('aria-label','Chat settings');settingsButton.setAttribute('aria-expanded','false');el.querySelector('.oc-agent-chat-actions').append(settingsButton);
+      settingsButton.onclick=()=>{const show=settingsHost.hidden;settingsHost.hidden=!show;el.querySelector('[data-team-messages]').hidden=show;el.querySelector('form').hidden=show;settingsButton.title=show?'Back to chat':'Chat settings';settingsButton.setAttribute('aria-label',settingsButton.title);settingsButton.setAttribute('aria-expanded',String(show));if(show){void chat.settings.load();void chat.capabilities.load();}else el.querySelector('textarea').focus();};
       movable(el.querySelector('header'),el,false);
-      const sessionButton=document.createElement('button');sessionButton.type='button';sessionButton.textContent='Open session / approvals';sessionButton.className='oc-chat-stop';el.querySelector('.oc-agent-chat-actions').prepend(sessionButton);sessionButton.onclick=async()=>{await window.OCResearchWorkspace.openSession(chat.projectId,chat.sessionId);document.querySelector('[data-agent-view="chat"]')?.click();};
-      el.querySelector('form').onsubmit=async e=>{e.preventDefault();if(chat.sending||chat.stopping||chat.settings?.busy||chat.projectId!==projectId)return;const input=el.querySelector('textarea'),content=input.value.trim();if(!content)return;chat.sending=true;syncComposer(chat);try{const run=await api(`/${id}/chat`,{method:'POST',body:JSON.stringify({content})});if(!active(chat.run?.status))chat.run=run;if(run.status==='queued')chat.queued++;if(input.value.trim()===content){input.value='';input.style.height='';}chat.error='';await refresh();}catch(e){chat.error=e.message;chatNotice(chat,chat.error);}finally{chat.sending=false;chat.settings?.sync();syncComposer(chat);}};
+      const sessionButton=document.createElement('button');sessionButton.type='button';sessionButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6m0-6L10 14M10 5H5v14h14v-5"/></svg>';sessionButton.className='oc-agent-chat-action';sessionButton.dataset.teamOpenSession='';sessionButton.title='Open full conversation and approvals';sessionButton.setAttribute('aria-label','Open full conversation and approvals');el.querySelector('.oc-agent-chat-actions').prepend(sessionButton);sessionButton.onclick=async()=>{await window.OCResearchWorkspace.openSession(chat.projectId,chat.sessionId);document.querySelector('[data-agent-view="chat"]')?.click();};
+      el.querySelector('[data-team-review]').onclick=sessionButton.onclick;
+      el.querySelector('form').onsubmit=async e=>{e.preventDefault();if(chat.sending||chat.stopping||chat.settings?.busy||chat.capabilities?.busy||chat.projectId!==projectId)return;const input=el.querySelector('textarea'),content=input.value.trim();if(!content)return;chat.sending=true;syncComposer(chat);try{const run=await api(`/${id}/chat`,{method:'POST',body:JSON.stringify({content})});if(!active(chat.run?.status))chat.run=run;if(run.status==='queued')chat.queued++;if(input.value.trim()===content){input.value='';input.style.height='';}chat.error='';await refresh();}catch(e){chat.error=e.message;chatNotice(chat,chat.error);}finally{chat.sending=false;chat.settings?.sync();chat.capabilities?.sync();syncComposer(chat);}};
       el.querySelector('textarea').oninput=e=>{e.target.style.height='auto';e.target.style.height=Math.min(150,e.target.scrollHeight)+'px';syncComposer(chat);};
       el.querySelector('textarea').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();el.querySelector('form').requestSubmit();}};
+      el.querySelector('form').addEventListener('keydown',e=>{const options=el.querySelector('.oc-composer-options');if(e.key==='Escape'&&options.open){options.open=false;options.querySelector('summary').focus();e.stopPropagation();}});
       el.querySelector('[data-team-stop]').onclick=async()=>{if(!chat.run||chat.stopping||!active(chat.run.status))return;const runId=chat.run.id;chat.stopping=true;syncComposer(chat);try{const r=await fetch(`/api/research/sessions/${chat.sessionId}/runs/${runId}/cancel`,{method:'POST',headers:{'X-OC-Workspace':'research'}});if(!r.ok)throw Error('Could not stop task');await refresh();}catch(e){chatNotice(chat,e.message);}finally{chat.stopping=false;syncComposer(chat);}};
       refreshChat(chat);void chat.settings.load();syncComposer(chat);el.querySelector('textarea').focus();
     }
@@ -307,5 +354,5 @@
     new ResizeObserver(()=>{if(!viewReady)fit();else applyView();}).observe(canvas);
     return {update(next){const id=next.projectId||window.OCResearchWorkspace?.getSelection()?.projectId||'';if(id!==projectId){cancelGesture?.();projectId=id;model=undefined;viewReady=false;view={scale:1,x:0,y:0};try{const saved=JSON.parse(localStorage.getItem(viewKey())||'null');if(validView(saved)){view=saved;viewReady=true;}}catch{}applyView();snapshot={agents:[],dispatches:[]};error='';graphKey='';positions={};try{positions=JSON.parse(localStorage.getItem(storageKey())||'{}');}catch{}for(const c of chats.values())c.el.remove();chats.clear();host.querySelector('dialog')?.remove();draw();void refresh();}},show(value){visible=value;host.hidden=!value;if(value){draw();void refresh();}},refresh};
   }
-  window.OCProjectTeam={mount,graph,zoomAt,fitView,validView,messageBox,agentSettings,runtimeChange,effortOptions,composerState};
+  window.OCProjectTeam={mount,graph,zoomAt,fitView,validView,messageBox,agentSettings,capabilitySettings,runtimeChange,effortOptions,composerState};
 })();
