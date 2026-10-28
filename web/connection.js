@@ -61,7 +61,7 @@
       }
       return response;
     } catch(error) {
-      if(error.name !== 'AbortError') status('Máy chủ đang ngoại tuyến hoặc kết nối bị gián đoạn. Hãy thử lại sau.');
+      if(error.name !== 'AbortError') status('The workspace server is offline or the connection was interrupted. Please try again.');
       throw error;
     }
   };
@@ -82,6 +82,6 @@
       if(!response.ok) throw new Error('Download failed.');
       const blob=URL.createObjectURL(await response.blob());
       const link=document.createElement('a');link.href=blob;link.download=anchor.download||'download';link.click();setTimeout(()=>URL.revokeObjectURL(blob),60000);
-    } catch { status('Không tải được tệp. Kiểm tra kết nối và đăng nhập.'); }
+    } catch { status('Unable to download the file. Check your connection and sign in again.'); }
   });
 })();
