@@ -3,35 +3,6 @@
   const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const active = s => ['queued','running','blocked'].includes(s);
   const EFFORTS=['low','medium','high','xhigh','max'];
-  function capabilitySettings(host,{sessionId,isActive,onBusy=()=>{}}){
-    let state,pending=false,disposed=false;
-    const route='/api/research/sessions/'+encodeURIComponent(sessionId)+'/capabilities';
-    const key=s=>[s.libraryId,s.versionId||s.libraryVersionId,s.skillId].join('/');
-    const ref=s=>({libraryId:s.libraryId,versionId:s.versionId||s.libraryVersionId,skillId:s.skillId});
-    const q=s=>host.querySelector(s);
-    host.innerHTML='<h3>Agent resources</h3><p>Skills and connectors are assigned only to this agent. Tool limits also apply to connector and memory tools.</p><p data-cap-notice role="status"></p><div data-cap-fields></div><button type="button" data-cap-reload>Reload resources</button> <button type="button" data-cap-save>Save resources</button>';
-    function sync(){if(disposed)return;host.querySelectorAll('input,select,button').forEach(e=>e.disabled=pending||isActive()||(!state&&!e.hasAttribute('data-cap-reload')));}
-    function notice(message){if(!disposed)q('[data-cap-notice]').textContent=message;}
-    async function request(method='GET',body){const response=await fetch(route,{method,cache:'no-store',headers:{'Content-Type':'application/json','X-OC-Workspace':'research'},signal:AbortSignal.timeout(15000),...(body?{body:JSON.stringify(body)}:{})});const data=await response.json();if(!response.ok)throw Error(data.detail||data.error||'Resource update failed');return data;}
-    function render(){
-      if(disposed)return;
-      const c=state.capabilities,catalog=state.catalog;
-      const selected=new Set(c.skills.map(key)),skills=new Map([...catalog.skills,...c.skills].map(s=>[key(s),s]));
-      const checks=(items,kind,chosen)=>items.map(i=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-cap-${kind} value="${esc(i.id)}" ${chosen.includes(i.id)?'checked':''}> ${esc(i.name||i.id)}</label>`).join('');
-      const connectors=new Map([...catalog.connectors,...c.connectorIds.filter(id=>!catalog.connectors.some(x=>x.id===id)).map(id=>({id,name:id+' (unavailable)'}))].map(x=>[x.id,x]));
-      const tools=[...new Set([...catalog.tools,...(c.allowedToolNames||[]),...c.deniedToolNames])].sort();
-      q('[data-cap-fields]').innerHTML=`<details open><summary>Skills (${c.skills.length})</summary>${[...skills].map(([id,s])=>`<label style="display:block;margin:6px 0"><input type="checkbox" data-cap-skill value="${esc(id)}" ${selected.has(id)?'checked':''}> ${esc(s.skillId)} <a href="/openconstruction-web/desktop/skills-detail.html?${esc(new URLSearchParams(ref(s)))}" target="_blank" rel="noopener">Review version ${esc(s.version)}</a></label>`).join('')||'<p>No catalog skills available.</p>'}<label><input type="checkbox" data-cap-reviewed> I reviewed the newly selected skills and their licenses.</label></details><details><summary>Connectors (${c.connectorIds.length})</summary>${checks([...connectors.values()],'connector',c.connectorIds)}</details><details><summary>Tools</summary><label>Access <select data-cap-mode><option value="all">All available tools, except denied</option><option value="selected">Only selected tools</option></select></label><p>Selecting a tool does not enable its connector. Deny takes precedence.</p><div style="max-height:260px;overflow:auto">${tools.map(name=>`<div style="margin:6px 0"><span>${esc(name)}</span> <label><input type="checkbox" data-cap-allow value="${esc(name)}" ${c.allowedToolNames?.includes(name)?'checked':''}> Allow</label> <label><input type="checkbox" data-cap-deny value="${esc(name)}" ${c.deniedToolNames.includes(name)?'checked':''}> Deny</label></div>`).join('')}</div></details>`;
-      q('[data-cap-mode]').value=c.allowedToolNames===null?'all':'selected';
-      state.skillOptions=skills;sync();
-    }
-    async function load(){if(pending||disposed)return;pending=true;onBusy(true);sync();try{state=await request();render();notice('Saved for this agent · revision '+state.capabilities.revision);}catch(e){notice(e.message);}finally{pending=false;sync();onBusy(false);}}
-    async function save(){if(pending||disposed||!state||isActive())return;pending=true;onBusy(true);sync();const selected=kind=>[...host.querySelectorAll(`[data-cap-${kind}]:checked`)].map(e=>e.value);try{
-      const capabilities=await request('PUT',{expectedRevision:state.capabilities.revision,skills:selected('skill').map(id=>ref(state.skillOptions.get(id))),connectorIds:selected('connector'),allowedToolNames:q('[data-cap-mode]').value==='all'?null:selected('allow'),deniedToolNames:selected('deny'),reviewed:q('[data-cap-reviewed]').checked});
-      state.capabilities=capabilities;render();notice('Resources saved for this agent only.');
-    }catch(e){notice(e.message+' Reload resources if another update was saved.');}finally{pending=false;sync();onBusy(false);}}
-    q('[data-cap-reload]').onclick=load;q('[data-cap-save]').onclick=save;sync();
-    return {load,sync,dispose(){disposed=true;},get busy(){return pending;}};
-  }
   function effortOptions(info){return info?.efforts?.length?EFFORTS.filter(e=>info.efforts.includes(e)):EFFORTS;}
   function runtimeChange(settings,field,value,info){
     const next={...settings.overrides};
@@ -223,7 +194,7 @@
     async function refresh(){if(!visible||!projectId||loading)return;loading=true;const requested=projectId;try{const [data,catalog]=await Promise.all([api(),availableModels()]);if(requested!==projectId)return;snapshot=data;models=catalog;error='';draw();await Promise.all([...chats.values()].map(refreshChat));}catch(e){if(requested===projectId){error=`Team connection unavailable: ${e.message}`;draw();}}finally{loading=false;}}
     function chatNotice(chat,message=''){const notice=chat.el.querySelector('[data-team-chat-status]');notice.textContent=message;notice.hidden=!message;}
     function syncComposer(chat){
-      const state=composerState({status:chat.run?.status,draft:chat.el.querySelector('textarea').value,sending:chat.sending,busy:chat.settingsBusy||chat.capabilityBusy,stopping:chat.stopping,queued:chat.queued||0});
+      const state=composerState({status:chat.run?.status,draft:chat.el.querySelector('textarea').value,sending:chat.sending,busy:chat.settingsBusy,stopping:chat.stopping,queued:chat.queued||0});
       const send=chat.el.querySelector('[type=submit]'),stop=chat.el.querySelector('[data-team-stop]'),queue=chat.el.querySelector('[data-team-queue-count]');
       const label=state.mode==='queue'?'Queue message':'Send message';send.disabled=state.sendDisabled;send.title=label;send.setAttribute('aria-label',label);send.dataset.mode=state.mode;send.querySelector('svg').innerHTML=COMPOSER_ICONS[state.mode];
       stop.hidden=!state.stopVisible;stop.disabled=state.stopDisabled;stop.title=chat.run?.status==='queued'?'Cancel queued task':'Stop current task';stop.setAttribute('aria-label',stop.title);
@@ -241,7 +212,7 @@
       const requested=projectId;try{const data=await api(`/${chat.id}/chat`);if(requested!==projectId||!chats.has(chat.id))return;
         const runs=[...data.runs].sort((a,b)=>b.createdAt.localeCompare(a.createdAt));const run=runs.find(r=>['running','blocked'].includes(r.status))||runs.find(r=>r.status==='queued')||runs[0];
         chatNotice(chat,chat.error);
-        chat.run=run;chat.queued=runs.filter(r=>r.status==='queued').length;chat.settings?.sync();chat.capabilities?.sync();syncComposer(chat);
+        chat.run=run;chat.queued=runs.filter(r=>r.status==='queued').length;chat.settings?.sync();syncComposer(chat);
         const entries=data.messages.map(m=>({id:m.id,kind:m.role==='user'?'user':'assistant',role:m.role==='user'?'You':chat.name,content:m.content}));
         if(data.progress)entries.push({id:'live-progress',kind:'progress',role:'Working',content:data.progress});
         if(data.response)entries.push({id:'live-response',kind:'assistant',role:chat.name,content:data.response});
@@ -260,17 +231,15 @@
             <div class="oc-composer-buttons"><button type="button" class="oc-composer-button oc-composer-stop" data-team-stop aria-label="Stop current task" title="Stop current task" hidden><svg viewBox="0 0 24 24" aria-hidden="true">${COMPOSER_ICONS.stop}</svg></button><button type="submit" class="oc-composer-button oc-composer-send" aria-label="Send message" title="Send message" disabled><svg viewBox="0 0 24 24" aria-hidden="true">${COMPOSER_ICONS.send}</svg></button></div>
           </div></div><p class="oc-agent-composer-hint" data-composer-hint></p></form></div>`;
       const chat={id,name:agent.name,el,key:'',sessionId:agent.sessionId,projectId,error:'',sending:false,stopping:false,settingsBusy:false,queued:0};chats.set(id,chat);layer.append(el);
-      el.onpointerdown=()=>el.style.zIndex=++z;el.querySelector('[data-close]').onclick=()=>{chat.settings?.dispose();chat.capabilities?.dispose();el.remove();chats.delete(id);};el.querySelector('[data-min]').onclick=()=>el.classList.toggle('is-minimized');
+      el.onpointerdown=()=>el.style.zIndex=++z;el.querySelector('[data-close]').onclick=()=>{chat.settings?.dispose();el.remove();chats.delete(id);};el.querySelector('[data-min]').onclick=()=>el.classList.toggle('is-minimized');
       const settingsHost=document.createElement('section');settingsHost.className='oc-node-settings';settingsHost.hidden=true;settingsHost.setAttribute('aria-label',agent.name+' settings');el.querySelector('.oc-agent-chat-content').append(settingsHost);
-      const runtimeHost=document.createElement('div'),capabilityHost=document.createElement('div');settingsHost.append(runtimeHost,capabilityHost);
-      chat.capabilities=capabilitySettings(capabilityHost,{sessionId:chat.sessionId,isActive:()=>chat.sending||active(chat.run?.status)||chat.queued>0,onBusy:busy=>{chat.capabilityBusy=busy;syncComposer(chat);}});
-      chat.settings=agentSettings(runtimeHost,{sessionId:chat.sessionId,role:agent.role,isActive:()=>chat.sending||active(chat.run?.status),composer:el.querySelector('form'),onBusy:busy=>{chat.settingsBusy=busy;syncComposer(chat);}});
+      chat.settings=agentSettings(settingsHost,{sessionId:chat.sessionId,role:agent.role,isActive:()=>chat.sending||active(chat.run?.status),composer:el.querySelector('form'),onBusy:busy=>{chat.settingsBusy=busy;syncComposer(chat);}});
       const settingsButton=document.createElement('button');settingsButton.type='button';settingsButton.className='oc-node-settings-toggle';settingsButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16M8 4v6m8 4v6"/></svg>';settingsButton.title='Chat settings';settingsButton.setAttribute('aria-label','Chat settings');settingsButton.setAttribute('aria-expanded','false');el.querySelector('.oc-agent-chat-actions').append(settingsButton);
-      settingsButton.onclick=()=>{const show=settingsHost.hidden;settingsHost.hidden=!show;el.querySelector('[data-team-messages]').hidden=show;el.querySelector('form').hidden=show;settingsButton.title=show?'Back to chat':'Chat settings';settingsButton.setAttribute('aria-label',settingsButton.title);settingsButton.setAttribute('aria-expanded',String(show));if(show){void chat.settings.load();void chat.capabilities.load();}else el.querySelector('textarea').focus();};
+      settingsButton.onclick=()=>{const show=settingsHost.hidden;settingsHost.hidden=!show;el.querySelector('[data-team-messages]').hidden=show;el.querySelector('form').hidden=show;settingsButton.title=show?'Back to chat':'Chat settings';settingsButton.setAttribute('aria-label',settingsButton.title);settingsButton.setAttribute('aria-expanded',String(show));if(show)void chat.settings.load();else el.querySelector('textarea').focus();};
       movable(el.querySelector('header'),el,false);
       const sessionButton=document.createElement('button');sessionButton.type='button';sessionButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6m0-6L10 14M10 5H5v14h14v-5"/></svg>';sessionButton.className='oc-agent-chat-action';sessionButton.dataset.teamOpenSession='';sessionButton.title='Open full conversation and approvals';sessionButton.setAttribute('aria-label','Open full conversation and approvals');el.querySelector('.oc-agent-chat-actions').prepend(sessionButton);sessionButton.onclick=async()=>{await window.OCResearchWorkspace.openSession(chat.projectId,chat.sessionId);document.querySelector('[data-agent-view="chat"]')?.click();};
       el.querySelector('[data-team-review]').onclick=sessionButton.onclick;
-      el.querySelector('form').onsubmit=async e=>{e.preventDefault();if(chat.sending||chat.stopping||chat.settings?.busy||chat.capabilities?.busy||chat.projectId!==projectId)return;const input=el.querySelector('textarea'),content=input.value.trim();if(!content)return;chat.sending=true;syncComposer(chat);try{const run=await api(`/${id}/chat`,{method:'POST',body:JSON.stringify({content})});if(!active(chat.run?.status))chat.run=run;if(run.status==='queued')chat.queued++;if(input.value.trim()===content){input.value='';input.style.height='';}chat.error='';await refresh();}catch(e){chat.error=e.message;chatNotice(chat,chat.error);}finally{chat.sending=false;chat.settings?.sync();chat.capabilities?.sync();syncComposer(chat);}};
+      el.querySelector('form').onsubmit=async e=>{e.preventDefault();if(chat.sending||chat.stopping||chat.settings?.busy||chat.projectId!==projectId)return;const input=el.querySelector('textarea'),content=input.value.trim();if(!content)return;chat.sending=true;syncComposer(chat);try{const run=await api(`/${id}/chat`,{method:'POST',body:JSON.stringify({content})});if(!active(chat.run?.status))chat.run=run;if(run.status==='queued')chat.queued++;if(input.value.trim()===content){input.value='';input.style.height='';}chat.error='';await refresh();}catch(e){chat.error=e.message;chatNotice(chat,chat.error);}finally{chat.sending=false;chat.settings?.sync();syncComposer(chat);}};
       el.querySelector('textarea').oninput=e=>{e.target.style.height='auto';e.target.style.height=Math.min(150,e.target.scrollHeight)+'px';syncComposer(chat);};
       el.querySelector('textarea').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();el.querySelector('form').requestSubmit();}};
       el.querySelector('form').addEventListener('keydown',e=>{const options=el.querySelector('.oc-composer-options');if(e.key==='Escape'&&options.open){options.open=false;options.querySelector('summary').focus();e.stopPropagation();}});
@@ -354,5 +323,5 @@
     new ResizeObserver(()=>{if(!viewReady)fit();else applyView();}).observe(canvas);
     return {update(next){const id=next.projectId||window.OCResearchWorkspace?.getSelection()?.projectId||'';if(id!==projectId){cancelGesture?.();projectId=id;model=undefined;viewReady=false;view={scale:1,x:0,y:0};try{const saved=JSON.parse(localStorage.getItem(viewKey())||'null');if(validView(saved)){view=saved;viewReady=true;}}catch{}applyView();snapshot={agents:[],dispatches:[]};error='';graphKey='';positions={};try{positions=JSON.parse(localStorage.getItem(storageKey())||'{}');}catch{}for(const c of chats.values())c.el.remove();chats.clear();host.querySelector('dialog')?.remove();draw();void refresh();}},show(value){visible=value;host.hidden=!value;if(value){draw();void refresh();}},refresh};
   }
-  window.OCProjectTeam={mount,graph,zoomAt,fitView,validView,messageBox,agentSettings,capabilitySettings,runtimeChange,effortOptions,composerState};
+  window.OCProjectTeam={mount,graph,zoomAt,fitView,validView,messageBox,agentSettings,runtimeChange,effortOptions,composerState};
 })();

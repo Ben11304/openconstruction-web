@@ -20,16 +20,13 @@
 .oc-agent-chat-actions .needs-approval{color:#94661e;background:#fff5dd}
 .oc-node-settings{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:12px 14px;background:#f8fafc;color:#193b59}
 .oc-agent-chat-content>[hidden]{display:none!important}
-.oc-node-settings>label,.oc-node-settings>div>label{display:block;margin:0 0 12px;font-size:12px;font-weight:600}
+.oc-node-settings>label{display:block;margin:0 0 12px;font-size:12px;font-weight:600}
 .oc-node-settings select{display:block;box-sizing:border-box;width:100%;min-width:0;margin:5px 0;padding:7px 8px;border:1px solid #b4c5d3;border-radius:4px;background:white;color:#193b59;font:inherit;font-weight:400}
 .oc-node-settings select:disabled{opacity:.65;cursor:not-allowed}
 .oc-node-settings label>small{display:block;font-size:10px;font-weight:400;overflow-wrap:anywhere}
 .oc-node-settings .oc-node-settings-help,.oc-node-settings [data-settings-notice]{font-size:11px;line-height:1.5;margin:0 0 12px;color:#526577}
 .oc-node-settings [data-settings-notice].is-error{color:#993c37}
-.oc-node-settings>button,.oc-node-settings>div>button{border:1px solid #b4c5d3;background:#fff;color:#193b59;border-radius:4px;padding:5px 8px;font:inherit;cursor:pointer}
-.oc-node-settings [data-cap-fields]{font-size:12px;overflow-wrap:anywhere}
-.oc-node-settings h3{font-size:14px;margin:20px 0 8px}
-.oc-node-settings [data-cap-notice]{font-size:12px;line-height:1.5}
+.oc-node-settings>button{border:1px solid #b4c5d3;background:#fff;color:#193b59;border-radius:4px;padding:5px 8px;font:inherit;cursor:pointer}
 .oc-node-settings details{margin-top:16px;border-top:1px solid #d8e1e9;padding-top:10px}
 .oc-node-settings summary{cursor:pointer;font-weight:600}
 .oc-node-settings .oc-node-role{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.6}
