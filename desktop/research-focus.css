@@ -36,19 +36,18 @@
 #ocResearchRoot.oc-focus-workspace .oc-research-header-actions button:hover,#ocResearchRoot.oc-focus-workspace .oc-research-header-actions button[aria-pressed=true],#ocResearchRoot.oc-focus-workspace [data-research-tools-toggle][aria-expanded=true]{background:#e9ede5;color:#293329}
 #ocResearchRoot .oc-focus-menu,#ocResearchRoot .oc-focus-options{position:relative}
 #ocResearchRoot.oc-focus-workspace .oc-research-stage{position:relative}
-#ocResearchRoot .oc-focus-files{position:absolute;right:0;top:75%;transform:translateY(-50%);z-index:1200;display:flex;align-items:center}
-#ocResearchRoot.oc-focus-workspace [data-focus-files-arrow]{display:grid;place-items:center;width:28px;height:54px;padding:5px 1px 5px 6px;border:1px solid #89959e;border-right:0;border-radius:54px 0 0 54px;background:#c7d0d8;color:#fff;cursor:pointer;box-shadow:none;transition:transform 160ms ease,box-shadow 160ms ease,background 160ms ease}
-#ocResearchRoot.oc-focus-workspace [data-focus-files-arrow][aria-expanded=true]{background:#aab8c3;color:#fff}
-@media(hover:hover){#ocResearchRoot.oc-focus-workspace .oc-focus-files:hover [data-focus-files-arrow]{transform:translateY(-4px);background:#b4c1cc;box-shadow:-2px 4px 10px #26342320}}
-#ocResearchRoot.oc-focus-workspace [data-focus-files-arrow]:focus-visible{outline-offset:-3px}
-@media(prefers-reduced-motion:reduce){#ocResearchRoot.oc-focus-workspace [data-focus-files-arrow]{transition:none}#ocResearchRoot.oc-focus-workspace .oc-focus-files:hover [data-focus-files-arrow]{transform:none}}
-#ocResearchRoot [data-focus-files-arrow] svg{width:16px;height:16px;pointer-events:none}
-#ocResearchRoot [data-focus-files-arrow][aria-expanded=true] svg{transform:rotate(180deg)}
+#ocResearchRoot .oc-focus-files{position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:1200;display:flex;align-items:center}
+#ocResearchRoot.oc-focus-workspace [data-focus-files-arrow]{display:grid;place-items:center;width:32px;height:36px;padding:0;border:1px solid #dce2d6;border-radius:8px;background:#fff;color:#65725e;cursor:pointer;box-shadow:0 2px 6px #26342308;transition:color 140ms ease,box-shadow 140ms ease,background 140ms ease}
+#ocResearchRoot.oc-focus-workspace [data-focus-files-arrow][aria-expanded=true]{background:#eef2e9;color:#34472f}
+@media(hover:hover){#ocResearchRoot.oc-focus-workspace .oc-focus-files:hover [data-focus-files-arrow]{background:#e9ede5;color:#34472f;box-shadow:0 3px 10px #26342312}}
+#ocResearchRoot [data-focus-files-arrow] svg{width:18px;height:18px;pointer-events:none}
+#ocResearchRoot .oc-files-direction{transform-origin:7.5px 10px;transition:transform 260ms cubic-bezier(.22,1,.36,1)}
+#ocResearchRoot [data-focus-files-arrow][aria-expanded=true] .oc-files-direction{transform:rotate(180deg)}
 #ocResearchRoot .oc-focus-files-popup{position:absolute;right:100%;top:50%;transform:translateY(-50%);z-index:1250;width:220px;max-width:calc(100vw - 64px);padding:14px;background:#fff;border:1px solid var(--oc-border);border-radius:10px;box-shadow:0 6px 22px #26342314;color:#293329}
 #ocResearchRoot .oc-focus-files-popup strong{font-size:13px;font-weight:500}
 #ocResearchRoot .oc-focus-files-popup p{font-size:12px;line-height:1.5;white-space:normal;overflow:visible;margin:5px 0 12px;color:#70776b}
 #ocResearchRoot.oc-focus-workspace .oc-focus-files-popup button{width:100%;padding:7px 9px;border:0;border-radius:5px;font-size:12px;background:#e9ede5;color:#34472f;text-align:left;white-space:normal;cursor:pointer}
-@media(pointer:coarse){#ocResearchRoot.oc-focus-workspace [data-focus-files-arrow]{width:44px;height:64px}}
+@media(pointer:coarse){#ocResearchRoot.oc-focus-workspace [data-focus-files-arrow]{width:44px;height:44px}}
 #ocResearchRoot .oc-focus-menu>summary,#ocResearchRoot .oc-focus-options>summary{list-style:none;cursor:pointer;color:#596251;padding:6px 8px;border-radius:5px;font-size:12px}
 #ocResearchRoot .oc-focus-menu>summary{font-size:18px;line-height:1}
 #ocResearchRoot .oc-focus-menu>summary::-webkit-details-marker,#ocResearchRoot .oc-focus-options>summary::-webkit-details-marker{display:none}
@@ -73,6 +72,17 @@
 #ocResearchRoot.oc-focus-workspace .oc-chat-selectors .oc-chat-model-control{color:#34472f;max-width:min(240px,45vw)}
 #ocResearchRoot.oc-focus-workspace .oc-chat-selectors .oc-chat-model-control select{font-weight:500}
 #ocResearchRoot.oc-focus-workspace .oc-inspector{background:#fafbf8;border-color:var(--oc-border)}
+/* Matching grid tracks let the chat resize smoothly without squeezing the file tree. */
+@media(min-width:1180px){
+ #ocResearchRoot.oc-focus-workspace .oc-research-layout{grid-template-columns:var(--oc-projects) minmax(0,1fr) var(--oc-inspector);transition:grid-template-columns 260ms cubic-bezier(.22,1,.36,1)}
+ #ocResearchRoot.oc-focus-workspace .oc-research-layout.is-tools-collapsed{grid-template-columns:var(--oc-projects) minmax(0,1fr) 0px}
+}
+#ocResearchRoot.oc-focus-workspace .oc-inspector{width:var(--oc-inspector);max-width:100%;transition:transform 260ms cubic-bezier(.22,1,.36,1),opacity 200ms ease}
+#ocResearchRoot.oc-focus-workspace .is-tools-collapsed>.oc-inspector{transform:translateX(100%);opacity:0;pointer-events:none}
+@media(min-width:1180px){#ocResearchRoot.oc-focus-workspace .oc-inspector{max-width:none}}
+@media(max-width:1179px){#ocResearchRoot.oc-focus-workspace .oc-research-layout:not(.is-tools-collapsed) .oc-focus-files{visibility:hidden}}
+html[data-oc-resizing] #ocResearchRoot.oc-focus-workspace :is(.oc-research-layout,.oc-inspector){transition:none}
+@media(prefers-reduced-motion:reduce){#ocResearchRoot.oc-focus-workspace :is(.oc-research-layout,.oc-inspector,[data-focus-files-arrow],.oc-files-direction){transition:none}}
 #ocResearchRoot.oc-focus-workspace .oc-inspector-heading{background:var(--oc-surface)}
 #ocResearchRoot.oc-focus-workspace .oc-research-tabs button.is-active{color:#34472f;background:#e9ede5;box-shadow:none}
 #ocResearchRoot.oc-focus-workspace .oc-research-tabs button.is-active::after{display:none}

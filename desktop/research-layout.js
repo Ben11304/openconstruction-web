@@ -1,5 +1,5 @@
 (() => {
-  let root, inspector, active = null;
+  let root, inspector, active = null, inspectorCloseTimer;
   let agentTab = 'Runtime';
   let modelAdvancedOpen = false;
   let provenanceProject='';
@@ -96,7 +96,7 @@
       const close = document.createElement('button');
       close.type = 'button'; close.textContent = '×'; close.className = 'oc-inspector-close';
       close.setAttribute('aria-label', 'Close panel');
-      close.onclick = () => { api.showInspector(null); toolbar.querySelector('button').focus(); };
+      close.onclick = () => { api.showInspector(null); root.querySelector('[data-research-tools-toggle]').focus(); };
       const heading = document.createElement('div'); heading.className = 'oc-inspector-heading';
       heading.append(tabs, close); inspector.append(heading);
       root.querySelector('[data-research-tools-panel]').remove();
@@ -124,17 +124,31 @@
       api.showInspector(null);
       window.OCDesktopPanels?.mount(root);
       inspector.addEventListener('keydown', event => {
-        if (event.key === 'Escape') { api.showInspector(null); toolbar.querySelector('button').focus(); }
+        if (event.key === 'Escape') { api.showInspector(null); root.querySelector('[data-research-tools-toggle]').focus(); }
       });
     },
     showInspector(view) {
       if (!inspector) return;
       if (view === 'tools') view = 'workspace';
+      clearTimeout(inspectorCloseTimer);
+      const wasOpen = Boolean(active);
       active = view;
       window.OCDesktopWorkspace?.show(view === 'workspace');
-      inspector.hidden = !view;
+      inspector.inert = !view;
+      inspector.setAttribute('aria-hidden', String(!view));
+      const animate = root.classList.contains('oc-focus-workspace') && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (view) {
+        inspector.hidden = false;
+        // Establish the collapsed position before starting an opening transition.
+        if (!wasOpen && animate) void inspector.offsetWidth;
+      } else if (wasOpen && animate) {
+        inspectorCloseTimer = setTimeout(() => { inspector.hidden = true; window.OCDesktopPanels?.refresh(); }, 280);
+      } else {
+        inspector.hidden = true;
+      }
       root.querySelector('.oc-research-layout').classList.toggle('is-tools-collapsed', !view);
-      root.querySelectorAll('[data-research-panel]').forEach(panel => { panel.hidden = !['conversation', view].includes(panel.dataset.researchPanel); });
+      // Keep the current panel painted while it slides out. Inert blocks interaction.
+      if (view) root.querySelectorAll('[data-research-panel]').forEach(panel => { panel.hidden = !['conversation', view].includes(panel.dataset.researchPanel); });
       inspector.querySelectorAll('[role=tab]').forEach(button => {
         const selected = button.dataset.researchView === view;
         button.classList.toggle('is-active', selected);
@@ -146,6 +160,7 @@
       inspector.id = 'ocDesktopInspector';
       if (!toggle.hasAttribute('data-focus-files-arrow')) toggle.textContent = 'Files';
       window.OCResearchFocus?.syncFiles(root);
+      if (view && !wasOpen && window.innerWidth < 1180 && document.activeElement === toggle) inspector.querySelector('[role=tab][aria-selected=true]')?.focus();
       window.OCDesktopPanels?.refresh();
     },
     organizeSettings(view) {

@@ -27,7 +27,7 @@
       const fileControl = document.createElement('div'); fileControl.className = 'oc-focus-files';
       root.querySelector('.oc-research-stage').prepend(fileControl); fileControl.append(files);
       files.dataset.focusFilesArrow = ''; files.removeAttribute('title');
-      files.innerHTML = '<svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M14 3 4 10l10 7Z"/></svg>';
+      files.innerHTML = '<svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><path d="M12.5 3.5v13"/><path class="oc-files-direction" d="m8.5 8-2 2 2 2"/></svg>';
       const popup = document.createElement('div'); popup.className = 'oc-focus-files-popup'; popup.hidden = true;
       popup.id = 'ocFocusFilesPopup'; popup.setAttribute('role', 'group'); popup.setAttribute('aria-label', 'Files and outputs');
       popup.innerHTML = '<strong>Files and outputs</strong><p>Browse project documents and results.</p><button type="button" data-focus-files-expand>Expand file panel</button>';
