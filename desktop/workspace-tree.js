@@ -38,7 +38,7 @@
   const visibleFile = file => safePath(file.path) && (state.hidden || !file.path.split('/').some(part => part.startsWith('.')));
   async function request(route, label='workspace') {
     const response = await fetch('/api/research/'+route, {cache:'no-store',headers:{'X-OC-Workspace':'research'}});
-    if (!response.ok) throw new Error(`Could not load ${label} (${response.status}).`);
+    if (!response.ok) throw Object.assign(new Error(response.status===403&&label==='saved agent state'?'Saved state is available to the project owner or administrator.':`Could not load ${label} (${response.status}).`),{status:response.status});
     return response.json();
   }
   function tree(files, prefix='', directories=[]) {
@@ -102,7 +102,7 @@
       if(serial!==state.serial)return;
       if(data.projectId!==project||data.agentId!==id||!data.memory)throw new Error('Invalid agent state response.');
       agentDetails.set(id,{data,loading:false,loadedAt:Date.now()});
-    }catch(error){if(serial===state.serial)agentDetails.set(id,{...previous,loading:false,error:error.message,loadedAt:Date.now()});}
+    }catch(error){if(serial===state.serial)agentDetails.set(id,{...([403,404].includes(error.status)?{}:previous),loading:false,error:error.message,loadedAt:Date.now()});}
     if(serial===state.serial)render();
   }
   function refreshAgentDetails(force=false){
