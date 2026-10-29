@@ -132,7 +132,7 @@
       const key='agent:'+state.project+':'+agent.id;
       const status=statuses[agent.status]||'Unknown';
       const others=Array.isArray(agent.parents)?agent.parents.filter(id=>agents.has(id)):[];
-      const info=`<li class="oc-ws-agent-info">${agent.name&&agent.name!==agent.id?`<p>${escape(agent.name)}</p>`:''}${others.length>1?`<p>Reports to ${escape(others.join(', '))}</p>`:''}<button type="button" data-ws-open-agent="${escape(agent.id)}">Open conversation <span aria-hidden="true">↗</span></button></li>`;
+      const info=`<li class="oc-ws-agent-info">${agent.name&&agent.name!==agent.id?`<p>${escape(agent.name)}</p>`:''}${others.length>1?`<p>Reports to ${escape(others.join(', '))}</p>`:''}<button type="button" data-ws-open-agent="${escape(agent.id)}">Open conversation <span aria-hidden="true">↗</span></button><button type="button" data-ws-edit-agent="${escape(agent.id)}">Agent Editor</button></li>`;
       const noteTree=notes.length?folder('agent-notes:'+state.project+':'+agent.id,'Workspace notes',nodes(tree(notes,prefix),agent.sessionId,prefix),`${notes.filter(f=>!f.directory).length} files`,false,prefix.slice(0,-1),agent.sessionId):'<li class="oc-ws-agent-no-files">No workspace note files yet.</li>';
       return `<li><details data-ws-folder="${escape(key)}" data-ws-agent-folder="${escape(agent.id)}" ${query||(state.open.get(key)??(!!children.get(agent.id)?.length||agent.isBoss===true))?'open':''}><summary data-ws-agent="${escape(agent.id)}" data-ws-row="${escape(key)}" title="${escape(agent.name||agent.id)}"><span class="oc-ws-chevron" aria-hidden="true">›</span>${folderIcon}<span class="oc-ws-name">${escape(agent.id)}</span><small class="oc-ws-agent-status" data-status="${escape(Object.hasOwn(statuses,agent.status)?agent.status:'unavailable')}">${escape(status)}</small></summary><ul>${info}${savedAgentContent(agent)}${noteTree}${descendants}</ul></details></li>`;
     }
@@ -347,7 +347,7 @@
         button.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();setView(event.key==='Home'?'project':event.key==='End'?'agents':state.view==='project'?'agents':'project',true);});
       });
       panel.querySelector('[data-ws-agents-retry]').onclick=()=>void loadAgents(true);
-      panel.addEventListener('click',event=>{const retry=event.target.closest('[data-ws-agent-retry]');if(retry){void loadAgentDetails(retry.dataset.wsAgentRetry,true);return;}const button=event.target.closest('[data-ws-open-agent]');if(!button)return;const agent=state.team?.agents.find(a=>a.id===button.dataset.wsOpenAgent);if(agent&&state.project)void Promise.resolve(window.OCResearchWorkspace?.openSession?.(state.project,agent.sessionId)).catch(error=>notify(error.message));});
+      panel.addEventListener('click',event=>{const editor=event.target.closest('[data-ws-edit-agent]');if(editor){void window.OCAgentEditor?.open({projectId:state.project,agentId:editor.dataset.wsEditAgent,projectName:state.name});return;}const retry=event.target.closest('[data-ws-agent-retry]');if(retry){void loadAgentDetails(retry.dataset.wsAgentRetry,true);return;}const button=event.target.closest('[data-ws-open-agent]');if(!button)return;const agent=state.team?.agents.find(a=>a.id===button.dataset.wsOpenAgent);if(agent&&state.project)void Promise.resolve(window.OCResearchWorkspace?.openSession?.(state.project,agent.sessionId)).catch(error=>notify(error.message));});
       panel.querySelector('[data-ws-hidden]').onclick=event=>{state.hidden=!state.hidden;clearShared();event.currentTarget.setAttribute('aria-pressed',String(state.hidden));render();};
       panel.addEventListener('toggle',event=>{const node=event.target;if(!node.matches('[data-ws-folder]')||!node.isConnected)return;if(node.hasAttribute('data-ws-shared-folder')){state.open.set(node.dataset.wsFolder,node.open);if(node.open)void loadShared(node.dataset.wsDataset,node.dataset.wsPath);return;}if(!state.query)state.open.set(node.dataset.wsFolder,node.open);if(node.dataset.wsAgentFolder&&node.open)void loadAgentDetails(node.dataset.wsAgentFolder);},true);
       panel.addEventListener('keydown',event=>{
@@ -359,6 +359,7 @@
       });
       const unsubscribe=window.OCDesktop.onDatasetsChanged?.(event=>{if(event.projectId===state.project){state.datasetDirty=true;if(state.selected?.datasetId)state.selected=null;clearShared();window.OCDesktopDatasetPreview?.close();state.lastLoad=0;void refresh(true);}});
       window.addEventListener('pagehide',()=>unsubscribe?.());
+      window.addEventListener('oc-agent-configuration-changed',event=>{if(event.detail?.projectId===state.project){agentDetails.delete(event.detail.agentId);state.lastAgentsLoad=0;void loadAgents(true);}});
       const timer=setInterval(()=>{void refresh();void loadAgents();},10000);window.addEventListener('pagehide',()=>clearInterval(timer));render();
     },
     select({projectId,sessionId,projectName}){
