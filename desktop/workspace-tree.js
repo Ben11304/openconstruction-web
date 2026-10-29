@@ -3,7 +3,7 @@
   const encode = encodeURIComponent;
   const folderIcon = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 5h5l2 2h8v9h-15z"/></svg>';
   const fileIcon = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.5h6l4 4v11H5zM11 2.5v4h4"/></svg>';
-  const state = {panel:null,project:'',session:'',name:'',serial:0,visible:false,loading:false,query:'',hidden:false,sessions:[],files:new Map(),records:new Map(),sharedDatasets:[],datasetDirty:false,open:new Map(),error:'',lastLoad:0,selected:null,directories:[],edit:null,busy:false};
+  const state = {panel:null,project:'',session:'',name:'',serial:0,visible:false,loading:false,query:'',hidden:false,sessions:[],files:new Map(),records:new Map(),sharedDatasets:[],datasetDirty:false,open:new Map(),error:'',lastLoad:0,selected:null,directories:[],edit:null,busy:false,view:'project',team:null,agentsLoading:false,agentsError:'',lastAgentsLoad:0};
   const sharedPages=new Map();let sharedGeneration=0;
   const sharedKey=(id,path)=>'shared:'+encode(id)+':'+encode(path);
   function clearShared(){sharedGeneration++;sharedPages.clear();}
@@ -36,9 +36,9 @@
   const safePath = path => typeof path === 'string' && path && !path.startsWith('/') && !path.includes('\\') && !path.split('/').some(part => !part || part === '..' || part === '.') && !/^[a-z][a-z0-9+.-]*:/i.test(path);
   const datasetPath = path => /^oc-research\/datasets\/([^/]+)(?:\/(.*))?$/.exec(path);
   const visibleFile = file => safePath(file.path) && (state.hidden || !file.path.split('/').some(part => part.startsWith('.')));
-  async function request(route) {
+  async function request(route, label='workspace') {
     const response = await fetch('/api/research/'+route, {cache:'no-store',headers:{'X-OC-Workspace':'research'}});
-    if (!response.ok) throw new Error(`Could not load workspace (${response.status}).`);
+    if (!response.ok) throw new Error(`Could not load ${label} (${response.status}).`);
     return response.json();
   }
   function tree(files, prefix='', directories=[]) {
@@ -67,6 +67,53 @@
     }).join('');
   }
   function size(bytes) { return bytes < 1024 ? `${bytes} B` : bytes < 1024*1024 ? `${Math.round(bytes/1024)} KB` : `${(bytes/1024/1024).toFixed(1)} MB`; }
+  function agentTree() {
+    if(!state.project)return '<li class="oc-ws-empty">Select a project to view its agents.</li>';
+    if(!state.team)return `<li class="oc-ws-empty">${state.agentsLoading?'Loading project agents…':state.agentsError?'Agent list unavailable.':'Open this tab to load project agents.'}</li>`;
+    const agents=new Map((state.team.agents||[]).filter(a=>/^[A-Z][A-Z0-9_]{0,47}$/.test(a.id)&&/^[A-Za-z0-9_-]+$/.test(a.sessionId)).map(a=>[a.id,a]));
+    if(!agents.size)return '<li class="oc-ws-empty">No agents registered for this project. Add members in Project team.</li>';
+    const children=new Map([['',[]]]);
+    const parentOf=a=>Array.isArray(a?.parents)?a.parents.find(id=>id!==a.id&&agents.has(id))||'':'';
+    for(const agent of agents.values()){
+      let parent=parentOf(agent),cursor=parent;const seen=new Set([agent.id]);
+      while(cursor){if(seen.has(cursor)){parent='';break;}seen.add(cursor);cursor=parentOf(agents.get(cursor));}
+      if(!children.has(parent))children.set(parent,[]);children.get(parent).push(agent);
+    }
+    const files=[...state.directories.map(path=>({path,directory:true})),...(state.files.get(state.session)||state.files.values().next().value||[])].filter(file=>safePath(file.path));
+    const query=state.query.toLocaleLowerCase();
+    const statuses={running:'Working',queued:'Queued',blocked:'Needs approval',completed:'Ready',idle:'Ready',failed:'Failed',interrupted:'Interrupted',cancelled:'Stopped',archived:'Archived',unavailable:'Unavailable'};
+    function branch(agent,ancestorMatch=false){
+      const ownMatch=ancestorMatch||!query||`${agent.id} ${agent.name}`.toLocaleLowerCase().includes(query);
+      const descendants=(children.get(agent.id)||[]).map(a=>branch(a,ownMatch)).join('');
+      const prefix=`.oc-agents/${agent.id}/`;
+      const notes=files.filter(f=>f.path.startsWith(prefix)&& (ownMatch||f.path.toLocaleLowerCase().includes(query)));
+      if(!ownMatch&&!descendants&&!notes.length)return '';
+      const key='agent:'+state.project+':'+agent.id;
+      const status=statuses[agent.status]||'Unknown';
+      const others=Array.isArray(agent.parents)?agent.parents.filter(id=>agents.has(id)):[];
+      const info=`<li class="oc-ws-agent-info">${agent.name&&agent.name!==agent.id?`<p>${escape(agent.name)}</p>`:''}${others.length>1?`<p>Reports to ${escape(others.join(', '))}</p>`:''}<button type="button" data-ws-open-agent="${escape(agent.id)}">Open conversation <span aria-hidden="true">↗</span></button></li>`;
+      const noteTree=notes.length?folder('agent-notes:'+state.project+':'+agent.id,'Workspace notes',nodes(tree(notes,prefix),agent.sessionId,prefix),`${notes.filter(f=>!f.directory).length} files`,false,prefix.slice(0,-1),agent.sessionId):`<li class="oc-ws-agent-no-files">No files in <code>${escape(prefix)}</code> yet.</li>`;
+      return `<li><details data-ws-folder="${escape(key)}" data-ws-agent-folder ${query||(state.open.get(key)??(!!children.get(agent.id)?.length||agent.isBoss===true))?'open':''}><summary data-ws-agent="${escape(agent.id)}" data-ws-row="${escape(key)}" title="${escape(agent.name||agent.id)}"><span class="oc-ws-chevron" aria-hidden="true">›</span>${folderIcon}<span class="oc-ws-name">${escape(agent.id)}</span><small class="oc-ws-agent-status" data-status="${escape(Object.hasOwn(statuses,agent.status)?agent.status:'unavailable')}">${escape(status)}</small></summary><ul>${info}${noteTree}${descendants}</ul></details></li>`;
+    }
+    return (children.get('')||[]).map(a=>branch(a)).join('')||'<li class="oc-ws-empty">No matching agents or files.</li>';
+  }
+  async function loadAgents(force=false){
+    if(!state.project||!state.visible||state.view!=='agents'||state.agentsLoading||(!force&&Date.now()-state.lastAgentsLoad<10000))return;
+    const serial=state.serial,project=state.project;state.agentsLoading=true;state.agentsError='';render();
+    try{
+      const team=await request(`projects/${encode(project)}/team`,'project agents');
+      if(serial!==state.serial)return;
+      if(!Array.isArray(team.agents)||team.projectId!==project)throw new Error('Invalid project agent list.');
+      state.team=team;state.lastAgentsLoad=Date.now();
+    }catch(error){if(serial===state.serial)state.agentsError=error.message;}
+    finally{if(serial===state.serial){state.agentsLoading=false;render();}}
+  }
+  function setView(view,focus=false){
+    if(!['project','agents'].includes(view))return;
+    state.view=view;state.selected=null;closeEditor();render();
+    if(focus)state.panel.querySelector(`[data-ws-view="${view}"]`).focus();
+    if(view==='agents'){void loadAgents();void refresh();}
+  }
   function render() {
     if (!state.panel) return;
     let inputs='',project='',datasetCount=0,fileCount=0;
@@ -99,12 +146,18 @@
       inputs+=sharedFolder(shared);
     }
     const message=!state.project?'Select a project to browse files.':state.loading&&!state.sessions.length?'Loading workspace…':query?'No matching files.':'No datasets linked to this project.';
-    const updates=[['input',inputs||`<li class="oc-ws-empty">${escape(message)}</li>`],['project',project||`<li class="oc-ws-empty">${escape(!state.project?message:query?'No matching files.':'No sessions in this project.')}</li>`]];
+    const updates=[['input',inputs||`<li class="oc-ws-empty">${escape(message)}</li>`],['project',project||`<li class="oc-ws-empty">${escape(!state.project?message:query?'No matching files.':'No sessions in this project.')}</li>`],['agents',agentTree()]];
     for(const [name,html] of updates){const target=state.panel.querySelector(`[data-ws-tree=${name}]`);if(target._html!==html){const scroll=target.scrollTop;const focus=document.activeElement?.dataset.wsRow;target.innerHTML=html;target._html=html;target.scrollTop=scroll;if(focus)[...target.querySelectorAll('[data-ws-row]')].find(row=>row.dataset.wsRow===focus)?.focus({preventScroll:true});}}
     state.panel.querySelector('[data-ws-project-name]').textContent=state.name||'Working files';
     state.panel.querySelector('[data-ws-input-count]').textContent=datasetCount||'';
     state.panel.querySelector('[data-ws-input-project]').textContent=state.name?'Linked to '+state.name:'';
     state.panel.querySelector('[data-ws-project-count]').textContent=fileCount?`${fileCount} files`:'';
+    state.panel.querySelector('[data-ws-project-count]').hidden=state.view!=='project';
+    const count=state.panel.querySelector('[data-ws-agents-count]');count.textContent=state.team?`${state.team.agents.length} agents`:'';count.hidden=state.view!=='agents';
+    for(const button of state.panel.querySelectorAll('[data-ws-view]')){const selected=button.dataset.wsView===state.view;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;}
+    for(const pane of state.panel.querySelectorAll('[data-ws-pane]'))pane.hidden=pane.dataset.wsPane!==state.view;
+    const agentError=state.panel.querySelector('[data-ws-agents-error]');agentError.hidden=!state.agentsError;agentError.querySelector('span').textContent=state.agentsError+(state.team?' Showing the last loaded list.':'');
+    state.panel.querySelector('[data-ws-tree=agents]').setAttribute('aria-busy',String(state.agentsLoading));
     const status=state.panel.querySelector('[data-ws-status]');status.textContent=state.error||(state.loading?'Refreshing…':'');status.hidden=!status.textContent;
     markSelection();
     state.panel.querySelector('[data-ws-refresh]').disabled=state.loading||!state.project;
@@ -112,7 +165,7 @@
   function markSelection(){
     for(const row of state.panel.querySelectorAll('[data-ws-row]'))row.classList.toggle('is-selected',!!state.selected&&row.dataset.wsPath===state.selected.path&&(row.dataset.wsDataset||'')===(state.selected.datasetId||''));
     state.panel.querySelector('[data-ws-copy]').disabled=!state.selected;
-    for(const button of state.panel.querySelectorAll('[data-ws-action]'))button.disabled=state.busy||!state.session||state.selected?.section==='input'||!!state.selected?.datasetId||(button.dataset.wsAction==='rename'&&!state.selected);
+    for(const button of state.panel.querySelectorAll('[data-ws-action]'))button.disabled=state.busy||!state.session||state.view==='agents'||state.selected?.section==='input'||!!state.selected?.datasetId||(button.dataset.wsAction==='rename'&&!state.selected);
   }
   async function copyPath(){
     if(!state.selected)return;
@@ -139,7 +192,7 @@
         notify('Removed from '+state.name+'. Shared library files were kept.');
       }catch(error){if(serial===state.serial)notify(error.message);}return;
     }
-    if(selection?.datasetId||selection?.section==='input'||!state.session)return;
+    if(selection?.datasetId||selection?.section==='input'||selection?.section==='agents'||state.view==='agents'||!state.session)return;
     if(name==='rename'&&!selection)return;
     const target=name==='rename'?selection.path:base??(selection?(selection.directory?selection.path:selection.path.split('/').slice(0,-1).join('/')):'');
     state.edit={action:name,path:target,sessionId,serial};
@@ -209,7 +262,7 @@
       render();
     },
     dropDirectory(target){
-      if(!state.session||!target.closest?.('.oc-ws-project')||target.closest('[data-ws-editor]'))return null;
+      if(state.view!=='project'||!state.session||!target.closest?.('.oc-ws-project')||target.closest('[data-ws-editor]'))return null;
       const row=target.closest('[data-ws-row]')||target.closest('details[data-ws-folder]')?.querySelector(':scope > summary');
       if(row?.dataset.wsDataset)return null;
       if(!row)return '';
@@ -218,8 +271,8 @@
     },
     mount(panel){
       state.panel=panel;
-      panel.innerHTML=`<div class="oc-ws-toolbar"><input type="search" data-ws-search placeholder="Find a file…" aria-label="Find a workspace file"><button type="button" data-ws-copy disabled aria-label="Copy path" title="Copy path">⧉</button><button type="button" data-ws-refresh aria-label="Refresh workspace" title="Refresh workspace">↻</button><button type="button" data-ws-hidden aria-pressed="false" aria-label="Show hidden files" title="Show hidden files">···</button></div><div class="oc-ws-actions"><button type="button" data-ws-action="rename" title="Rename selected item · F2">Rename</button></div><form data-ws-editor class="oc-ws-editor" hidden><strong data-ws-editor-title></strong><span data-ws-editor-parent></span><label>Name<input data-ws-name required autocomplete="off" spellcheck="false" maxlength="255"></label><p data-ws-editor-error role="alert"></p><div><button type="button" data-ws-cancel>Cancel</button><button type="submit">Save</button></div></form><p data-ws-status role="status" hidden></p><section class="oc-ws-section oc-ws-input"><header><div><h3>Input</h3><p data-ws-input-project></p></div><span data-ws-input-count></span></header><ul data-ws-tree="input" aria-label="Project inputs"></ul></section><section class="oc-ws-section oc-ws-project"><header><div><h3>Project</h3><p data-ws-project-name></p></div><span data-ws-project-count></span></header><p class="oc-ws-drop-hint">Drop files here or onto a folder</p><ul data-ws-tree="project" aria-label="Shared project files"></ul></section>`;
-      const select=event=>{const row=event.target.closest('[data-ws-row]');if(!row||(!row.dataset.wsPath&&!row.dataset.wsDataset))return;state.selected={path:row.dataset.wsPath,sessionId:row.dataset.wsSession,section:row.closest('.oc-ws-input')?'input':'project',directory:row.tagName==='SUMMARY',...(row.dataset.wsDataset?{projectId:state.project,projectName:state.name,datasetId:row.dataset.wsDataset,linkToken:state.sharedDatasets.find(item=>item.datasetId===row.dataset.wsDataset)?.linkToken}:{})};if(state.selected.datasetId)closeEditor();markSelection();};
+      panel.innerHTML=`<div class="oc-ws-toolbar"><input type="search" data-ws-search placeholder="Find a file…" aria-label="Find a workspace file"><button type="button" data-ws-copy disabled aria-label="Copy path" title="Copy path">⧉</button><button type="button" data-ws-refresh aria-label="Refresh workspace" title="Refresh workspace">↻</button><button type="button" data-ws-hidden aria-pressed="false" aria-label="Show hidden files" title="Show hidden files">···</button></div><div class="oc-ws-actions"><button type="button" data-ws-action="rename" title="Rename selected item · F2">Rename</button></div><form data-ws-editor class="oc-ws-editor" hidden><strong data-ws-editor-title></strong><span data-ws-editor-parent></span><label>Name<input data-ws-name required autocomplete="off" spellcheck="false" maxlength="255"></label><p data-ws-editor-error role="alert"></p><div><button type="button" data-ws-cancel>Cancel</button><button type="submit">Save</button></div></form><p data-ws-status role="status" hidden></p><section class="oc-ws-section oc-ws-input"><header><div><h3>Input</h3><p data-ws-input-project></p></div><span data-ws-input-count></span></header><ul data-ws-tree="input" aria-label="Project inputs"></ul></section><section class="oc-ws-section oc-ws-project"><header><div><div class="oc-ws-project-tabs" role="tablist" aria-label="Project explorer"><button type="button" id="ocWsProjectTab" role="tab" data-ws-view="project" aria-selected="true" aria-controls="ocWsProjectPane">Project</button><button type="button" id="ocWsAgentsTab" role="tab" data-ws-view="agents" aria-selected="false" aria-controls="ocWsAgentsPane" tabindex="-1">Agents</button></div><p data-ws-project-name></p></div><span data-ws-project-count></span><span data-ws-agents-count hidden></span></header><div class="oc-ws-pane" id="ocWsProjectPane" role="tabpanel" aria-labelledby="ocWsProjectTab" data-ws-pane="project"><p class="oc-ws-drop-hint">Drop files here or onto a folder</p><ul data-ws-tree="project" aria-label="Shared project files"></ul></div><div class="oc-ws-pane" id="ocWsAgentsPane" role="tabpanel" aria-labelledby="ocWsAgentsTab" data-ws-pane="agents" hidden><p class="oc-ws-drop-hint">Project team and agent workspace notes</p><p class="oc-ws-agents-error" data-ws-agents-error role="alert" hidden><span></span> <button type="button" data-ws-agents-retry>Retry</button></p><ul data-ws-tree="agents" aria-label="Project agent structure"></ul></div></section>`;
+      const select=event=>{const row=event.target.closest('[data-ws-row]');if(row?.dataset.wsAgent){state.selected=null;markSelection();return;}if(!row||(!row.dataset.wsPath&&!row.dataset.wsDataset))return;state.selected={path:row.dataset.wsPath,sessionId:row.dataset.wsSession,section:row.closest('[data-ws-pane="agents"]')?'agents':row.closest('.oc-ws-input')?'input':'project',directory:row.tagName==='SUMMARY',...(row.dataset.wsDataset?{projectId:state.project,projectName:state.name,datasetId:row.dataset.wsDataset,linkToken:state.sharedDatasets.find(item=>item.datasetId===row.dataset.wsDataset)?.linkToken}:{})};if(state.selected.datasetId)closeEditor();markSelection();};
       panel.addEventListener('click',event=>{select(event);if(event.detail===0&&event.target.closest('[data-ws-shared-file]')){event.preventDefault();event.stopPropagation();void window.OCDesktopDatasetPreview.open({...state.selected});}else if(event.detail===1&&event.target.closest('.oc-ws-file')){event.preventDefault();event.stopPropagation();}},true);panel.addEventListener('focusin',select);
       panel.addEventListener('dblclick',event=>{if(event.target.closest('[data-ws-shared-file]')){event.preventDefault();event.stopPropagation();select(event);void window.OCDesktopDatasetPreview.open({...state.selected});}});
       panel.addEventListener('click',event=>{const button=event.target.closest('[data-ws-shared-more],[data-ws-shared-retry]');if(!button)return;event.preventDefault();event.stopPropagation();if(button.hasAttribute('data-ws-shared-retry'))sharedPages.delete(sharedKey(button.dataset.wsDataset,button.dataset.wsPath));void loadShared(button.dataset.wsDataset,button.dataset.wsPath,button.hasAttribute('data-ws-shared-more'));});
@@ -230,6 +283,7 @@
       panel.querySelector('[data-ws-editor]').addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeEditor();}});
       panel.addEventListener('contextmenu',async event=>{
         if(event.target.closest('input,[data-ws-editor]'))return;
+        if(event.target.closest('[data-ws-pane="agents"]')){event.preventDefault();return;}
         const section=event.target.closest('.oc-ws-project')?'project':event.target.closest('.oc-ws-input')?'input':null;
         if(!section){event.preventDefault();return;}
         const row=event.target.closest('[data-ws-row]');if(!state.session&&!row?.dataset.wsDataset)return;
@@ -245,7 +299,13 @@
         if(!state.visible||!state.selected)return;event.preventDefault();void copyPath();
       });
       panel.querySelector('[data-ws-search]').addEventListener('input',event=>{state.query=event.target.value.trim();render();});
-      panel.querySelector('[data-ws-refresh]').onclick=()=>{clearShared();void refresh(true);};
+      panel.querySelector('[data-ws-refresh]').onclick=()=>{clearShared();void refresh(true);void loadAgents(true);};
+      panel.querySelectorAll('[data-ws-view]').forEach(button=>{
+        button.onclick=()=>setView(button.dataset.wsView);
+        button.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();setView(event.key==='Home'?'project':event.key==='End'?'agents':state.view==='project'?'agents':'project',true);});
+      });
+      panel.querySelector('[data-ws-agents-retry]').onclick=()=>void loadAgents(true);
+      panel.addEventListener('click',event=>{const button=event.target.closest('[data-ws-open-agent]');if(!button)return;const agent=state.team?.agents.find(a=>a.id===button.dataset.wsOpenAgent);if(agent&&state.project)void Promise.resolve(window.OCResearchWorkspace?.openSession?.(state.project,agent.sessionId)).catch(error=>notify(error.message));});
       panel.querySelector('[data-ws-hidden]').onclick=event=>{state.hidden=!state.hidden;clearShared();event.currentTarget.setAttribute('aria-pressed',String(state.hidden));render();};
       panel.addEventListener('toggle',event=>{const node=event.target;if(!node.matches('[data-ws-folder]')||!node.isConnected)return;if(node.hasAttribute('data-ws-shared-folder')){state.open.set(node.dataset.wsFolder,node.open);if(node.open)void loadShared(node.dataset.wsDataset,node.dataset.wsPath);return;}if(!state.query)state.open.set(node.dataset.wsFolder,node.open);},true);
       panel.addEventListener('keydown',event=>{
@@ -257,13 +317,13 @@
       });
       const unsubscribe=window.OCDesktop.onDatasetsChanged?.(event=>{if(event.projectId===state.project){state.datasetDirty=true;if(state.selected?.datasetId)state.selected=null;clearShared();window.OCDesktopDatasetPreview?.close();state.lastLoad=0;void refresh(true);}});
       window.addEventListener('pagehide',()=>unsubscribe?.());
-      const timer=setInterval(()=>void refresh(),10000);window.addEventListener('pagehide',()=>clearInterval(timer));render();
+      const timer=setInterval(()=>{void refresh();void loadAgents();},10000);window.addEventListener('pagehide',()=>clearInterval(timer));render();
     },
     select({projectId,sessionId,projectName}){
-      if(state.project!==projectId){state.serial++;clearShared();window.OCDesktopDatasetPreview?.close();state.selected=null;state.directories=[];closeEditor();state.project=projectId||'';state.sessions=[];state.files.clear();state.records.clear();state.sharedDatasets=[];state.open.clear();state.loading=false;state.lastLoad=0;state.error='';}
-      state.session=sessionId||'';state.name=projectName||'';render();void refresh();
+      if(state.project!==projectId){state.serial++;clearShared();window.OCDesktopDatasetPreview?.close();state.selected=null;state.directories=[];closeEditor();state.project=projectId||'';state.sessions=[];state.files.clear();state.records.clear();state.sharedDatasets=[];state.open.clear();state.loading=false;state.lastLoad=0;state.error='';state.team=null;state.agentsLoading=false;state.agentsError='';state.lastAgentsLoad=0;}
+      state.session=sessionId||'';state.name=projectName||'';render();void refresh();void loadAgents();
     },
-    show(visible){state.visible=visible;if(visible){render();void refresh(true);}},
+    show(visible){state.visible=visible;if(visible){render();void refresh(true);void loadAgents(true);}},
     updateFiles(sessionId,files){if(state.sessions.some(session=>session.id===sessionId)){state.files.clear();state.files.set(sessionId,files);render();}}
   };
 })();

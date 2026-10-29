@@ -245,6 +245,24 @@ body:has(.oc-desktop-settings),body:has(.oc-desktop-workspace){height:100dvh;ove
 .oc-ws-section{display:flex;flex-direction:column;min-height:100px;overflow:hidden}
 .oc-ws-input{flex:0.85;border-bottom:1px solid var(--oc-border)}
 .oc-ws-project{flex:1.15}
+.oc-ws-project-tabs{display:flex;align-items:center;gap:6px}
+.oc-ws-project-tabs [role=tab]{border:0;border-radius:6px;background:transparent;padding:5px 8px;font:inherit;font-size:12px;font-weight:650;color:#667085;cursor:pointer}
+.oc-ws-project-tabs [aria-selected=true]{background:#e8eee3;color:#354a31}
+.oc-ws-project-tabs [role=tab]:hover{background:#f0f3ed}
+.oc-ws-project-tabs [role=tab]:focus-visible{outline:2px solid #55744b;outline-offset:2px}
+.oc-ws-pane{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+.oc-ws-pane[hidden],.oc-ws-agents-error[hidden]{display:none}
+.oc-ws-project [data-ws-tree=agents]{padding-top:4px}
+.oc-ws-agent-info{padding:3px 6px 7px 20px!important}
+.oc-ws-agent-info p{margin:0 0 3px;font-size:11px;color:#667085;overflow-wrap:anywhere}
+.oc-ws-agent-info button,.oc-ws-agents-error button{border:0;padding:2px 0;background:transparent;font:inherit;font-size:11px;color:#45673d;cursor:pointer;text-align:left}
+.oc-ws-agent-info button:hover,.oc-ws-agents-error button:hover{text-decoration:underline}
+.oc-ws-agent-no-files{padding:2px 6px 8px 20px!important;color:#8995a3;font-size:10px;line-height:1.6;overflow-wrap:anywhere}
+.oc-ws-agent-no-files code{font-size:inherit;color:inherit;white-space:normal}
+.oc-ws-agents-error{margin:0;padding:5px 14px;color:#a64037;font-size:11px;line-height:1.5;flex:none}
+.oc-ws-section .oc-ws-agent-status{flex:none;max-width:94px;padding:0 5px;border-radius:4px;background:#f2f4f0;color:#60715a}
+.oc-ws-section .oc-ws-agent-status[data-status=running]{background:#eaf2e4;color:#3f6532}
+.oc-ws-section .oc-ws-agent-status[data-status=blocked],.oc-ws-section .oc-ws-agent-status[data-status=failed]{background:#fff1e9;color:#995b33}
 .oc-ws-section>header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px 8px;flex:none}
 .oc-ws-section h3{font-size:12px;font-weight:650;margin:0;color:#253247}
 .oc-ws-section header span,.oc-ws-section header p{font-size:11px;color:#667085;margin:3px 0 0}
