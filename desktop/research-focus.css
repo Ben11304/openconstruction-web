@@ -4,11 +4,19 @@
 #ocResearchRoot .oc-focus-project [data-rename-project]{border:0;background:transparent;padding:0;text-align:left;font-size:18px;font-weight:500;color:#293329;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 #ocResearchRoot .oc-focus-project small{font-size:11px;color:#70776b}
 #ocResearchRoot .oc-live-compute{display:flex;align-items:center;flex-wrap:wrap;gap:6px 16px;flex:none;padding:10px 22px;border-bottom:1px solid var(--oc-border);background:#fafbf8;font-size:12px}
-#ocResearchRoot .oc-live-options{display:flex;align-items:center;flex-wrap:wrap;gap:8px 18px}
-#ocResearchRoot .oc-live-options label{display:flex;align-items:center;gap:8px;min-width:0;margin:0;font-size:11px;color:#70776b}
-#ocResearchRoot .oc-live-options label>span{flex:none}
-#ocResearchRoot .oc-live-options select{width:auto;min-width:106px;height:30px;padding:4px 7px;border:1px solid #d8ded3;border-radius:6px;background:#fff;color:#293329;font:inherit;font-size:12px}
-#ocResearchRoot .oc-live-options select:disabled{opacity:.7}
+#ocResearchRoot .oc-live-options{display:flex;align-items:center;gap:4px}
+#ocResearchRoot .oc-live-picker{position:relative}
+#ocResearchRoot .oc-live-picker-trigger{display:flex;align-items:center;gap:7px;min-height:30px;padding:5px 8px;border:0;border-radius:6px;background:transparent;color:#596251;font:inherit;cursor:pointer}
+#ocResearchRoot .oc-live-picker-trigger:is(:hover,[aria-expanded=true]){background:#e9ede5;color:#34472f}
+#ocResearchRoot .oc-live-picker-trigger:disabled{opacity:.6;cursor:default}
+#ocResearchRoot .oc-live-picker-trigger svg{opacity:.65;pointer-events:none}
+#ocResearchRoot .oc-live-picker-menu{position:absolute;top:calc(100% + 6px);left:0;z-index:1300;min-width:160px;max-width:calc(100vw - 48px);padding:5px;border:1px solid var(--oc-border);border-radius:9px;background:#fff;box-shadow:0 6px 22px #26342318}
+#ocResearchRoot .oc-live-picker-menu button{display:flex;align-items:center;gap:9px;width:100%;min-height:32px;padding:7px 10px;border:0;border-radius:5px;background:transparent;color:#34472f;font:inherit;text-align:left;white-space:nowrap;cursor:pointer}
+#ocResearchRoot .oc-live-picker-menu button:is(:hover,:focus-visible){background:#eef2e9}
+#ocResearchRoot .oc-live-picker-menu button:disabled{opacity:.6;cursor:default}
+#ocResearchRoot .oc-live-choice-check{flex:none;width:14px;color:#39815a;visibility:hidden}
+#ocResearchRoot .oc-live-picker-menu [aria-checked=true] .oc-live-choice-check{visibility:visible}
+@media(pointer:coarse){#ocResearchRoot .oc-live-picker-trigger,#ocResearchRoot .oc-live-picker-menu button{min-height:44px}}
 #ocResearchRoot .oc-live-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
 #ocResearchRoot [data-live-status]{display:flex;align-items:center;gap:5px;margin-right:4px;font-size:12px;white-space:nowrap}
 #ocResearchRoot [data-live-status]::before{content:'';width:6px;height:6px;border-radius:50%;background:#9a9f96}
@@ -91,8 +99,6 @@ html[data-oc-resizing] #ocResearchRoot.oc-focus-workspace :is(.oc-research-layou
 #ocResearchRoot.oc-focus-workspace :is(button,summary,select):focus-visible{outline:2px solid #59734c;outline-offset:2px}
 @media(max-width:700px){
  #ocResearchRoot .oc-live-compute{padding:10px 12px;gap:8px 12px}
- #ocResearchRoot .oc-live-options{gap:8px 12px}
- #ocResearchRoot .oc-live-options label{gap:6px}
  #ocResearchRoot.oc-focus-workspace .oc-research-layout{grid-template-columns:minmax(0,1fr)!important}
  #ocResearchRoot.oc-focus-workspace .oc-research-rail{display:none}
  #ocResearchRoot.oc-focus-sidebar-open .oc-research-rail{display:flex;position:absolute;inset:0 auto 0 0;width:min(270px,85%);z-index:1240;box-shadow:8px 0 24px #26342318}
