@@ -48,11 +48,11 @@
       controller?.abort();generation++;projectId=id;snapshot=null;canEdit=false;loaded=false;busy=false;
       if(panel){field('ram').value='8';field('gpu').value='false';render();void refresh();}
     },
-    mount(identity) {
+    mount(header) {
       if(panel||window.OCDesktop?.platform!=='web')return;
       panel=document.createElement('section');panel.className='oc-live-compute';panel.setAttribute('aria-label','Project compute');
       panel.innerHTML='<div class="oc-live-options"><label><span>Memory</span><select data-live-ram aria-label="Project memory"><option value="8">8 GB RAM</option><option value="16">16 GB RAM</option></select></label><label><span>GPU</span><select data-live-gpu aria-label="Project GPU"><option value="false">No GPU</option><option value="true">Use GPU</option></select></label></div><div class="oc-live-actions"><span data-live-status role="status" aria-live="polite">Checking…</span><button type="button" data-live-refresh aria-label="Refresh compute status" title="Refresh status">↻</button><button type="button" data-live-action>Go live</button></div><p data-live-hint></p><p data-live-error role="alert" hidden></p>';
-      identity.append(panel);
+      header.before(panel);
       field('refresh').onclick=()=>void refresh();
       field('action').onclick=()=>{
         const stop=snapshot?.session&&snapshot.session.status!=='stopped';

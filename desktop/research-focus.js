@@ -19,8 +19,8 @@
       if (project) {
         const identity = document.createElement('div'); identity.className = 'oc-focus-project';
         identity.append(project); rail.prepend(identity);
-        window.OCResearchCompute?.mount(identity);
       }
+      window.OCResearchCompute?.mount(head);
       const nav = root.querySelector('.oc-agent-view-tabs');
       if (nav) actions.prepend(nav);
       const files = actions.querySelector('[data-research-tools-toggle]');

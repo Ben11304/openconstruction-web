@@ -3,14 +3,14 @@
 #ocResearchRoot .oc-focus-project{display:flex;flex-direction:column;gap:2px;flex:none;padding:4px 6px 22px}
 #ocResearchRoot .oc-focus-project [data-rename-project]{border:0;background:transparent;padding:0;text-align:left;font-size:18px;font-weight:500;color:#293329;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
 #ocResearchRoot .oc-focus-project small{font-size:11px;color:#70776b}
-#ocResearchRoot .oc-live-compute{margin-top:14px;font-size:12px}
-#ocResearchRoot .oc-live-options{display:flex;gap:6px}
-#ocResearchRoot .oc-live-options label{flex:1;min-width:0;margin:0;font-size:11px;color:#70776b}
-#ocResearchRoot .oc-live-options label>span{display:block;margin-bottom:4px}
-#ocResearchRoot .oc-live-options select{width:100%;height:32px;padding:4px;border:1px solid #d8ded3;border-radius:6px;background:#fff;color:#293329;font:inherit;font-size:12px}
+#ocResearchRoot .oc-live-compute{display:flex;align-items:center;flex-wrap:wrap;gap:6px 16px;flex:none;padding:10px 22px;border-bottom:1px solid var(--oc-border);background:#fafbf8;font-size:12px}
+#ocResearchRoot .oc-live-options{display:flex;align-items:center;flex-wrap:wrap;gap:8px 18px}
+#ocResearchRoot .oc-live-options label{display:flex;align-items:center;gap:8px;min-width:0;margin:0;font-size:11px;color:#70776b}
+#ocResearchRoot .oc-live-options label>span{flex:none}
+#ocResearchRoot .oc-live-options select{width:auto;min-width:106px;height:30px;padding:4px 7px;border:1px solid #d8ded3;border-radius:6px;background:#fff;color:#293329;font:inherit;font-size:12px}
 #ocResearchRoot .oc-live-options select:disabled{opacity:.7}
-#ocResearchRoot .oc-live-actions{display:flex;align-items:center;gap:6px;margin-top:10px}
-#ocResearchRoot [data-live-status]{display:flex;align-items:center;gap:5px;margin-right:auto;font-size:12px;white-space:nowrap}
+#ocResearchRoot .oc-live-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+#ocResearchRoot [data-live-status]{display:flex;align-items:center;gap:5px;margin-right:4px;font-size:12px;white-space:nowrap}
 #ocResearchRoot [data-live-status]::before{content:'';width:6px;height:6px;border-radius:50%;background:#9a9f96}
 #ocResearchRoot [data-live-status][data-state=live]::before{background:#39815a;box-shadow:0 0 0 3px #39815a18}
 #ocResearchRoot [data-live-status][data-state=live]{color:#326b49}
@@ -18,7 +18,8 @@
 #ocResearchRoot .oc-live-actions button{padding:5px 8px;border:1px solid #d8ded3;border-radius:6px;background:#fff;color:#34472f;font:inherit;cursor:pointer;white-space:nowrap}
 #ocResearchRoot .oc-live-actions [data-live-refresh]{border:0;padding:4px;background:transparent;font-size:16px}
 #ocResearchRoot .oc-live-actions button:disabled{opacity:.5;cursor:default}
-#ocResearchRoot .oc-live-compute p{font-size:11px;line-height:1.4;margin:8px 0 0;color:#70776b}
+#ocResearchRoot .oc-live-compute p{flex-basis:100%;font-size:11px;line-height:1.4;margin:0;color:#70776b}
+#ocResearchRoot .oc-live-compute p:empty{display:none}
 #ocResearchRoot .oc-live-compute [data-live-error]{color:#9b3838}
 #ocResearchRoot.oc-focus-workspace .oc-research-rail{padding:20px 12px 0;background:var(--oc-surface)}
 #ocResearchRoot.oc-focus-workspace .oc-research-list-item{padding:8px;border-radius:5px;margin:0 0 2px}
@@ -89,6 +90,9 @@ html[data-oc-resizing] #ocResearchRoot.oc-focus-workspace :is(.oc-research-layou
 #ocResearchRoot .oc-focus-sidebar-toggle{display:none}
 #ocResearchRoot.oc-focus-workspace :is(button,summary,select):focus-visible{outline:2px solid #59734c;outline-offset:2px}
 @media(max-width:700px){
+ #ocResearchRoot .oc-live-compute{padding:10px 12px;gap:8px 12px}
+ #ocResearchRoot .oc-live-options{gap:8px 12px}
+ #ocResearchRoot .oc-live-options label{gap:6px}
  #ocResearchRoot.oc-focus-workspace .oc-research-layout{grid-template-columns:minmax(0,1fr)!important}
  #ocResearchRoot.oc-focus-workspace .oc-research-rail{display:none}
  #ocResearchRoot.oc-focus-sidebar-open .oc-research-rail{display:flex;position:absolute;inset:0 auto 0 0;width:min(270px,85%);z-index:1240;box-shadow:8px 0 24px #26342318}
