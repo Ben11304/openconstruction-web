@@ -75,3 +75,4 @@
 .oc-skill-audit-warning{color:#795218;border-color:#e7d6b7;background:#fff9ef}
 @media(max-width:400px){.oc-skill-score{padding:8px}.oc-skill-score strong{font-size:19px}.oc-skill-scores{gap:5px}}
 @media(max-width:700px){.oc-skills-catalog{padding:0 12px 36px}.oc-skill-catalog-row.paper-card{flex-direction:column}.oc-skill-card-mark{width:100%;min-height:100px}.oc-skill-import-card{align-items:flex-start;flex-direction:column}.oc-skill-detail-files{grid-template-columns:1fr}.oc-skill-detail-files nav{max-height:140px}.oc-skill-detail-banner{height:145px}.oc-skill-detail-banner>span{font-size:54px}}
+.oc-project-skills .oc-resource-heading{font-size:12px;font-weight:600;margin:16px 0 4px;color:#17354e}

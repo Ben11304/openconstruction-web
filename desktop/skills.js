@@ -61,7 +61,7 @@
     const value=await response.json();if(!response.ok)throw Error(value.error||value.detail||'Skill operation failed.');return value;
   }
   const button=(text,click,cls='btn btn-outline-secondary btn-sm')=>{const b=el('button',text,cls);b.type='button';b.onclick=click;return b;};
-  let current={},panel,summary,rows,inventory,usage=[],serial=0,loading=false,dialog;
+  let current={},panel,summary,rows,inventory,usage=[],connections=[],connectionError='',invocationError='',serial=0,loading=false,dialog;
   const close=()=>{if(dialog){dialog.close();dialog.remove();dialog=null;}};
   function skillRef(item){return {libraryId:item.libraryId,versionId:item.libraryVersionId||item.versionId,skillId:item.skillId||item.id};}
   function inspectRoute(ref,path='SKILL.md'){return 'oc/skills/inspect?'+new URLSearchParams({...ref,path});}
@@ -87,8 +87,8 @@
       for(const use of options.uses){const li=el('li',`${new Date(use.timestamp).toLocaleString()} · ${use.agentId==='main'?'Main Agent':'Subagent'} · ${use.toolCallId}`);list.append(li);}d.append(list);
       const footer=el('footer');
       footer.append(button('Open session trace',()=>{close();window.OCDesktopTrace?.open();}));
-      const remove=button('Remove from project',async()=>{
-        remove.disabled=true;try{await request(`projects/${enc(options.projectId)}/skills/${enc(item.bindingId)}`,'DELETE',{expectedRevision:options.revision});close();void refresh();}catch(e){message.textContent=e.message;message.className='oc-skill-error';remove.disabled=false;}
+      const remove=button(options.agentSessionId?'Remove from agent':'Remove from project',async()=>{
+        remove.disabled=true;try{if(options.agentSessionId){const {capabilities:c}=await request(`sessions/${enc(options.agentSessionId)}/capabilities`);await request(`sessions/${enc(options.agentSessionId)}/capabilities`,'PUT',{expectedRevision:options.revision,skills:c.skills.filter(s=>s.bindingId!==item.bindingId).map(skillRef),connectorIds:c.connectorIds,allowedToolNames:c.allowedToolNames,deniedToolNames:c.deniedToolNames});}else await request(`projects/${enc(options.projectId)}/skills/${enc(item.bindingId)}`,'DELETE',{expectedRevision:options.revision});close();void refresh();}catch(e){message.textContent=e.message;message.className='oc-skill-error';remove.disabled=false;}
       });footer.append(remove);d.append(footer);
     } else {
       const projects=await request('projects').catch(e=>{message.textContent=e.message;return [];});if(dialog!==d)return;
@@ -105,22 +105,103 @@
       if(!projects.length)message.textContent='Create a research project first, then add this skill.';
     }
   }
+  const callCache=new Map();
+  function recordedCalls(events,sessionId,runId){
+    const started=new Map(),calls=[];
+    for(const record of events){const event=record.event||record,trace=event.trace;
+      if(event.type==='tool.started'&&trace?.id)started.set(trace.id,record.createdAt);
+      if(event.type!=='tool.completed'||!trace?.id||!String(trace.name).startsWith('mcp__'))continue;
+      calls.push({id:runId+':'+trace.id,sessionId,turnId:runId,toolCallId:trace.id,toolName:trace.name,startedAt:started.get(trace.id)||record.createdAt,status:trace.status==='completed'?'succeeded':trace.status});
+    }
+    return calls;
+  }
+  async function sessionCalls(sessionId){
+    const [runs,children]=await Promise.all([request(`sessions/${enc(sessionId)}/runs`),request(`sessions/${enc(sessionId)}/subagents`)]);
+    const calls=[];
+    // Keep only small call receipts in memory. Finished run streams are reused;
+    // open panels poll only active runs instead of reloading all session history.
+    const selected=runs.filter(run=>run.sessionId===sessionId);
+    for(let offset=0;offset<selected.length;offset+=4){
+      const batch=await Promise.all(selected.slice(offset,offset+4).map(async run=>{
+        const key=sessionId+':'+run.id,closed=['completed','failed','cancelled','interrupted','timed_out'].includes(run.status),cached=callCache.get(key);
+        if(closed&&cached&&cached.finishedAt===run.finishedAt)return cached.calls;
+        const result=recordedCalls(await request(`sessions/${enc(sessionId)}/runs/${enc(run.id)}/events`),sessionId,run.id);
+        if(closed){if(callCache.size>=128)callCache.delete(callCache.keys().next().value);callCache.set(key,{finishedAt:run.finishedAt,calls:result});}
+        return result;
+      }));calls.push(...batch.flat());
+    }
+    for(const child of children.filter(child=>selected.some(run=>run.id===child.parentTurnId)))for(const step of child.steps||[]){
+      if(!['completed','failed','cancelled'].includes(step.status)||!String(step.toolName).startsWith('mcp__'))continue;
+      const toolCallId=step.toolCallId||step.id;
+      calls.push({id:child.parentTurnId+':'+toolCallId,sessionId,turnId:child.parentTurnId,toolCallId,toolName:step.toolName,startedAt:step.createdAt,status:step.status==='completed'?'succeeded':step.status});
+    }
+    return calls;
+  }
+  function connectionResources(ids,catalog,invocations,sessionId){
+    const seen=new Set();
+    const calls=(invocations||[]).filter(call=>{
+      if(call.sessionId!==sessionId||String(call.turnId||'').startsWith('mcp-inspector-')||String(call.toolCallId||'').startsWith('inspector-')||!call.id||seen.has(call.id))return false;
+      seen.add(call.id);return true;
+    });
+    const sources=[...new Set(ids)].sort((a,b)=>b.length-a.length);
+    return sources.map(id=>{
+      const source=catalog.find(item=>item.id===id),activity=calls.filter(call=>(call.sourceId||sources.find(source=>String(call.toolName).startsWith('mcp__'+source+'__')))===id);
+      return {id,name:source?.name||source?.displayName||id,kind:id.startsWith('custom-')?'MCP':'Connector',available:Boolean(source),calls:activity,used:activity.some(call=>call.status==='succeeded')};
+    });
+  }
+  window.OCResourceUsage={connectionResources,recordedCalls};
+  function inspectConnection(item){
+    close();const d=dialog=el('dialog',undefined,'oc-skill-dialog');d.setAttribute('aria-label',item.kind+' usage');
+    const head=el('header');head.append(el('h2',item.name),button('Close',close));d.append(head);
+    d.append(el('p',`${item.kind} · Assigned to this ${inventory?.scope==='agent'?'agent':'conversation'}`,'oc-skill-meta'));
+    d.append(el('p',invocationError||'Recorded tool calls in this session. Manual MCP tests are excluded. A successful call does not establish a live device connection.','oc-skill-meta'));
+    const list=el('ol',undefined,'oc-skill-use-list');
+    for(const call of item.calls){const li=el('li',`${new Date(call.startedAt).toLocaleString()} · ${call.mcpToolName||call.toolId||call.toolName} · ${call.status}`);list.append(li);}
+    if(!item.calls.length&&!invocationError)d.append(el('p','No recorded calls in this session.'));
+    d.append(list,button('Open session trace',()=>{close();window.OCDesktopTrace?.open();}));document.body.append(d);d.showModal();d.addEventListener('cancel',e=>{e.preventDefault();close();});
+  }
   function renderPanel(){
     if(!panel)return;rows.replaceChildren();const items=inventory?.items||[];
     const used=items.filter(item=>usage.some(use=>use.skillId===item.skillId)).length;
-    summary.textContent=`Skills · ${items.length} added · ${used} used`;
+    const connectedUsed=connections.filter(item=>item.used).length;
+    summary.textContent=`Resources · ${items.length+connections.length} added · ${used+connectedUsed} used${connectionError||invocationError?' · incomplete':''}`;
     rows.append(el('p',current.sessionId?'Calls in current session':'Select a session to see usage','oc-skill-meta'));
-    if(!items.length)rows.append(el('p','No skills added. Choose a workflow from the catalog.'));
-    for(const item of items){const calls=usage.filter(use=>use.skillId===item.skillId),row=el('div',undefined,'oc-skill-row');row.append(button(item.skillId,()=>void inspect(item,{projectId:current.projectId,revision:inventory.revision,uses:calls}),''),el('span',item.status==='unavailable'?'Unavailable':calls.length?`${calls.length} ${calls.length===1?'call':'calls'}`:'Not used','oc-skill-count'));rows.append(row);}
+    rows.append(el('h4',`Skills · ${items.length} added · ${used} used`,'oc-resource-heading'));
+    if(!items.length)rows.append(el('p','No skills added.'));
+    for(const item of items){const calls=usage.filter(use=>use.skillId===item.skillId),row=el('div',undefined,'oc-skill-row');row.append(button(item.skillId,()=>void inspect(item,{projectId:current.projectId,agentSessionId:inventory.scope==='agent'?current.sessionId:undefined,revision:inventory.revision,uses:calls}),''),el('span',item.status==='unavailable'?'Unavailable':calls.length?`${calls.length} ${calls.length===1?'call':'calls'}`:'Not used','oc-skill-count'));rows.append(row);}
     const link=el('a','Browse Skills catalog');link.href='/openconstruction-web/desktop/skills.html';rows.append(link);
+    if(connectionError)rows.append(el('p',connectionError,'oc-skill-error'));
+    if(invocationError)rows.append(el('p',invocationError,'oc-skill-error'));
+    for(const [kind,label] of [['Connector','Connectors'],['MCP','MCP servers']]){
+      const selected=connections.filter(item=>item.kind===kind);
+      rows.append(el('h4',`${label} · ${selected.length} added · ${selected.filter(item=>item.used).length} used`,'oc-resource-heading'));
+      if(!selected.length)rows.append(el('p',connectionError?'Assignments unavailable.':`No ${label.toLowerCase()} added.`));
+      for(const item of selected){const row=el('div',undefined,'oc-skill-row'),failed=item.calls.filter(call=>call.status==='failed').length;
+        const count=invocationError?'Usage unavailable':item.calls.length?`${item.calls.length} ${item.calls.length===1?'call':'calls'}${failed?` · ${failed} failed`:''}`:'Not used';
+        row.append(button(item.name,()=>inspectConnection(item),''),el('span',item.available?count:`Unavailable · ${count}`,'oc-skill-count'));rows.append(row);
+      }
+    }
+    const connectorLink=el('a','Browse Connector catalog');connectorLink.href='/openconstruction-web/desktop/connectors.html';
+    const mcpLink=el('a','Manage MCP servers');mcpLink.href='/openconstruction-web/research.html?view=mcp';rows.append(connectorLink,el('br'),mcpLink);
   }
   async function refresh(){
     if(!panel||!current.projectId||loading)return;loading=true;const ticket=serial,pid=current.projectId,sid=current.sessionId;
-    try{const [list,activity]=await Promise.all([request(`projects/${enc(pid)}/skills`),sid?request(`sessions/${enc(sid)}/skills`):Promise.resolve({uses:[]})]);if(ticket!==serial)return;inventory=list;usage=activity.uses||[];renderPanel();}
-    catch(e){if(ticket===serial){summary.textContent='Skills · unavailable';rows.replaceChildren(el('p',e.message,'oc-skill-error'));}}
+    try{
+      const settle=promise=>promise.then(value=>({value}),error=>({error:error.message}));
+      const [list,activity]=await Promise.all([request(`projects/${enc(pid)}/skills`),sid?request(`sessions/${enc(sid)}/skills`):Promise.resolve({uses:[]})]);
+      const assigned=await settle(activity.scope==='agent'
+        ? request(`sessions/${enc(sid)}/capabilities`).then(data=>({ids:data.capabilities.connectorIds,catalog:data.catalog.connectors}))
+        : Promise.all([request(`${sid?'sessions/'+enc(sid):'projects/'+enc(pid)}/settings`),request('connectors')]).then(([settings,catalog])=>({ids:settings.effective?.enabledConnectorIds||[],catalog})));
+      const activityCalls=sid&&assigned.value?.ids.length?await settle(sessionCalls(sid)):{value:[]};
+      if(ticket!==serial)return;inventory=activity.scope==='agent'?activity:list;usage=activity.uses||[];
+      connectionError=assigned.error?'Connector and MCP assignments unavailable: '+assigned.error:'';
+      invocationError=activityCalls.error?'Connector and MCP usage unavailable: '+activityCalls.error:'';
+      connections=assigned.value?connectionResources(assigned.value.ids,assigned.value.catalog,activityCalls.value,sid):[];renderPanel();
+    }
+    catch(e){if(ticket===serial){summary.textContent='Resources · unavailable';rows.replaceChildren(el('p',e.message,'oc-skill-error'));}}
     finally{loading=false;if(ticket!==serial)void refresh();}
   }
-  window.OCDesktopSkills={mount(root){panel=el('details',undefined,'oc-project-skills');summary=el('summary','Skills');rows=el('div');panel.append(summary,rows);root.querySelector('.oc-inspector-heading').after(panel);panel.addEventListener('toggle',()=>{if(panel.open)void refresh();});const timer=setInterval(()=>{if(panel.open&&!document.hidden)void refresh();},5000);window.addEventListener('pagehide',()=>clearInterval(timer));},sync(value){if(current.projectId===value.projectId&&current.sessionId===value.sessionId)return;serial++;close();current=value;inventory=null;usage=[];renderPanel();void refresh();}};
+  window.OCDesktopSkills={mount(root){panel=el('details',undefined,'oc-project-skills');panel.setAttribute('aria-label','Skills, connectors and MCP resources');summary=el('summary','Resources');rows=el('div');panel.append(summary,rows);root.querySelector('.oc-inspector-heading').after(panel);panel.addEventListener('toggle',()=>{if(panel.open)void refresh();});const timer=setInterval(()=>{if(panel.open&&!document.hidden)void refresh();},5000);window.addEventListener('pagehide',()=>clearInterval(timer));},sync(value){if(current.projectId===value.projectId&&current.sessionId===value.sessionId)return;serial++;close();current=value;inventory=null;usage=[];connections=[];connectionError='';invocationError='';renderPanel();void refresh();}};
   const libraryRank=item=>item.libraryId==='oc-aec-examples'?0:item.libraryId==='oc-local-skills'?1:2;
   const skillDetailUrl=item=>'/openconstruction-web/desktop/skills-detail.html?'+new URLSearchParams(skillRef(item));
   const skillTitle=id=>({
