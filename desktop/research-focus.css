@@ -14,6 +14,7 @@
 #ocResearchRoot .oc-live-picker-menu button{display:flex;align-items:center;gap:9px;width:100%;min-height:32px;padding:7px 10px;border:0;border-radius:5px;background:transparent;color:#34472f;font:inherit;text-align:left;white-space:nowrap;cursor:pointer}
 #ocResearchRoot .oc-live-picker-menu button:is(:hover,:focus-visible){background:#eef2e9}
 #ocResearchRoot .oc-live-picker-menu button:disabled{opacity:.6;cursor:default}
+#ocResearchRoot .oc-live-picker-menu:focus{outline:1px solid #a9b89f;outline-offset:1px}
 #ocResearchRoot .oc-live-choice-check{flex:none;width:14px;color:#39815a;visibility:hidden}
 #ocResearchRoot .oc-live-picker-menu [aria-checked=true] .oc-live-choice-check{visibility:visible}
 @media(pointer:coarse){#ocResearchRoot .oc-live-picker-trigger,#ocResearchRoot .oc-live-picker-menu button{min-height:44px}}
