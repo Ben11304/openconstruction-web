@@ -5,11 +5,11 @@
   if (!panel) return;
   const native = window.OCDesktop?.platform && window.OCDesktop.platform !== 'web' && !document.querySelector('meta[name="oc-auth-mode"][content="gateway"]');
   const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-  const bytes = value => {
+  const bytes = (value, digits = 1) => {
     if (!Number.isFinite(value)) return 'Unavailable';
     const units = ['B','KiB','MiB','GiB','TiB'];
     const index = Math.min(4, Math.max(0, Math.floor(Math.log2(Math.max(1, value)) / 10)));
-    return `${(value / 1024 ** index).toFixed(index ? 1 : 0)} ${units[index]}`;
+    return `${(value / 1024 ** index).toFixed(index ? digits : 0)} ${units[index]}`;
   };
   const pct = value => Number.isFinite(value) ? `${value.toFixed(1)}%` : 'Sampling…';
   const rate = value => Number.isFinite(value) ? `${bytes(value)}/s` : 'Sampling…';
@@ -48,35 +48,44 @@
       }).join(' ');
     };
     $('monitorChart').innerHTML = '<path class="oc-monitor-grid" d="M0,1H600 M0,75H600 M0,149H600"/>' +
-      `<path class="oc-monitor-cpu" d="${line('cpu')}"/><path class="oc-monitor-memory" d="${line('memory')}"/>`;
+      `<path class="oc-monitor-cpu" d="${line('cpu')}"/><path class="oc-monitor-memory" d="${line('memory')}"/><path class="oc-monitor-windows-memory" d="${line('windowsMemory')}"/>`;
     $('monitorChartRange').textContent = samples.length ? `0–100% · ${time(samples[0].at)} – ${time(samples.at(-1).at)} · ${samples.length} samples` : 'Collecting samples…';
   }
 
   function render(value) {
     snapshot = value;
-    const { host, cpu, memory, storage, network } = value;
+    const { host, cpu, memory, storage, network, windowsMemory } = value;
+    const wsl=host.scope==='WSL',windowsAvailable=windowsMemory?.status==='available';
     $('monitorScope').textContent = host.scope === 'WSL'
-      ? 'Live Linux / WSL resources allocated to OC’s host. Windows host totals are outside this view.'
+      ? 'Windows RAM covers the whole PC, including WSL. CPU, WSL RAM, storage and processes describe the Linux backend; do not add Windows and WSL RAM together.'
       : `Live resources on OC’s ${host.platform} host.`;
+    if($('monitorWindowsLegend'))$('monitorWindowsLegend').hidden=!wsl;
     $('monitorUpdated').textContent = `Last sample ${time(value.sampledAt)}`;
     $('monitorWarning').hidden = !value.warnings.length;
     $('monitorWarning').textContent = value.warnings.join(' ');
     const networkRate = key => network && network.every(item => Number.isFinite(item[key])) ? network.reduce((sum, item) => sum + item[key], 0) : null;
     $('monitorMetrics').innerHTML = [
-      metric('CPU', pct(cpu.percent), `${host.logicalCpus} logical CPUs`, cpu.percent),
-      metric('Memory', memory ? pct(memory.percent) : 'Unavailable', memory ? `${bytes(memory.usedBytes)} / ${bytes(memory.totalBytes)}` : 'Counters unavailable', memory?.percent),
+      metric(wsl?'CPU · WSL':'CPU', pct(cpu.percent), `${host.logicalCpus} logical CPUs`, cpu.percent),
+      ...(wsl?[metric('Windows RAM',windowsAvailable?pct(windowsMemory.percent):'Unavailable',windowsAvailable?`${bytes(windowsMemory.usedBytes,2)} / ${bytes(windowsMemory.totalBytes,2)} · whole PC`:'Windows counters unavailable; WSL values are separate',windowsAvailable?windowsMemory.percent:null)]:[]),
+      metric(wsl?'WSL RAM':'Linux RAM', memory?pct(memory.percent):'Unavailable', memory?`${bytes(memory.usedBytes,2)} / ${bytes(memory.totalBytes,2)} · reclaimable cache excluded`:'Counters unavailable',memory?.percent),
       metric('Storage', storage ? pct(storage.percent) : 'Unavailable', storage ? `${bytes(storage.usedBytes)} / ${bytes(storage.totalBytes)} · ${bytes(storage.availableBytes)} available` : 'Counters unavailable', storage?.percent),
       metric('Network ↓ / ↑', network ? `${rate(networkRate('receiveBytesPerSecond'))} / ${rate(networkRate('sendBytesPerSecond'))}` : 'Unavailable', 'All visible interfaces except loopback'),
     ].join('');
     const uptime = `${Math.floor(host.uptimeSeconds / 86400)}d ${Math.floor(host.uptimeSeconds % 86400 / 3600)}h ${Math.floor(host.uptimeSeconds % 3600 / 60)}m`;
     const facts = [['Host', host.hostname], ['System', `${host.scope} · ${host.arch}`], ['Kernel', host.release], ['Processor', host.cpuModel], ['Uptime', uptime],
+      ...(wsl?[['Windows RAM used',windowsAvailable?`${bytes(windowsMemory.usedBytes,2)} / ${bytes(windowsMemory.totalBytes,2)}`:'Unavailable'],['Windows RAM sample',windowsAvailable?`${time(windowsMemory.sampledAt)} · updated every 10 seconds`:'Unavailable']]:[]),
+      ['Linux RAM occupied, including cache', bytes(memory?.occupiedBytes, 2)],
+      ['Linux cache + buffers + reclaimable kernel cache', bytes(memory?.cacheBytes, 2)],
+      ['Linux RAM excluding reclaimable (estimate)', bytes(memory?.usedBytes, 2)],
+      ['Linux RAM available for apps (estimate)', bytes(memory?.availableBytes, 2)],
+      ['Linux RAM completely free', bytes(memory?.freeBytes, 2)],
       ['Swap used / total', memory ? `${bytes(memory.swapUsedBytes)} / ${bytes(memory.swapTotalBytes)}` : 'Unavailable'],
       ['Load average (1 / 5 / 15 min)', cpu.loadAverage?.map(value => value.toFixed(2)).join(' / ') || 'Unavailable'],
       ['Network interfaces', network?.map(item => item.name).join(', ') || 'None available'], ['Storage scope', 'OC data filesystem']];
     $('monitorHost').innerHTML = `<dl class="oc-admin-definition-list">${facts.map(([key, value]) => `<dt>${escape(key)}</dt><dd>${escape(value)}</dd>`).join('')}</dl>`;
     if (samples.at(-1)?.at !== value.sampledAt) {
       if (samples.length && new Date(value.sampledAt) - new Date(samples.at(-1).at) > 15000) samples = [];
-      samples.push({ at: value.sampledAt, cpu: cpu.percent, memory: memory?.percent });
+      samples.push({ at: value.sampledAt, cpu: cpu.percent, memory: memory?.percent,windowsMemory:windowsAvailable?windowsMemory.percent:null });
       samples = samples.slice(-60);
     }
     renderChart(); renderProcesses();
