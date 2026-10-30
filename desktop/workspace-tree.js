@@ -75,13 +75,22 @@
     if(!current?.data)return role+`<li class="oc-ws-empty" ${current?.loading?'role="status"':''}>${current?.loading?'Loading saved agent state…':current?.error?escape(current.error):'Expand this agent to load its saved state.'}${current?.error?` <button type="button" class="oc-ws-agent-retry" data-ws-agent-retry="${escape(agent.id)}">Retry</button>`:''}</li>`;
     const {memory,latestResult}=current.data;
     let memoryBody='';
-    if(memory.status==='available'){
+    if(memory.status==='available'&&memory.layers?.enabled){
+      const l=memory.layers,w=l.working;
+      const project=(l.project?.knowledge||[]).map(e=>folder(key+':shared:'+e.id,e.title,text(e.content),'Reviewed')).join('')||'<li class="oc-ws-empty">No reviewed shared knowledge.</li>';
+      const knowledge=l.knowledge.map(e=>folder(key+':knowledge:'+e.key,e.title,text(e.content+'\n\n'+e.evidence.join('\n')),e.status)).join('')||'<li class="oc-ws-empty">No private lessons saved yet.</li>';
+      const working=w?text([w.summary,...w.blockers.map(x=>'Blocker: '+x),...w.nextSteps.map(x=>'Next: '+x),w.lastRun?'Latest run: '+w.lastRun.runId+'\n'+w.lastRun.result:''].filter(Boolean).join('\n\n')):'<li class="oc-ws-empty">No current work summary yet.</li>';
+      const history=(memory.records||[]).map(r=>folder(key+':run:'+r.key,'Run '+r.key.slice(0,8),text(r.request+'\n\n'+r.answer),r.outcome)).join('')||'<li class="oc-ws-empty">No Store run reports yet.</li>';
+      memoryBody=folder(key+':shared','Project knowledge',project,'Shared · Reviewed')+folder(key+':knowledge','Agent knowledge',knowledge,'Private · Unverified')+folder(key+':working','Current work',working,w?'Revision '+w.revision:'Empty')+folder(key+':history','Run history',history,String(l.historyCount));
+      if(memory.notes?.content)memoryBody+=folder(key+':legacy','Legacy notes',text(memory.notes.content),'Preserved · On demand');
+      memoryBody='<li class="oc-ws-agent-note">Four memory layers. Run reports and legacy notes are read on demand. Open Agent Editor to edit memory or preview context.</li>'+memoryBody;
+    }else if(memory.status==='available'){
       if(memory.notes?.content)memoryBody+=folder(key+':notes','Working notes',text(memory.notes.content),'Revision '+memory.notes.revision);
       for(const record of memory.records||[])memoryBody+=folder(key+':run:'+record.key,'Run '+record.key.slice(0,8),text(record.request+'\n\n'+record.answer),record.outcome);
       if(!memoryBody)memoryBody='<li class="oc-ws-empty">No long-term notes saved yet. Past work is available under Latest result and in the conversation.</li>';
       else memoryBody='<li class="oc-ws-agent-note">Private working memory; reports are not automatically verified project facts.</li>'+memoryBody;
     }else memoryBody=`<li class="oc-ws-empty">${memory.status==='not_configured'?'Long-term memory is not configured on this host.':'Saved memory is temporarily unavailable.'}${memory.status==='unavailable'?` <button type="button" class="oc-ws-agent-retry" data-ws-agent-retry="${escape(agent.id)}">Retry</button>`:''}</li>`;
-    const saved=folder(key+':memory','Saved memory',memoryBody,memory.status==='available'?(memory.notes?.content?'Working notes':memory.records?.length?`${memory.records.length} recent`:'Empty'):'Unavailable');
+    const saved=folder(key+':memory','Saved memory',memoryBody,memory.layers?.enabled?'4 layers':memory.status==='available'?(memory.notes?.content?'Working notes':memory.records?.length?`${memory.records.length} recent`:'Empty'):'Unavailable');
     const stale=current.error?`<li class="oc-ws-empty">${escape(current.error)} Showing the last loaded state. <button type="button" class="oc-ws-agent-retry" data-ws-agent-retry="${escape(agent.id)}">Retry</button></li>`:'';
     let result='<li class="oc-ws-empty">This agent has no saved run yet.</li>';
     if(latestResult){

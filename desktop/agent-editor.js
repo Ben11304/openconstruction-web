@@ -6,6 +6,7 @@
   let modal,session,serial=0,abort;
   const dirty=()=>session?.data&&JSON.stringify(session.draft)!==JSON.stringify(session.data.configuration);
   const noteDirty=()=>session?.data&&session.note!==session.noteBaseline;
+  const memoryDirty=()=>window.OCAgentMemoryPanel?.dirty(session)||false;
   const q=selector=>modal.querySelector(selector);
   const canSave=()=>session?.data?.canEdit!==false&&!session?.data?.state?.busy&&!session.pending;
   async function api(suffix,method='GET',body){
@@ -21,11 +22,14 @@
     q('[data-editor-save]').disabled=!canSave()||!dirty();q('[data-editor-compare]').disabled=!dirty()||session.pending;
     q('[data-editor-reload]').disabled=session.pending;q('[data-editor-close]').disabled=!!session.saving;
     const memory=q('[data-editor-save-note]');if(memory)memory.disabled=!canSave()||!noteDirty()||session.data.memory.status!=='available';
-    q('[data-editor-dirty]').textContent=dirty()?'Có thay đổi cấu hình chưa lưu':`Cấu hình phiên bản ${session.data.revision}`;
+    q('[data-editor-dirty]').textContent=dirty()?'Có thay đổi cấu hình chưa lưu':memoryDirty()?'Có thay đổi bộ nhớ chưa lưu':`Cấu hình phiên bản ${session.data.revision}`;
     if(session.data.canEdit===false)q('[data-editor-apply]').textContent='Chỉ admin được chỉnh cấu hình và bộ nhớ.';
     else q('[data-editor-apply]').textContent=session.data.state.busy?'Dự án đang có nhiệm vụ. Giữ bản nháp; lưu sau khi các lượt chạy hoàn tất.':'Áp dụng cho nhiệm vụ tiếp theo. Không viết lại lịch sử đã chạy.';
     modal.querySelectorAll('[data-config],[data-connector],[data-tool],[data-editor-note],[data-tool-mode]').forEach(el=>el.disabled=session.pending||session.data.canEdit===false);
     modal.querySelectorAll('[data-editor-tab],[data-editor-versions]').forEach(el=>el.disabled=session.pending);
+    modal.querySelectorAll('[data-memory-field],[data-memory-new],[data-memory-edit]').forEach(el=>el.disabled=session.pending||session.data.canEdit===false);
+    modal.querySelectorAll('[data-memory-save]').forEach(el=>el.disabled=!canSave());
+    modal.querySelectorAll('[data-memory-tab],[data-memory-preview],[data-memory-history],[data-memory-cancel],[data-memory-query]').forEach(el=>el.disabled=session.pending);
     const rounds=q('[data-config=maxTeamRounds]');if(rounds&&!session.agents.some(a=>a.parents?.includes(session.agentId)))rounds.disabled=true;
   }
   function check(label,attr,on,help=''){return `<label class="oc-ae-check"><input type="checkbox" ${attr} ${on?'checked':''}><span>${esc(label)}${help?`<small>${esc(help)}</small>`:''}</span></label>`;}
@@ -40,6 +44,7 @@
     if(session.tab==='role')return `<h3>Vai trò và trách nhiệm</h3>${field('Tên hiển thị','name',d.name)}${field('Instructions / Role','role',d.role,true)}<p class="oc-ae-help">ID và quan hệ cha–con giữ nguyên. Nội dung này thay vai trò hiện tại từ nhiệm vụ tiếp theo.</p>`;
     if(session.tab==='model')return `<h3>Model cho agent này</h3><label class="oc-ae-field">Model<select data-config="modelId"><option value="">Theo mặc định dự án</option>${data.models.map(m=>`<option value="${esc(m.id)}" ${d.modelId===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}${d.modelId&&!data.models.some(m=>m.id===d.modelId)?`<option selected value="${esc(d.modelId)}">Model không còn khả dụng</option>`:''}</select></label><label class="oc-ae-field">Suy luận<select data-config="thinkingMode">${[['','Theo cấu hình kế thừa'],['auto','Auto'],['enabled','Bật'],['disabled','Tắt']].map(([v,l])=>`<option value="${v}" ${d.thinkingMode===v||d.thinkingMode===null&&v===''?'selected':''}>${l}</option>`).join('')}</select></label><label class="oc-ae-field">Mức suy luận<select data-config="thinkingEffort">${[['','Theo mặc định'],['low','Low'],['medium','Medium'],['high','High'],['xhigh','Extra high'],['max','Max']].map(([v,l])=>`<option value="${v}" ${d.thinkingEffort===v||d.thinkingEffort===null&&v===''?'selected':''}>${l}</option>`).join('')}</select></label><p class="oc-ae-help">Chỉ các profile đã kết nối được liệt kê. Thiết lập không được model hỗ trợ sẽ bị từ chối khi lưu.</p>`;
     if(session.tab==='tools')return tools();
+    if(session.tab==='memory'&&data.memory.layers?.enabled&&window.OCAgentMemoryPanel)return window.OCAgentMemoryPanel.render(session);
     if(session.tab==='memory')return `<h3>Ghi chú riêng của agent</h3><p class="oc-ae-help">Ghi chú làm việc, không tự trở thành kiến thức dự án đã xác nhận. Không lưu mật khẩu hoặc token.</p>${data.memory.status==='available'?`<label class="oc-ae-field">Working notes · revision ${session.noteRevision}<textarea data-editor-note maxlength="16000" rows="12">${esc(session.note)}</textarea></label><button type="button" data-editor-save-note>Lưu ghi chú riêng</button><p class="oc-ae-help">Lưu độc lập với cấu hình. Có kiểm tra revision để tránh ghi đè cập nhật mới.</p>`:`<p role="status">${data.memory.status==='not_configured'?'Bộ nhớ chưa được cấu hình.':'Bộ nhớ đang không khả dụng. Tải lại để thử lại.'}</p>`}<h3>Kết quả đã lưu gần đây</h3>${(data.memory.records||[]).map(r=>`<details><summary>Run ${esc(r.key.slice(0,8))} · ${esc(r.outcome)}</summary><pre>${esc(r.request+'\n\n'+r.answer)}</pre></details>`).join('')||'<p class="oc-ae-help">Chưa có bản ghi Store. Kết quả hội thoại vẫn có trong Trạng thái.</p>'}`;
     if(session.tab==='state')return `<h3>Trạng thái và lịch sử · chỉ đọc</h3><dl><dt>Agent ID</dt><dd>${esc(session.agentId)}</dd><dt>Session</dt><dd>${esc(data.sessionId)}</dd><dt>Quan hệ cha</dt><dd>${esc(data.state.parents.join(', ')||'Cấp cao nhất')}</dd><dt>Nhiệm vụ trong dự án</dt><dd>${data.state.busy?'Đang có lượt chạy / hàng đợi':'Không có lượt đang chạy'}</dd><dt>Phê duyệt công cụ</dt><dd>${esc(data.state.approvalMode)}</dd></dl>${data.latestResult?`<details open><summary>Kết quả gần nhất · ${esc(data.latestResult.status)}</summary><pre>${esc(data.latestResult.answer||data.latestResult.error||'Chưa có câu trả lời cuối.')}</pre></details>`:''}<p class="oc-ae-help">Hội thoại, checkpoint và kết quả công cụ không bị sửa trong editor.</p>`;
     const coordinator=session.agents.some(a=>a.parents?.includes(session.agentId));
@@ -58,12 +63,13 @@
     const value=v=>Array.isArray(v)?v.join(', ')||'Không có':v===null?'Kế thừa / tất cả':String(v);
     const box=q('[data-editor-diff]');box.hidden=false;box.innerHTML='<h3>Thay đổi so với cấu hình hiện tại</h3>'+changed.map(k=>`<div><strong>${esc(labels[k]||k)}</strong><p>Trước: ${esc(value(session.data.configuration[k]))}</p><p>Sau: ${esc(value(session.draft[k]))}</p></div>`).join('');
   }
-  async function load({keepDraft=false,keepNote=false}={}){
+  async function load({keepDraft=false,keepNote=false,keepMemory=false}={}){
     const generation=serial;session.pending=true;notice('Đang tải cấu hình…');if(session.data)footer();
     try{
       const data=await api('editor');if(generation!==serial)return;
       if(data.agentId!==session.agentId||data.projectId!==session.projectId)throw Error('Agent response does not match this project.');
       session.data=data;if(!keepDraft)session.draft=structuredClone(data.configuration);
+      if(!keepMemory){session.memoryWorkingDraft=null;session.memoryKnowledgeDraft=null;session.memoryOperation=null;}
       const content=data.memory.notes?.content||'';
       if(!keepNote){session.noteRevision=data.memory.notes?.revision||0;session.note=content;session.noteBaseline=content;session.noteOperation=null;}
       q('[data-editor-agent-title]').textContent=data.configuration.name;
@@ -79,7 +85,7 @@
     try{
       await api('editor','PUT',{expectedRevision:session.data.revision,expectedToken:session.data.token,configuration:session.draft});
       if(generation!==serial)return;
-      if(await load({keepNote:noteDirty()}))notice('Đã lưu phiên bản cấu hình mới. Áp dụng cho nhiệm vụ tiếp theo.');
+      if(await load({keepNote:noteDirty(),keepMemory:memoryDirty()}))notice('Đã lưu phiên bản cấu hình mới. Áp dụng cho nhiệm vụ tiếp theo.');
       window.dispatchEvent(new CustomEvent('oc-agent-configuration-changed',{detail:{projectId:session.projectId,agentId:session.agentId}}));
     }catch(error){if(generation===serial)notice(error.message,true);}
     finally{if(generation===serial){session.pending=false;session.saving=false;footer();}}
@@ -95,8 +101,21 @@
     }catch(error){if(generation===serial)notice(error.message,true);}
     finally{if(generation===serial){session.pending=false;session.saving=false;footer();}}
   }
-  function leave(){if(session.saving)return false;return !dirty()&&!noteDirty()||window.confirm('Bỏ các thay đổi chưa lưu trong editor?');}
-  function clearPrivateView(){session.data=null;session.draft=null;session.note='';session.noteBaseline='';q('[data-editor-body]').replaceChildren();q('[data-editor-tabs]').replaceChildren();q('[data-editor-diff]').replaceChildren();q('[data-editor-diff]').hidden=true;q('[data-editor-versions]').innerHTML='<option value="">Phiên bản hiện tại</option>';q('[data-editor-dirty]').textContent='';q('[data-editor-apply]').textContent='';footer();}
+  async function memoryAction(action){
+    const read=action==='preview'||action==='history';
+    if(!session.data?.memory.layers?.enabled||session.pending||!read&&!canSave())return;
+    const generation=serial;session.pending=true;session.saving=!read;footer();notice(read?'Đang chọn ngữ cảnh bộ nhớ…':'Đang lưu bộ nhớ…');
+    try{
+      if(!read){const result=await api('memory','PUT',window.OCAgentMemoryPanel.change(session,action));if(generation!==serial)return;window.OCAgentMemoryPanel.applied(session,action,result);}
+      try{const layers=await api('memory?'+(action==='history'?'history=1&':'')+'query='+encodeURIComponent(session.memoryQuery||''));if(generation!==serial)return;if(layers.projectId!==session.projectId||layers.agentId!==session.agentId)throw Error('Memory response does not match this agent.');if(action==='history')session.memoryHistory=layers;else session.data.memory.layers=layers;if(layers.canEdit===false)session.data.canEdit=false;}
+      catch(error){if([403,404].includes(error.status))throw error;if(read)throw error;notice('Đã lưu bộ nhớ; bản xem trước chưa tải lại được.',true);body();return;}
+      body();notice(read?'Đã truy xuất memory theo câu hỏi.':'Đã lưu bộ nhớ riêng theo revision. Kiến thức dự án và lịch sử runs giữ nguyên.');
+    }catch(error){if(generation===serial){if([403,404].includes(error.status))clearPrivateView();notice(error.message,true);}}
+    finally{if(generation===serial){session.pending=false;session.saving=false;footer();}}
+  }
+  function memoryClick(button){if(!session.data||session.pending)return false;const panel=window.OCAgentMemoryPanel;if(button.dataset.memoryTab){session.memoryTab=button.dataset.memoryTab;body();return true;}if(button.hasAttribute('data-memory-new')||button.hasAttribute('data-memory-edit')){if(session.data.canEdit===false)return true;panel.edit(session,button.dataset.memoryEdit);body();return true;}if(button.hasAttribute('data-memory-cancel')){session.memoryKnowledgeDraft=null;body();return true;}if(button.dataset.memorySave){void memoryAction(button.dataset.memorySave);return true;}if(button.hasAttribute('data-memory-preview')){void memoryAction('preview');return true;}if(button.hasAttribute('data-memory-history')){void memoryAction('history');return true;}return false;}
+  function leave(){if(session.saving)return false;return !dirty()&&!noteDirty()&&!memoryDirty()||window.confirm('Bỏ các thay đổi chưa lưu trong editor?');}
+  function clearPrivateView(){session.data=null;session.draft=null;session.note='';session.noteBaseline='';session.memoryWorkingDraft=null;session.memoryKnowledgeDraft=null;session.memoryTab='working';session.memoryHistory=null;session.memoryQuery='';q('[data-editor-body]').replaceChildren();q('[data-editor-tabs]').replaceChildren();q('[data-editor-diff]').replaceChildren();q('[data-editor-diff]').hidden=true;q('[data-editor-versions]').innerHTML='<option value="">Phiên bản hiện tại</option>';q('[data-editor-dirty]').textContent='';q('[data-editor-apply]').textContent='';footer();}
   function close(force=false){if(!force&&!leave())return;serial++;abort?.abort();modal.close();modal.remove();modal=null;session=null;}
   async function select(id){if(!leave())return;serial++;abort?.abort();abort=new AbortController();session.agentId=id;clearPrivateView();session.toolQuery='';q('[data-editor-body]').textContent='Đang tải…';q('[data-editor-agent-title]').textContent=id;modal.querySelectorAll('[data-editor-agent]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.editorAgent===id)));await load();}
   async function open({projectId,agentId,projectName=''}){
@@ -106,9 +125,10 @@
     modal.innerHTML=`<header><div><small>${esc(projectName||'Project')} / Agent Editor</small><h2 data-editor-agent-title>${esc(agentId)}</h2></div><button type="button" data-editor-close aria-label="Close Agent Editor">×</button></header><div class="oc-ae-layout"><aside aria-label="Project agents" data-editor-agents></aside><main><nav data-editor-tabs aria-label="Agent configuration sections"></nav><p data-editor-notice role="status" aria-live="polite"></p><section data-editor-body></section><section data-editor-diff hidden></section></main></div><footer><div><span data-editor-dirty></span><small data-editor-apply></small></div><div><select data-editor-versions aria-label="Configuration history"><option>Phiên bản hiện tại</option></select><button type="button" data-editor-reload>Tải lại</button><button type="button" data-editor-compare disabled>Xem thay đổi</button><button type="button" data-editor-save disabled>Lưu cấu hình</button></div></footer>`;
     document.body.append(modal);modal.showModal();
     modal.addEventListener('cancel',event=>{event.preventDefault();close();});
-    modal.addEventListener('click',event=>{const b=event.target.closest('button');if(!b)return;if(b.hasAttribute('data-editor-close'))close();else if(b.dataset.editorAgent)void select(b.dataset.editorAgent);else if(b.dataset.editorTab){session.tab=b.dataset.editorTab;body();}else if(b.hasAttribute('data-editor-save'))void save();else if(b.hasAttribute('data-editor-save-note'))void saveNote();else if(b.hasAttribute('data-editor-compare'))compare();else if(b.hasAttribute('data-editor-reload')&&leave())void load();});
+    modal.addEventListener('click',event=>{const b=event.target.closest('button');if(!b)return;if(memoryClick(b))return;if(b.hasAttribute('data-editor-close'))close();else if(b.dataset.editorAgent)void select(b.dataset.editorAgent);else if(b.dataset.editorTab){session.tab=b.dataset.editorTab;body();}else if(b.hasAttribute('data-editor-save'))void save();else if(b.hasAttribute('data-editor-save-note'))void saveNote();else if(b.hasAttribute('data-editor-compare'))compare();else if(b.hasAttribute('data-editor-reload')&&leave())void load();});
     modal.addEventListener('input',event=>{
       const t=event.target;if(!session.data||session.pending)return;
+      if(window.OCAgentMemoryPanel?.input(session,t)){footer();return;}
       if(t.hasAttribute('data-tool-search')){session.toolQuery=t.value;filterTools();return;}
       if(t.hasAttribute('data-editor-note')){session.note=t.value;session.noteOperation=null;footer();return;}
       if(t.dataset.config){let value=t.type==='checkbox'?t.checked:t.value||null;if(t.dataset.config==='maxTeamRounds')value=Number(value);session.draft[t.dataset.config]=value;if(t.dataset.config==='thinkingMode'&&value!=='enabled'){session.draft.thinkingEffort=null;body();}if(t.dataset.config==='thinkingEffort'&&value){session.draft.thinkingMode='enabled';body();}}
