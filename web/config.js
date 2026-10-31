@@ -1,1 +1,1 @@
-window.OC_WEB_CONFIG = {"backendOrigin":"https://temperatures-measures-adams-alike.trycloudflare.com","basePath":"/openconstruction-web/"};
+window.OC_WEB_CONFIG = {"backendOrigin":"https://rack-britannica-messenger-loaded.trycloudflare.com","basePath":"/openconstruction-web/"};
