@@ -1,7 +1,7 @@
 /* Human Agent Editor. No model calls, credentials, or direct filesystem access. */
 (() => {
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const tabs=[['role','Vai trò'],['model','Model'],['tools','Công cụ'],['state','Trạng thái'],['memory','Bộ nhớ'],['flow','Luồng xử lý']];
+  const tabs=[['role','Vai trò'],['model','Model'],['tools','Công cụ'],['context','Context'],['state','Trạng thái'],['memory','Bộ nhớ'],['flow','Luồng xử lý']];
   const labels={name:'Tên agent',role:'Instructions / Role',modelId:'Model',thinkingMode:'Chế độ suy luận',thinkingEffort:'Mức suy luận',connectorIds:'Connectors',allowedToolNames:'Tools được chọn',deniedToolNames:'Tools bị chặn',autoSaveMemory:'Tự lưu kết quả',maxTeamRounds:'Số vòng điều phối'};
   let modal,session,serial=0,abort;
   const dirty=()=>session?.data&&JSON.stringify(session.draft)!==JSON.stringify(session.data.configuration);
@@ -40,6 +40,7 @@
     return `<h3>Connectors được cấp riêng</h3><div class="oc-ae-options">${(catalog.connectors||[]).map(c=>check(c.name,`data-connector="${esc(c.id)}"`,d.connectorIds.includes(c.id))).join('')||'<p>Không có connector trong catalog.</p>'}</div><h3>Quyền gọi công cụ</h3><label class="oc-ae-field">Chế độ<select data-tool-mode><option value="all" ${all?'selected':''}>Tất cả công cụ có sẵn, trừ các mục bị chặn</option><option value="selected" ${!all?'selected':''}>Chỉ các công cụ được chọn</option></select></label><label class="oc-ae-field">Tìm công cụ<input type="search" data-tool-search value="${esc(session.toolQuery)}" placeholder="Tên công cụ"></label><p class="oc-ae-help">Công cụ vẫn tuân theo connector, sandbox và môi trường được cấp. Skills hiện có được giữ nguyên.</p><div class="oc-ae-tool-list">${names.map(name=>check(name,`data-tool="${esc(name)}"`,(all||d.allowedToolNames.includes(name))&&!d.deniedToolNames.includes(name))).join('')}</div>`;
   }
   function content(){
+    if(session.tab==='context')return window.OCAgentContextPanel?.render(session)||'<p>Context Inspector is unavailable. Reload the page.</p>';
     const d=session.draft,data=session.data;
     if(session.tab==='role')return `<h3>Vai trò và trách nhiệm</h3>${field('Tên hiển thị','name',d.name)}${field('Instructions / Role','role',d.role,true)}<p class="oc-ae-help">ID và quan hệ cha–con giữ nguyên. Nội dung này thay vai trò hiện tại từ nhiệm vụ tiếp theo.</p>`;
     if(session.tab==='model')return `<h3>Model cho agent này</h3><label class="oc-ae-field">Model<select data-config="modelId"><option value="">Theo mặc định dự án</option>${data.models.map(m=>`<option value="${esc(m.id)}" ${d.modelId===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}${d.modelId&&!data.models.some(m=>m.id===d.modelId)?`<option selected value="${esc(d.modelId)}">Model không còn khả dụng</option>`:''}</select></label><label class="oc-ae-field">Suy luận<select data-config="thinkingMode">${[['','Theo cấu hình kế thừa'],['auto','Auto'],['enabled','Bật'],['disabled','Tắt']].map(([v,l])=>`<option value="${v}" ${d.thinkingMode===v||d.thinkingMode===null&&v===''?'selected':''}>${l}</option>`).join('')}</select></label><label class="oc-ae-field">Mức suy luận<select data-config="thinkingEffort">${[['','Theo mặc định'],['low','Low'],['medium','Medium'],['high','High'],['xhigh','Extra high'],['max','Max']].map(([v,l])=>`<option value="${v}" ${d.thinkingEffort===v||d.thinkingEffort===null&&v===''?'selected':''}>${l}</option>`).join('')}</select></label><p class="oc-ae-help">Chỉ các profile đã kết nối được liệt kê. Thiết lập không được model hỗ trợ sẽ bị từ chối khi lưu.</p>`;
@@ -114,10 +115,21 @@
     finally{if(generation===serial){session.pending=false;session.saving=false;footer();}}
   }
   function memoryClick(button){if(!session.data||session.pending)return false;const panel=window.OCAgentMemoryPanel;if(button.dataset.memoryTab){session.memoryTab=button.dataset.memoryTab;body();return true;}if(button.hasAttribute('data-memory-new')||button.hasAttribute('data-memory-edit')){if(session.data.canEdit===false)return true;panel.edit(session,button.dataset.memoryEdit);body();return true;}if(button.hasAttribute('data-memory-cancel')){session.memoryKnowledgeDraft=null;body();return true;}if(button.dataset.memorySave){void memoryAction(button.dataset.memorySave);return true;}if(button.hasAttribute('data-memory-preview')){void memoryAction('preview');return true;}if(button.hasAttribute('data-memory-history')){void memoryAction('history');return true;}return false;}
+  async function loadContext(entry){
+    if(!session.data||session.contextLoading)return;
+    const generation=serial;session.contextLoading=true;session.contextError='';if(session.tab==='context')body();
+    try{
+      const value=await api('context'+(entry?'?entry='+encodeURIComponent(entry):''));
+      if(generation!==serial)return;
+      if(value.projectId!==session.projectId||value.agentId!==session.agentId||value.sessionId!==session.data?.sessionId)throw Error('Context response does not match this agent.');
+      session.contextResult=value;
+    }catch(error){if(generation===serial){if([403,404].includes(error.status)){clearPrivateView();notice(error.message,true);}else session.contextError=error.message;}}
+    finally{if(generation===serial){session.contextLoading=false;if(session.data&&session.tab==='context')body();}}
+  }
   function leave(){if(session.saving)return false;return !dirty()&&!noteDirty()&&!memoryDirty()||window.confirm('Bỏ các thay đổi chưa lưu trong editor?');}
-  function clearPrivateView(){session.data=null;session.draft=null;session.note='';session.noteBaseline='';session.memoryWorkingDraft=null;session.memoryKnowledgeDraft=null;session.memoryTab='working';session.memoryHistory=null;session.memoryQuery='';q('[data-editor-body]').replaceChildren();q('[data-editor-tabs]').replaceChildren();q('[data-editor-diff]').replaceChildren();q('[data-editor-diff]').hidden=true;q('[data-editor-versions]').innerHTML='<option value="">Phiên bản hiện tại</option>';q('[data-editor-dirty]').textContent='';q('[data-editor-apply]').textContent='';footer();}
+  function clearPrivateView(){session.data=null;session.draft=null;session.contextResult=null;session.contextError='';session.contextLoading=false;session.note='';session.noteBaseline='';session.memoryWorkingDraft=null;session.memoryKnowledgeDraft=null;session.memoryTab='working';session.memoryHistory=null;session.memoryQuery='';q('[data-editor-body]').replaceChildren();q('[data-editor-tabs]').replaceChildren();q('[data-editor-diff]').replaceChildren();q('[data-editor-diff]').hidden=true;q('[data-editor-versions]').innerHTML='<option value="">Phiên bản hiện tại</option>';q('[data-editor-dirty]').textContent='';q('[data-editor-apply]').textContent='';footer();}
   function close(force=false){if(!force&&!leave())return;serial++;abort?.abort();modal.close();modal.remove();modal=null;session=null;}
-  async function select(id){if(!leave())return;serial++;abort?.abort();abort=new AbortController();session.agentId=id;clearPrivateView();session.toolQuery='';q('[data-editor-body]').textContent='Đang tải…';q('[data-editor-agent-title]').textContent=id;modal.querySelectorAll('[data-editor-agent]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.editorAgent===id)));await load();}
+  async function select(id){if(!leave())return;serial++;abort?.abort();abort=new AbortController();session.agentId=id;clearPrivateView();session.toolQuery='';q('[data-editor-body]').textContent='Đang tải…';q('[data-editor-agent-title]').textContent=id;modal.querySelectorAll('[data-editor-agent]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.editorAgent===id)));if(await load()&&session.tab==='context')void loadContext();}
   async function open({projectId,agentId,projectName=''}){
     if(modal){if(!leave())return;close(true);}
     serial++;abort=new AbortController();session={projectId,agentId,projectName,tab:'role',data:null,draft:null,note:'',noteBaseline:'',pending:false,agents:[],toolQuery:''};
@@ -125,7 +137,7 @@
     modal.innerHTML=`<header><div><small>${esc(projectName||'Project')} / Agent Editor</small><h2 data-editor-agent-title>${esc(agentId)}</h2></div><button type="button" data-editor-close aria-label="Close Agent Editor">×</button></header><div class="oc-ae-layout"><aside aria-label="Project agents" data-editor-agents></aside><main><nav data-editor-tabs aria-label="Agent configuration sections"></nav><p data-editor-notice role="status" aria-live="polite"></p><section data-editor-body></section><section data-editor-diff hidden></section></main></div><footer><div><span data-editor-dirty></span><small data-editor-apply></small></div><div><select data-editor-versions aria-label="Configuration history"><option>Phiên bản hiện tại</option></select><button type="button" data-editor-reload>Tải lại</button><button type="button" data-editor-compare disabled>Xem thay đổi</button><button type="button" data-editor-save disabled>Lưu cấu hình</button></div></footer>`;
     document.body.append(modal);modal.showModal();
     modal.addEventListener('cancel',event=>{event.preventDefault();close();});
-    modal.addEventListener('click',event=>{const b=event.target.closest('button');if(!b)return;if(memoryClick(b))return;if(b.hasAttribute('data-editor-close'))close();else if(b.dataset.editorAgent)void select(b.dataset.editorAgent);else if(b.dataset.editorTab){session.tab=b.dataset.editorTab;body();}else if(b.hasAttribute('data-editor-save'))void save();else if(b.hasAttribute('data-editor-save-note'))void saveNote();else if(b.hasAttribute('data-editor-compare'))compare();else if(b.hasAttribute('data-editor-reload')&&leave())void load();});
+    modal.addEventListener('click',event=>{const b=event.target.closest('button');if(!b)return;if(memoryClick(b))return;if(b.hasAttribute('data-context-refresh')){void loadContext(session.contextResult?.selected?.id);return;}if(b.hasAttribute('data-editor-close'))close();else if(b.dataset.editorAgent)void select(b.dataset.editorAgent);else if(b.dataset.editorTab){session.tab=b.dataset.editorTab;body();if(session.tab==='context'&&!session.contextResult)void loadContext();}else if(b.hasAttribute('data-editor-save'))void save();else if(b.hasAttribute('data-editor-save-note'))void saveNote();else if(b.hasAttribute('data-editor-compare'))compare();else if(b.hasAttribute('data-editor-reload')&&leave())void load();});
     modal.addEventListener('input',event=>{
       const t=event.target;if(!session.data||session.pending)return;
       if(window.OCAgentMemoryPanel?.input(session,t)){footer();return;}
@@ -138,7 +150,7 @@
       q('[data-editor-diff]').hidden=true;footer();
     });
     modal.addEventListener('change',async event=>{
-      const t=event.target;if(!session.data||session.pending)return;if(t.hasAttribute('data-tool-mode')){session.draft.allowedToolNames=t.value==='all'?null:[];body();return;}
+      const t=event.target;if(!session.data||session.pending)return;if(t.hasAttribute('data-context-entry')){void loadContext(t.value);return;}if(t.hasAttribute('data-tool-mode')){session.draft.allowedToolNames=t.value==='all'?null:[];body();return;}
       if(!t.hasAttribute('data-editor-versions')||t.value==='')return;
       if(!leave()){t.value='';return;}
       const generation=serial;session.pending=true;footer();notice('Đang tải phiên bản…');
