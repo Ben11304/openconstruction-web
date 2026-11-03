@@ -75,7 +75,9 @@
     if(!current?.data)return role+`<li class="oc-ws-empty" ${current?.loading?'role="status"':''}>${current?.loading?'Loading saved agent state…':current?.error?escape(current.error):'Expand this agent to load its saved state.'}${current?.error?` <button type="button" class="oc-ws-agent-retry" data-ws-agent-retry="${escape(agent.id)}">Retry</button>`:''}</li>`;
     const {memory,latestResult}=current.data;
     let memoryBody='';
-    if(memory.status==='available'&&memory.layers?.enabled){
+    if(memory.documents){
+      memoryBody='<li class="oc-ws-agent-note">Private Markdown memory · stored in SQL</li>'+memory.documents.files.map(f=>`<li><button type="button" class="oc-ws-file" data-ws-memory-agent="${escape(agent.id)}" data-ws-memory-file="${escape(f.filename)}">${fileIcon}<span class="oc-ws-name">${escape(f.filename)}</span><small>v${f.revision}</small></button></li>`).join('');
+    }else if(memory.status==='available'&&memory.layers?.enabled){
       const l=memory.layers,w=l.working;
       const project=(l.project?.knowledge||[]).map(e=>folder(key+':shared:'+e.id,e.title,text(e.content),'Reviewed')).join('')||'<li class="oc-ws-empty">No reviewed shared knowledge.</li>';
       const knowledge=l.knowledge.map(e=>folder(key+':knowledge:'+e.key,e.title,text(e.content+'\n\n'+e.evidence.join('\n')),e.status)).join('')||'<li class="oc-ws-empty">No private lessons saved yet.</li>';
@@ -90,7 +92,7 @@
       if(!memoryBody)memoryBody='<li class="oc-ws-empty">No long-term notes saved yet. Past work is available under Latest result and in the conversation.</li>';
       else memoryBody='<li class="oc-ws-agent-note">Private working memory; reports are not automatically verified project facts.</li>'+memoryBody;
     }else memoryBody=`<li class="oc-ws-empty">${memory.status==='not_configured'?'Long-term memory is not configured on this host.':'Saved memory is temporarily unavailable.'}${memory.status==='unavailable'?` <button type="button" class="oc-ws-agent-retry" data-ws-agent-retry="${escape(agent.id)}">Retry</button>`:''}</li>`;
-    const saved=folder(key+':memory','Saved memory',memoryBody,memory.layers?.enabled?'4 layers':memory.status==='available'?(memory.notes?.content?'Working notes':memory.records?.length?`${memory.records.length} recent`:'Empty'):'Unavailable');
+    const saved=folder(key+':memory','Saved memory',memoryBody,memory.documents?`${memory.documents.files.length} files`:memory.layers?.enabled?'4 layers':memory.status==='available'?(memory.notes?.content?'Working notes':memory.records?.length?`${memory.records.length} recent`:'Empty'):'Unavailable');
     const stale=current.error?`<li class="oc-ws-empty">${escape(current.error)} Showing the last loaded state. <button type="button" class="oc-ws-agent-retry" data-ws-agent-retry="${escape(agent.id)}">Retry</button></li>`:'';
     let result='<li class="oc-ws-empty">This agent has no saved run yet.</li>';
     if(latestResult){
@@ -356,7 +358,7 @@
         button.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();setView(event.key==='Home'?'project':event.key==='End'?'agents':state.view==='project'?'agents':'project',true);});
       });
       panel.querySelector('[data-ws-agents-retry]').onclick=()=>void loadAgents(true);
-      panel.addEventListener('click',event=>{const editor=event.target.closest('[data-ws-edit-agent]');if(editor){void window.OCAgentEditor?.open({projectId:state.project,agentId:editor.dataset.wsEditAgent,projectName:state.name});return;}const retry=event.target.closest('[data-ws-agent-retry]');if(retry){void loadAgentDetails(retry.dataset.wsAgentRetry,true);return;}const button=event.target.closest('[data-ws-open-agent]');if(!button)return;const agent=state.team?.agents.find(a=>a.id===button.dataset.wsOpenAgent);if(agent&&state.project)void Promise.resolve(window.OCResearchWorkspace?.openSession?.(state.project,agent.sessionId)).catch(error=>notify(error.message));});
+      panel.addEventListener('click',event=>{const memoryFile=event.target.closest('[data-ws-memory-file]');if(memoryFile){void window.OCAgentEditor?.open({projectId:state.project,agentId:memoryFile.dataset.wsMemoryAgent,projectName:state.name,tab:'memory',filename:memoryFile.dataset.wsMemoryFile});return;}const editor=event.target.closest('[data-ws-edit-agent]');if(editor){void window.OCAgentEditor?.open({projectId:state.project,agentId:editor.dataset.wsEditAgent,projectName:state.name});return;}const retry=event.target.closest('[data-ws-agent-retry]');if(retry){void loadAgentDetails(retry.dataset.wsAgentRetry,true);return;}const button=event.target.closest('[data-ws-open-agent]');if(!button)return;const agent=state.team?.agents.find(a=>a.id===button.dataset.wsOpenAgent);if(agent&&state.project)void Promise.resolve(window.OCResearchWorkspace?.openSession?.(state.project,agent.sessionId)).catch(error=>notify(error.message));});
       panel.querySelector('[data-ws-hidden]').onclick=event=>{state.hidden=!state.hidden;clearShared();event.currentTarget.setAttribute('aria-pressed',String(state.hidden));render();};
       panel.addEventListener('toggle',event=>{const node=event.target;if(!node.matches('[data-ws-folder]')||!node.isConnected)return;if(node.hasAttribute('data-ws-shared-folder')){state.open.set(node.dataset.wsFolder,node.open);if(node.open)void loadShared(node.dataset.wsDataset,node.dataset.wsPath);return;}if(!state.query)state.open.set(node.dataset.wsFolder,node.open);if(node.dataset.wsAgentFolder&&node.open)void loadAgentDetails(node.dataset.wsAgentFolder);},true);
       panel.addEventListener('keydown',event=>{

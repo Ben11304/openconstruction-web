@@ -5,7 +5,23 @@
  const field=(label,key,value,rows=3)=>`<label class="oc-ae-field">${esc(label)}<textarea data-memory-field="${key}" rows="${rows}" maxlength="${key==='content'?2000:key==='summary'?1600:3000}">${esc(value)}</textarea></label>`;
  const list=v=>v?.length?`<ul>${v.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`:'<p class="oc-ae-help">Chưa có mục nào.</p>';
  function initialize(s){if(!s.memoryWorkingDraft){s.memoryWorkingDraft=working(s.data.memory.layers.working);s.memoryWorkingBaseline=JSON.stringify(s.memoryWorkingDraft);s.memoryWorkingRevision=s.data.memory.layers.working?.revision||0;}}
- function dirty(s){return !!s?.data?.memory?.layers?.enabled&&((s.memoryWorkingDraft&&JSON.stringify(s.memoryWorkingDraft)!==s.memoryWorkingBaseline)||(s.memoryKnowledgeDraft&&JSON.stringify(s.memoryKnowledgeDraft)!==s.memoryKnowledgeBaseline));}
+ function dirty(s){return Object.values(s?.memoryFileDrafts||{}).some(d=>d.content!==d.baseline)||!!s?.data?.memory?.layers?.enabled&&((s.memoryWorkingDraft&&JSON.stringify(s.memoryWorkingDraft)!==s.memoryWorkingBaseline)||(s.memoryKnowledgeDraft&&JSON.stringify(s.memoryKnowledgeDraft)!==s.memoryKnowledgeBaseline));}
+ function acceptDocument(s,result){
+  if(result.projectId!==s.projectId||result.agentId!==s.agentId)throw Error('Memory response does not match this agent.');
+  s.data.memory.documents=result;s.memoryFileDrafts ||= {};
+  const d=result.document;if(!s.memoryFileDrafts[d.filename])s.memoryFileDrafts[d.filename]={...d,baseline:d.content};
+  s.memoryFilename=d.filename;
+ }
+ function renderDocuments(s){
+  if(!s.memoryFilename)acceptDocument(s,s.data.memory.documents);
+  const tab=s.memoryDocumentTab||'private';
+  const nav=`<nav class="oc-memory-tabs" aria-label="Memory"><button type="button" data-document-tab="private" aria-pressed="${tab==='private'}">Memory riêng</button><button type="button" data-document-tab="shared" aria-pressed="${tab==='shared'}">Memory chung</button><button type="button" data-document-tab="archive" aria-pressed="${tab==='archive'}">Lịch sử và ghi chú cũ</button></nav>`;
+  if(tab==='shared')return nav+`<h3>Kiến thức chung đã xác nhận</h3><p class="oc-ae-help">Chia sẻ file riêng sẽ tạo đề xuất có nguồn và phiên bản. Xác nhận tại Memory dự án để các agent dùng lại.</p><button type="button" data-document-review>Mở Memory dự án / duyệt đề xuất</button>${s.data.memory.sharedError?`<p role="alert">${esc(s.data.memory.sharedError)}</p>`:''}${(s.data.memory.shared?.knowledge||s.data.memory.layers?.project?.knowledge||[]).map(e=>`<details><summary>${esc(e.title)}</summary><pre>${esc(e.content)}</pre><small>${esc(JSON.stringify(e.source||{}))}</small></details>`).join('')||'<p>Chưa có kiến thức chung được xác nhận.</p>'}`;
+  if(tab==='archive')return nav+`<h3>Memory trước đây và báo cáo</h3><p class="oc-ae-help">Các nội dung này được giữ để tra cứu; không tự đưa vào MEMORY.md. Chuyển bài học hữu ích thành file khi cần.</p>${(s.data.memory.layers?.knowledge||[]).map(e=>`<details><summary>${esc(e.title)}</summary><pre>${esc(e.content)}</pre>${list(e.evidence)}<button type="button" data-document-import="${esc(e.key)}">Chuyển thành file nháp</button></details>`).join('')}<details><summary>Ghi chú cũ</summary><pre>${esc(s.note||'Chưa có ghi chú cũ.')}</pre></details>${(s.data.memory.records||[]).map(r=>`<details><summary>Run ${esc(r.key)}</summary><pre>${esc(r.request+'\n\n'+r.answer)}</pre></details>`).join('')}<p class="oc-ae-help">Báo cáo đầy đủ nằm trong hội thoại của agent. Agent có thể tìm lại bằng công cụ lịch sử.</p>`;
+
+  const d=s.memoryFileDrafts[s.memoryFilename],names=[...new Set(['MEMORY.md',...s.data.memory.documents.files.map(f=>f.filename),...Object.keys(s.memoryFileDrafts)])];
+  return nav+`<h3>Memory của ${esc(s.agentId)}</h3><p class="oc-ae-help">MEMORY.md giữ ghi chú thiết yếu và mục lục. File chủ đề được đọc khi cần. Bạn có thể sửa Markdown hoặc tải file về.</p><div class="oc-memory-files"><nav aria-label="Memory files">${names.map(n=>`<button type="button" data-document-open="${esc(n)}" aria-pressed="${n===s.memoryFilename}">${esc(n)}${s.memoryFileDrafts[n]?.content!==s.memoryFileDrafts[n]?.baseline?' *':''}</button>`).join('')}<label class="oc-ae-field">Tên file mới<input data-document-name maxlength="83" placeholder="lessons.md" value="${esc(s.memoryNewFilename||'')}"></label><button type="button" data-document-new>Thêm file</button></nav><div><label class="oc-ae-field">${esc(d.filename)}<textarea data-document-content spellcheck="false" rows="16" maxlength="${d.filename==='MEMORY.md'?6000:12000}" placeholder="Ghi chú ngắn, bài học và đường dẫn đến bằng chứng…">${esc(d.content)}</textarea></label><small>Phiên bản ${d.revision} · ${d.content.length} ký tự · lưu trong cơ sở dữ liệu</small><div class="oc-memory-actions"><button type="button" data-document-save>Lưu file</button><button type="button" data-document-download>Tải .md</button><button type="button" data-document-share>Đề xuất chia sẻ với nhóm</button></div></div></div>`;
+ }
  function render(s){
   initialize(s);const layers=s.data.memory.layers,tab=s.memoryTab||'working';
   const nav=`<nav class="oc-memory-tabs" aria-label="Các lớp bộ nhớ">${[['project','Kiến thức dự án'],['knowledge','Kiến thức riêng'],['working','Công việc hiện tại'],['history','Lịch sử runs'],['preview','Agent sẽ đọc gì'],['legacy','Ghi chú cũ']].map(([id,label])=>`<button type="button" data-memory-tab="${id}" aria-pressed="${tab===id}">${label}</button>`).join('')}</nav>`;
@@ -35,5 +51,5 @@
   return {action,key,expectedRevision:revision,operationId:s.memoryOperation.id,value};
  }
  function applied(s,action,result){const layers=s.data.memory.layers;if(action==='working'){layers.working=result;s.memoryWorkingDraft=working(result);s.memoryWorkingBaseline=JSON.stringify(s.memoryWorkingDraft);s.memoryWorkingRevision=result.revision;}else{const index=layers.knowledge.findIndex(e=>e.key===s.memoryKnowledgeDraft.key);const entry={...result,key:s.memoryKnowledgeDraft.key};if(index<0)layers.knowledge.push(entry);else layers.knowledge[index]=entry;s.memoryKnowledgeDraft=null;}s.memoryOperation=null;}
- window.OCAgentMemoryPanel={render,dirty,edit,input,change,applied};
+ window.OCAgentMemoryPanel={render,renderDocuments,acceptDocument,dirty,edit,input,change,applied};
 })();
