@@ -48,12 +48,17 @@
     if(url.pathname === '/auth/logout') { await window.OCWebConnection.signOut(); return new Response('{}',{headers:{'Content-Type':'application/json'}}); }
     const request = new Request(input,init);
     const headers = new Headers(request.headers);
+    // Keep browser-backed files on the native upload path. Reading a multipart
+    // Request into JS can fail in WebKit before the network request is sent.
+    const formData = init?.body instanceof FormData ? init.body : null;
+    // Native fetch creates its own boundary when serializing this FormData.
+    if(formData) headers.delete('Content-Type');
     const token = getToken();
     if(token) headers.set('Authorization',`Bearer ${token}`);
     else headers.delete('Authorization');
     const target = backend.origin+url.pathname+url.search;
     try {
-      const response = await nativeFetch(target,{method:request.method,headers,credentials:'omit',redirect:'error',cache:'no-store',signal:request.signal,...(!['GET','HEAD'].includes(request.method)?{body:await request.arrayBuffer()}:{})});
+      const response = await nativeFetch(target,{method:request.method,headers,credentials:'omit',redirect:'error',cache:'no-store',signal:request.signal,...(!['GET','HEAD'].includes(request.method)?{body:formData || await request.arrayBuffer()}:{})});
       status('');
       if(response.status===401 && !url.pathname.startsWith('/api/public/')) {
         setToken('');
