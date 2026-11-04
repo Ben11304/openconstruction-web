@@ -32,7 +32,14 @@
       const data=await response.json();if(!response.ok)throw Error(data.detail||data.error?.message||data.error||'Could not update agent settings.');return data;
     }
     const info=id=>catalog.find(m=>m.id===profiles[id]);
-    function lock(){if(disposed)return;host.querySelectorAll('select').forEach(el=>el.disabled=loading||pending||!details||isActive());q('[data-settings-reload]').disabled=loading||pending;if(composer){composer.querySelectorAll('select').forEach(el=>el.disabled=loading||pending||!details);const permissions=composer.querySelector('[data-composer-permissions]');permissions.disabled=loading||pending||!details||isActive();permissions.title=isActive()?'Finish or stop active and queued tasks before changing permissions':'Tool approval for this agent only';}}
+    function lock(){
+      if(disposed)return;
+      const busy=loading||pending||!details,permissions=q('[data-agent-permissions]');
+      host.querySelectorAll('select').forEach(el=>el.disabled=busy||(el!==permissions&&isActive()));
+      permissions.title='Tool approval for this agent only. Changes apply immediately, including pending requests.';
+      q('[data-settings-reload]').disabled=loading||pending;
+      if(composer){composer.querySelectorAll('select').forEach(el=>el.disabled=busy);composer.querySelector('[data-composer-permissions]').title=permissions.title;}
+    }
     function notice(text,error=false){if(disposed)return;q('[data-settings-notice]').textContent=text;q('[data-settings-notice]').classList.toggle('is-error',error);}
     function options(select,items,value){select.innerHTML=items.map(i=>`<option value="${esc(i.value)}"${i.disabled?' disabled':''}>${esc(i.label)}</option>`).join('');select.value=value;}
     function render(){
@@ -73,16 +80,17 @@
         if(disposed)return;
         [details,session,models]=result;profiles=result[3].profiles||(result[3].modelId?{[result[3].modelId]:result[3].model}:{});catalog=result[4];
         if(composer&&session.projectId){const project=await request(`projects/${encodeURIComponent(session.projectId)}/settings`).catch(()=>null);if(disposed)return;inheritedModelId=project?.effective?.modelId;}
-        render();notice('Changes apply to new tasks, including assignments from the parent.');
+        render();notice('Model and effort apply to new tasks. Tool approval changes apply immediately.');
       }catch(e){details=null;notice(e.message,true);}finally{loading=false;lock();onBusy(false);}
     }
     async function save(field,value,{forNextTask=false}={}){
       const nextTask=forNextTask&&['model','effort'].includes(field);
-      if(pending||loading||!details||(!nextTask&&isActive())||disposed){render();return false;}
+      const permissions=field==='permissions';
+      if(pending||loading||!details||(!nextTask&&!permissions&&isActive())||disposed){render();return false;}
       if(field==='permissions'&&value==='always_allow'&&!window.confirm('Automatically approve tool requests for this agent? Existing sandbox and resource limits still apply.')){render();return false;}
       pending=true;onBusy(true);lock();notice('Saving…');let saved=false;
       try{
-        if(!nextTask){const runs=await request(route+'/runs');if(runs.some(r=>active(r.status)))throw Error('Wait for this agent’s active or queued tasks to finish before changing settings.');}
+        if(!nextTask&&!permissions){const runs=await request(route+'/runs');if(runs.some(r=>active(r.status)))throw Error('Wait for this agent’s active or queued tasks to finish before changing settings.');}
         if(field==='permissions'){
           if(!['always_allow','ask_for_dangerous'].includes(value))throw Error('Unknown permission mode.');
           await request(route,'PATCH',{approvalMode:value});session.approvalMode=value;
@@ -102,11 +110,11 @@
           await request(route+'/settings','PUT',runtimeChange(latest,field,value,chosenInfo));
           details=await request(route+'/settings');
         }
-        saved=true;notice('Saved for this agent. Applies to new tasks.');
+        saved=true;notice(permissions?'Tool approval saved for this agent. Applies immediately.':'Saved for this agent. Applies to new tasks.');
       }catch(e){notice(e.message,true);}finally{pending=false;onBusy(false);render();lock();}
       return saved;
     }
-    host.innerHTML=`<p class="oc-node-settings-help">Settings for this agent only</p><label>Model<select data-agent-model aria-label="Agent model"><option>Loading…</option></select><small data-effective-model></small></label><label>Thinking effort<select data-agent-effort aria-label="Agent thinking effort"><option>Loading…</option></select><small data-effective-effort></small></label><label>Tool approval<select data-agent-permissions aria-label="Agent tool approval"><option value="ask_for_dangerous">Ask before actions requiring approval</option><option value="always_allow">Automatically approve</option></select></label><p class="oc-node-settings-help" data-settings-lock hidden>Finish or stop active tasks before changing settings.</p><p data-settings-notice role="status" aria-live="polite"></p><button type="button" data-settings-reload>Refresh settings</button><details><summary>Role &amp; responsibilities (read-only)</summary><p class="oc-node-role">${esc(role)}</p></details>`;
+    host.innerHTML=`<p class="oc-node-settings-help">Settings for this agent only</p><label>Model<select data-agent-model aria-label="Agent model"><option>Loading…</option></select><small data-effective-model></small></label><label>Thinking effort<select data-agent-effort aria-label="Agent thinking effort"><option>Loading…</option></select><small data-effective-effort></small></label><label>Tool approval<select data-agent-permissions aria-label="Agent tool approval"><option value="ask_for_dangerous">Ask before actions requiring approval</option><option value="always_allow">Automatically approve</option></select></label><p class="oc-node-settings-help" data-settings-lock hidden>Finish or stop active tasks before changing model or effort here. Tool approval can be changed now.</p><p data-settings-notice role="status" aria-live="polite"></p><button type="button" data-settings-reload>Refresh settings</button><details><summary>Role &amp; responsibilities (read-only)</summary><p class="oc-node-role">${esc(role)}</p></details>`;
     for(const field of ['model','effort','permissions'])q(`[data-agent-${field}]`).onchange=e=>{void save(field,e.target.value);};
     if(composer)for(const field of ['model','effort','permissions'])composer.querySelector(`[data-composer-${field}]`).onchange=async e=>{const saved=await save(field,e.target.value,{forNextTask:field!=='permissions'});const notice=composer.querySelector('[data-composer-notice]');notice.textContent=saved?'':q('[data-settings-notice]').textContent;notice.hidden=saved||!notice.textContent;};
     q('[data-settings-reload]').onclick=load;lock();

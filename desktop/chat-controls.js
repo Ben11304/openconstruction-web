@@ -17,16 +17,17 @@
     clearTimeout(statusTimer);
     error = isError ? text : '';
     const status = q('[data-chat-settings-status]');
-    const saved = text === 'Saved for this session.';
-    status.textContent = saved ? 'Saved' : text;
+    const saved = text === 'Saved for this session.' || text === 'Saved for new tasks.' || text === 'Tool approval updated.';
+    status.textContent = text === 'Saved for this session.' ? 'Saved' : text;
     status.classList.toggle('is-error', isError);
     status.classList.toggle('is-saved', saved);
     if (saved) statusTimer = setTimeout(() => {status.textContent = ''; status.classList.remove('is-saved');}, 1800);
   }
   function lock() {
     if (!bar) return;
-    const disabled = loading || Boolean(pending) || !snapshot.session || Boolean(snapshot.run);
-    bar.querySelectorAll('select').forEach(select => {select.disabled = disabled;});
+    const busy = loading || Boolean(pending) || !snapshot.session;
+    const disabled = busy || Boolean(snapshot.run);
+    bar.querySelectorAll('select').forEach(select => {select.disabled = busy;});
     bar.setAttribute('aria-busy', String(loading || Boolean(pending)));
     const submit = root.querySelector('[data-research-composer] button[type=submit]');
     submit.disabled = disabled || !models.some(model => model.id === details?.effective?.modelId);
@@ -47,7 +48,7 @@
     }
     if (details?.overrides?.modelId && !profile) option(modelSelect, 'profile:' + details.overrides.modelId, 'Model unavailable');
     modelSelect.value = details?.overrides?.modelId ? 'profile:' + details.overrides.modelId : '';
-    modelSelect.title = profile ? 'Current model: ' + (profile.name || profile.model) : 'Choose a model or connect one in Models';
+    modelSelect.title = profile ? 'Model for new tasks: ' + (profile.name || profile.model) + '. The running task keeps its current model.' : 'Choose a model or connect one in Models';
     const effortSelect = q('[data-chat-effort]'); effortSelect.replaceChildren();
     option(effortSelect, '', 'Auto');
     if (!modelInfo(selected) || modelInfo(selected).efforts?.includes('none')) option(effortSelect, 'off', 'Off');
@@ -56,6 +57,7 @@
     const chosenEffort = thinkingMode === 'disabled' ? 'off' : thinkingMode === 'enabled' ? details?.effective?.thinkingEffort || profile?.thinkingEffort || '' : '';
     if (chosenEffort && ![...effortSelect.options].some(option => option.value === chosenEffort)) option(effortSelect, chosenEffort, chosenEffort + ' (unsupported)');
     effortSelect.value = chosenEffort;
+    effortSelect.title = 'Thinking effort for new tasks. The running task keeps its current effort.';
     q('[data-chat-permissions]').value = snapshot.session?.approvalMode || 'ask_for_dangerous';
     q('[data-chat-permissions]').closest('label').classList.toggle('is-full-access', snapshot.session?.approvalMode === 'always_allow');
     q('[data-chat-permissions]').title = snapshot.session?.approvalMode === 'always_allow'
@@ -80,7 +82,7 @@
     finally {if (version === ticket) {loading = false; lock();}}
   }
   async function change(field, value) {
-    if (pending || loading || snapshot.run || !snapshot.sessionId) {render(); return false;}
+    if (pending || loading || !snapshot.sessionId) {render(); return false;}
     const sessionId = snapshot.sessionId;
     pending = (async () => {
       message('Saving…');
@@ -115,7 +117,7 @@
     lock();
     let failure;
     try {await pending;} catch (e) {failure = e.message;}
-    finally {pending = null; await refresh(); if (failure) message(failure, true); else message('Saved for this session.'); lock();}
+    finally {pending = null; await refresh(); if (failure) message(failure, true); else message(field === 'permissions' ? 'Tool approval updated.' : snapshot.run ? 'Saved for new tasks.' : 'Saved for this session.'); lock();}
     return !failure;
   }
   window.OCDesktopChatControls = {
