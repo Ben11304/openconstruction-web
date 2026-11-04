@@ -8,6 +8,7 @@
     card.innerHTML=`<div class="oc-codex-heading"><img class="oc-codex-mark" src="/openconstruction-web/desktop/assets/claude.png" alt="" width="28" height="28"><h3>Claude</h3><span data-claude-badge>Checking…</span><div class="oc-provider-actions"><button type="button" class="btn btn-primary" data-claude-login>Login</button><button type="button" class="btn btn-outline-secondary" data-claude-cancel hidden>Cancel login</button><button type="button" class="btn btn-outline-secondary" data-claude-manage aria-expanded="false" aria-controls="ocClaudeDetails">Options</button></div></div>
       <div class="oc-provider-details" id="ocClaudeDetails" hidden>
       <p data-claude-status role="status" aria-live="polite">Checking sign-in status…</p>
+      <div data-claude-browser hidden><a data-claude-browser-open target="_blank" rel="noopener noreferrer">Open Claude sign-in</a><p class="oc-codex-help">Sign in on the Claude page. If it gives you a one-time code, paste it here to finish connecting this OC host.</p><form data-claude-code-form><label>One-time login code<input name="loginCode" type="password" autocomplete="off" spellcheck="false" maxlength="4096" required></label><button type="submit" class="btn btn-primary">Complete login</button></form></div>
       ${modelForm('account','Claude account model')}
       <div class="oc-codex-actions"><button type="button" class="btn btn-outline-secondary" data-claude-logout hidden>Sign out</button><button type="button" class="btn btn-outline-secondary" data-claude-refresh-account hidden>Refresh models</button></div>
       <p class="oc-codex-help">Sign in with your Claude account in the browser through Claude Code. Your plan’s access and usage limits apply.</p>
@@ -19,8 +20,21 @@
       </details></div>`;
     root.querySelector('.oc-research-model-list').before(card);
     const q=selector=>card.querySelector(selector),alive=()=>version===generation&&card.isConnected;
-    let busy=false,refreshing=false,connected=false,hasKey=false,loaded=false,apiLoaded=false,loginFlow=false;
+    let busy=false,refreshing=false,connected=false,hasKey=false,loaded=false,apiLoaded=false,loginFlow=false,loginId='';
     const status=text=>{q('[data-claude-status]').textContent=text;};
+    const signInUrl=value=>{
+      try{const url=new URL(value);if(url.protocol==='https:'&&!url.username&&!url.password&&!url.port&&['claude.com','claude.ai','console.anthropic.com','platform.claude.com'].includes(url.hostname)&&['/cai/oauth/authorize','/oauth/authorize'].includes(url.pathname))return url.href;}catch{}
+      return '';
+    };
+    const showLogin=state=>{
+      const url=state.pending&&signInUrl(state.authUrl);
+      q('[data-claude-browser]').hidden=!url;
+      if(url)q('[data-claude-browser-open]').href=url;
+      else q('[data-claude-browser-open]').removeAttribute('href');
+      loginId=state.pending?state.loginId||'':'';
+      q('[data-claude-code-form]').hidden=!url||state.codeSubmitted===true;
+      if(!url||state.codeSubmitted)q('[name=loginCode]').value='';
+    };
     const selection=()=>window.OCResearchWorkspace?.getSelection?.()||window.OCDesktopLayout?.selection?.()||{};
     const expand=open=>{q('#ocClaudeDetails').hidden=!open;q('[data-claude-manage]').setAttribute('aria-expanded',String(open));q('[data-claude-manage]').textContent=open?'Close':connected||hasKey?'Manage':'Options';};
     q('[data-claude-manage]').onclick=()=>expand(q('#ocClaudeDetails').hidden);
@@ -46,6 +60,7 @@
       if(refreshing||!alive())return;refreshing=true;
       try{
         const state=await api.claudeStatus();if(!alive())return;
+        showLogin(state);
         const justConnected=!connected&&state.connected;connected=state.connected;hasKey=state.hasApiToken;
         q('[data-claude-badge]').textContent=connected?'Signed in':state.pending?'Waiting for login':hasKey?'API key saved':'Not connected';
         q('[data-claude-badge]').classList.toggle('is-connected',connected);
@@ -70,7 +85,21 @@
       if(busy)return;busy=true;card.querySelectorAll('button,input,select').forEach(el=>{el.disabled=true;});
       try{await fn();}catch(error){expand(true);status(error.message);}finally{busy=false;card.querySelectorAll('button,input,select').forEach(el=>{el.disabled=false;});}
     }
-    const login=useConsole=>void action(async()=>{loginFlow=true;expand(true);status('Opening the Claude sign-in page…');await api.loginClaude({console:useConsole});await refresh();});
+    const login=useConsole=>void action(async()=>{
+      const popup=api.platform==='web'?window.open('about:blank','_blank'):null;if(popup)popup.opener=null;
+      try{
+        loginFlow=true;expand(true);status('Opening the Claude sign-in page…');
+        const result=await api.loginClaude({console:useConsole});
+        const url=signInUrl(result.authUrl);
+        if(result.authUrl&&!url)throw new Error('Unexpected Claude sign-in address.');
+        if(popup&&url&&alive())popup.location.replace(url);else popup?.close();
+        showLogin(result);await refresh();
+      }catch(error){popup?.close();throw error;}
+    });
+    q('[data-claude-code-form]').onsubmit=event=>{
+      event.preventDefault();const input=q('[name=loginCode]'),code=input.value;input.value='';
+      void action(async()=>{await api.submitClaudeLoginCode({loginId,code});await refresh();status('Completing Claude sign-in…');});
+    };
     q('[data-claude-login]').onclick=()=>login(false);q('[data-claude-console]').onclick=()=>login(true);
     q('[data-claude-cancel]').onclick=()=>void action(async()=>{loginFlow=false;await api.cancelClaudeLogin();await refresh();status('Login cancelled.');});
     q('[data-claude-logout]').onclick=()=>void action(async()=>{await api.logoutClaude();loaded=false;await refresh();expand(false);});
