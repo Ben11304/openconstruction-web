@@ -297,17 +297,24 @@
       return event.target.closest('[data-ws-row]')||event.target.closest('details[data-ws-folder]')?.querySelector(':scope > summary')||event.target.closest('[data-ws-upload]')||event.target.closest('.oc-ws-project');
     };
     const clearDrop=()=>root.querySelectorAll('.is-file-drop').forEach(node=>node.classList.remove('is-file-drop'));
-    document.addEventListener('dragover',event=>{if(!event.dataTransfer?.types.includes('Files'))return;event.preventDefault();clearDrop();const target=dropTarget(event);event.dataTransfer.dropEffect=target&&!s.uploading?'copy':'none';if(target)target.classList.add('is-file-drop');});
+    const isFileDrag=transfer=>!!transfer&&(Array.from(transfer.types||[]).includes('Files')||Array.from(transfer.items||[]).some(item=>item.kind==='file')||transfer.files?.length>0);
+    const acceptDrag=event=>{if(!isFileDrag(event.dataTransfer))return;event.preventDefault();clearDrop();const target=dropTarget(event);event.dataTransfer.dropEffect=target&&!s.uploading?'copy':'none';if(target)target.classList.add('is-file-drop');};
+    document.addEventListener('dragenter',acceptDrag,true);
+    document.addEventListener('dragover',acceptDrag,true);
     document.addEventListener('dragleave',event=>{if(!event.relatedTarget||!dropTarget(event)?.contains(event.relatedTarget))clearDrop();});
     document.addEventListener('dragend',clearDrop);
     document.addEventListener('drop',event=>{
-      if(!event.dataTransfer?.types.includes('Files'))return;event.preventDefault();clearDrop();const target=dropTarget(event);
+      if(!isFileDrag(event.dataTransfer))return;event.preventDefault();clearDrop();const target=dropTarget(event);
       const workspace=event.target.closest?.('.oc-workspace-panel');
       const reject=text=>workspace?window.OCDesktopWorkspace?.uploadStatus({sessionId:s.session,text,error:true,busy:s.uploading}):s.notice(text,true);
       if(!target){if(workspace)reject(!s.session?'Select a project session before adding files.':event.target.closest('.oc-ws-input')?'Input contains read-only datasets. Drop your files into Project.':'Open the Project tab and drop files into its file list, or use Upload files.');return;}
-      if([...event.dataTransfer.items].some(item=>item.webkitGetAsEntry?.()?.isDirectory)){reject('Folders cannot be uploaded directly. Zip the folder first, or select individual files (30 MiB per upload).');return;}
-      void upload([...event.dataTransfer.files],{attach:target.matches('[data-research-composer]'),directory:target.matches('[data-research-composer]')?'':window.OCDesktopWorkspace.dropDirectory(event.target)});
-    });
+      const items=Array.from(event.dataTransfer.items||[]);
+      if(items.some(item=>item.webkitGetAsEntry?.()?.isDirectory)){reject('Folders cannot be uploaded directly. Zip the folder first, or select individual files (30 MiB per upload).');return;}
+      const files=Array.from(event.dataTransfer.files||[]);
+      if(!files.length)files.push(...items.filter(item=>item.kind==='file').map(item=>item.getAsFile?.()).filter(Boolean));
+      if(!files.length){reject('The browser did not provide a readable file. Click Upload files and choose the file from Finder.');return;}
+      void upload(files,{attach:target.matches('[data-research-composer]'),directory:target.matches('[data-research-composer]')?'':window.OCDesktopWorkspace.dropDirectory(event.target)});
+    },true);
     window.addEventListener('beforeunload',()=>{closeLiveStreams();try{if(s.session)sessionStorage.setItem('oc.chat.reload-draft',JSON.stringify({session:s.session,text:root.querySelector('textarea[name=prompt]')?.value||'',pending:s.pending.get(s.session)||[]}));}catch{}});
     new MutationObserver(hydrateImages).observe(root,{childList:true,subtree:true});
     root.querySelector('[data-chat-preview]').addEventListener('cancel',event=>{event.preventDefault();closePreview();});
