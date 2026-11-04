@@ -214,6 +214,7 @@
     const status=state.panel.querySelector('[data-ws-status]');status.textContent=state.error||(state.loading?'Refreshing…':'');status.hidden=!status.textContent;
     markSelection();
     state.panel.querySelector('[data-ws-refresh]').disabled=state.loading||!state.project;
+    state.panel.querySelector('[data-ws-upload]').disabled=!state.session||state.uploadBusy||state.view!=='project';
   }
   function markSelection(){
     for(const row of state.panel.querySelectorAll('[data-ws-row]'))row.classList.toggle('is-selected',!!state.selected&&row.dataset.wsPath===state.selected.path&&(row.dataset.wsDataset||'')===(state.selected.datasetId||''));
@@ -309,6 +310,13 @@
     finally{if(serial===state.serial){state.loading=false;render();if(state.datasetDirty)void refresh(true);}}
   }
   window.OCDesktopWorkspace={
+    uploadStatus({sessionId,text,error=false,busy=false}){
+      if(!state.panel||sessionId!==state.session)return;
+      state.uploadBusy=busy;
+      const status=state.panel.querySelector('[data-ws-upload-status]');
+      if(text!==undefined){status.textContent=text;status.hidden=!text;status.classList.toggle('is-error',error);}
+      state.panel.querySelector('[data-ws-upload]').disabled=busy||!state.session||state.view!=='project';
+    },
     filesImported(sessionId,directory){
       if(sessionId!==state.session||!directory)return;
       const parts=directory.split('/');for(let i=1;i<=parts.length;i++)state.open.set(sessionId+':'+parts.slice(0,i).join('/'),true);
@@ -329,6 +337,15 @@
       panel.addEventListener('click',event=>{select(event);if(event.detail===0&&event.target.closest('[data-ws-shared-file]')){event.preventDefault();event.stopPropagation();void window.OCDesktopDatasetPreview.open({...state.selected});}else if(event.detail===1&&event.target.closest('.oc-ws-file')){event.preventDefault();event.stopPropagation();}},true);panel.addEventListener('focusin',select);
       panel.addEventListener('dblclick',event=>{if(event.target.closest('[data-ws-shared-file]')){event.preventDefault();event.stopPropagation();select(event);void window.OCDesktopDatasetPreview.open({...state.selected});}});
       panel.addEventListener('click',event=>{const button=event.target.closest('[data-ws-shared-more],[data-ws-shared-retry]');if(!button)return;event.preventDefault();event.stopPropagation();if(button.hasAttribute('data-ws-shared-retry'))sharedPages.delete(sharedKey(button.dataset.wsDataset,button.dataset.wsPath));void loadShared(button.dataset.wsDataset,button.dataset.wsPath,button.hasAttribute('data-ws-shared-more'));});
+      panel.querySelector('.oc-ws-actions').insertAdjacentHTML('afterbegin','<button type="button" data-ws-upload title="Upload files to Project · Up to 30 MiB per upload">Upload files</button><input type="file" data-ws-upload-input multiple hidden>');
+      panel.querySelector('.oc-ws-actions').insertAdjacentHTML('afterend','<p data-ws-upload-status class="oc-ws-drop-hint" role="status" aria-live="polite" hidden></p>');
+      panel.querySelector('.oc-ws-drop-hint:not([data-ws-upload-status])').textContent='Drop files here or onto a folder · 30 MiB per upload';
+      panel.querySelector('[data-ws-upload]').onclick=()=>{state.uploadPickerSession=state.session;panel.querySelector('[data-ws-upload-input]').click();};
+      panel.querySelector('[data-ws-upload-input]').onchange=event=>{
+        const files=[...event.target.files];event.target.value='';
+        if(state.uploadPickerSession!==state.session){window.OCDesktopWorkspace.uploadStatus({sessionId:state.session,text:'The session changed. Please select your files again.',error:true});return;}
+        panel.dispatchEvent(new CustomEvent('oc-workspace-upload',{bubbles:true,detail:{files}}));
+      };
       panel.querySelector('[data-ws-copy]').onclick=()=>void copyPath();
       panel.querySelectorAll('[data-ws-action]').forEach(button=>button.onclick=()=>void action(button.dataset.wsAction));
       panel.querySelector('[data-ws-editor]').onsubmit=saveEntry;
@@ -374,6 +391,7 @@
       const timer=setInterval(()=>{void refresh();void loadAgents();},10000);window.addEventListener('pagehide',()=>clearInterval(timer));render();
     },
     select({projectId,sessionId,projectName}){
+      if(state.session!==(sessionId||'')){state.uploadBusy=false;const status=state.panel?.querySelector('[data-ws-upload-status]');if(status){status.textContent='';status.hidden=true;}}
       if(state.project!==projectId){state.serial++;clearShared();window.OCDesktopDatasetPreview?.close();state.selected=null;state.directories=[];closeEditor();state.project=projectId||'';state.sessions=[];state.files.clear();state.records.clear();state.sharedDatasets=[];state.open.clear();state.loading=false;state.lastLoad=0;state.error='';state.team=null;agentDetails.clear();state.agentsLoading=false;state.agentsError='';state.lastAgentsLoad=0;}
       state.session=sessionId||'';state.name=projectName||'';render();void refresh();void loadAgents();
     },

@@ -274,17 +274,20 @@
       }catch(err){s.notice(err.message,true);}
     });
     async function upload(files,{attach=true,directory=""}={}){
-      const session=s.session,generation=s.generation;if(!files.length||s.uploading)return;if(!session){s.notice('Select a project session before adding files.',true);return;}
-      if(files.reduce((n,f)=>n+f.size,0)>30*1024*1024){s.notice('Choose files totaling at most 30 MiB per upload.',true);return;}
+      const session=s.session,generation=s.generation;
+      const notice=(text,error=false)=>{if(attach)s.notice(text,error);else window.OCDesktopWorkspace?.uploadStatus({sessionId:session,text,error,busy:s.uploading});};
+      if(!files.length)return;if(s.uploading){notice('An upload is already in progress. Please wait.',true);return;}if(!session){notice('Select a project session before adding files.',true);return;}
+      if(files.reduce((n,f)=>n+f.size,0)>30*1024*1024){notice('Choose files totaling at most 30 MiB per upload.',true);return;}
       if(attach&&files.some(f=>imagePath(f.name)&&f.size>10*1024*1024)){s.notice('Each image can be at most 10 MiB.',true);return;}
       const pending=s.pending.get(session)||[];
       if(attach&&pending.filter(imagePath).length+files.filter(f=>imagePath(f.name)).length>16){s.notice('Attach at most 16 images per message.',true);return;}
-      const button=root.querySelector('[data-chat-browse]');s.uploading=true;button.disabled=true;const reload=root.querySelector('[data-desktop-reload]');if(reload)reload.disabled=true;s.notice('Uploading files…');
+      const button=root.querySelector('[data-chat-browse]');s.uploading=true;if(button)button.disabled=true;const reload=root.querySelector('[data-desktop-reload]');if(reload)reload.disabled=true;notice('Uploading files…');
       try{const data=new FormData();files.forEach(file=>data.append('files',file,file.name));const result=await request(`sessions/${id(session)}/workspace/upload?conflict=rename&directory=${id(directory)}`,{method:'POST',body:data});
         const uploaded=(result.uploaded||[]).filter(x=>x.status!=='failed'&&x.path).map(x=>x.path);if(attach)s.pending.set(session,[...new Set([...(s.pending.get(session)||[]),...uploaded])]);
-        if(generation!==s.generation)return;s.files=result.files||s.files;window.OCDesktopWorkspace?.updateFiles(session,s.files);window.OCDesktopWorkspace?.filesImported(session,directory);clearImages();renderAttachments();s.render();s.notice(`${uploaded.length} file(s) ${attach?'attached':'added to '+(directory||'Project') }.${result.errors?.length?' '+result.errors.map(x=>x.name+': '+x.error).join('; '):''}`,!!result.errors?.length);
-      }catch(err){if(generation===s.generation)s.notice(err.message,true);}finally{s.uploading=false;if(button.isConnected)button.disabled=false;if(reload?.isConnected)reload.disabled=false;}
+        if(generation!==s.generation)return;s.files=result.files||s.files;window.OCDesktopWorkspace?.updateFiles(session,s.files);window.OCDesktopWorkspace?.filesImported(session,directory);clearImages();renderAttachments();s.render();notice(`${uploaded.length} file(s) ${attach?'attached':'added to '+(directory||'Project') }.${result.errors?.length?' '+result.errors.map(x=>x.name+': '+x.error).join('; '):''}`,!!result.errors?.length);
+      }catch(err){if(generation===s.generation)notice(err.message,true);}finally{s.uploading=false;if(!attach)window.OCDesktopWorkspace?.uploadStatus({sessionId:session,busy:false});if(button?.isConnected)button.disabled=false;if(reload?.isConnected)reload.disabled=false;}
     }
+    root.addEventListener('oc-workspace-upload',event=>{void upload(event.detail.files,{attach:false});});
     root.addEventListener('change',event=>{if(!event.target.matches('[data-chat-upload]'))return;const files=[...event.target.files];event.target.value='';void upload(files);});
     root.addEventListener('paste',event=>{if(!event.target.closest('[data-research-composer]'))return;const files=[...(event.clipboardData?.files||[])].filter(f=>f.type.startsWith('image/'));if(files.length){event.preventDefault();void upload(files);}});
     // Prevent Chromium from navigating to a dropped local file anywhere in the window.
@@ -298,8 +301,11 @@
     document.addEventListener('dragleave',event=>{if(!event.relatedTarget||!dropTarget(event)?.contains(event.relatedTarget))clearDrop();});
     document.addEventListener('dragend',clearDrop);
     document.addEventListener('drop',event=>{
-      if(!event.dataTransfer?.types.includes('Files'))return;event.preventDefault();clearDrop();const target=dropTarget(event);if(!target){if(event.target.closest?.('.oc-ws-input'))s.notice('Input contains datasets. Drop your files into Project.',true);return;}
-      if([...event.dataTransfer.items].some(item=>item.webkitGetAsEntry?.()?.isDirectory)){s.notice('Drop files here. To import a folder, zip it first.',true);return;}
+      if(!event.dataTransfer?.types.includes('Files'))return;event.preventDefault();clearDrop();const target=dropTarget(event);
+      const workspace=event.target.closest?.('.oc-workspace-panel');
+      const reject=text=>workspace?window.OCDesktopWorkspace?.uploadStatus({sessionId:s.session,text,error:true,busy:s.uploading}):s.notice(text,true);
+      if(!target){if(workspace)reject(!s.session?'Select a project session before adding files.':event.target.closest('.oc-ws-input')?'Input contains read-only datasets. Drop your files into Project.':'Open the Project tab and drop files into its file list, or use Upload files.');return;}
+      if([...event.dataTransfer.items].some(item=>item.webkitGetAsEntry?.()?.isDirectory)){reject('Folders cannot be uploaded directly. Zip the folder first, or select individual files (30 MiB per upload).');return;}
       void upload([...event.dataTransfer.files],{attach:target.matches('[data-research-composer]'),directory:target.matches('[data-research-composer]')?'':window.OCDesktopWorkspace.dropDirectory(event.target)});
     });
     window.addEventListener('beforeunload',()=>{closeLiveStreams();try{if(s.session)sessionStorage.setItem('oc.chat.reload-draft',JSON.stringify({session:s.session,text:root.querySelector('textarea[name=prompt]')?.value||'',pending:s.pending.get(s.session)||[]}));}catch{}});
