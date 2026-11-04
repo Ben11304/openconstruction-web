@@ -282,7 +282,9 @@
       const pending=s.pending.get(session)||[];
       if(attach&&pending.filter(imagePath).length+files.filter(f=>imagePath(f.name)).length>16){s.notice('Attach at most 16 images per message.',true);return;}
       const button=root.querySelector('[data-chat-browse]');s.uploading=true;if(button)button.disabled=true;const reload=root.querySelector('[data-desktop-reload]');if(reload)reload.disabled=true;notice('Uploading files…');
-      try{const data=new FormData();files.forEach(file=>data.append('files',file,file.name));const result=await request(`sessions/${id(session)}/workspace/upload?conflict=rename&directory=${id(directory)}`,{method:'POST',body:data});
+      // iPad Files drops can expose a disk-backed File that WebKit's network
+      // process cannot read. A Blob slice avoids that File-path serialization.
+      try{const data=new FormData();files.forEach(file=>data.append('files',file.slice(0,file.size,file.type),file.name));const result=await request(`sessions/${id(session)}/workspace/upload?conflict=rename&directory=${id(directory)}`,{method:'POST',body:data});
         const uploaded=(result.uploaded||[]).filter(x=>x.status!=='failed'&&x.path).map(x=>x.path);if(attach)s.pending.set(session,[...new Set([...(s.pending.get(session)||[]),...uploaded])]);
         if(generation!==s.generation)return;s.files=result.files||s.files;window.OCDesktopWorkspace?.updateFiles(session,s.files);window.OCDesktopWorkspace?.filesImported(session,directory);clearImages();renderAttachments();s.render();notice(`${uploaded.length} file(s) ${attach?'attached':'added to '+(directory||'Project') }.${result.errors?.length?' '+result.errors.map(x=>x.name+': '+x.error).join('; '):''}`,!!result.errors?.length);
       }catch(err){if(generation===s.generation)notice(err.message,true);}finally{s.uploading=false;if(!attach)window.OCDesktopWorkspace?.uploadStatus({sessionId:session,busy:false});if(button?.isConnected)button.disabled=false;if(reload?.isConnected)reload.disabled=false;}
@@ -312,7 +314,7 @@
       if(items.some(item=>item.webkitGetAsEntry?.()?.isDirectory)){reject('Folders cannot be uploaded directly. Zip the folder first, or select individual files (30 MiB per upload).');return;}
       const files=Array.from(event.dataTransfer.files||[]);
       if(!files.length)files.push(...items.filter(item=>item.kind==='file').map(item=>item.getAsFile?.()).filter(Boolean));
-      if(!files.length){reject('The browser did not provide a readable file. Click Upload files and choose the file from Finder.');return;}
+      if(!files.length){reject('The browser did not provide a readable file. Tap Upload files and select it from Files on your device.');return;}
       void upload(files,{attach:target.matches('[data-research-composer]'),directory:target.matches('[data-research-composer]')?'':window.OCDesktopWorkspace.dropDirectory(event.target)});
     },true);
     window.addEventListener('beforeunload',()=>{closeLiveStreams();try{if(s.session)sessionStorage.setItem('oc.chat.reload-draft',JSON.stringify({session:s.session,text:root.querySelector('textarea[name=prompt]')?.value||'',pending:s.pending.get(s.session)||[]}));}catch{}});
