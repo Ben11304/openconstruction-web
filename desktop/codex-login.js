@@ -50,18 +50,19 @@
         q('[data-codex-badge]').classList.toggle('is-connected',state.connected);
         q('[data-codex-login]').hidden = state.connected || state.pending;
         q('[data-codex-login]').disabled = busy || !state.available;
-        q('[data-codex-device-login]').hidden = api.platform!=='web' || state.connected || Boolean(state.device);
+        q('[data-codex-device-login]').hidden = true;
         q('[data-codex-device-login]').disabled = busy || !state.available;
         q('[data-codex-method-help]').hidden = api.platform!=='web' || state.connected;
+        if(api.platform==='web')q('[data-codex-method-help]').textContent='Complete sign-in using the one-time device code. Your browser can be on another computer.';
         q('[data-codex-cancel]').hidden = !state.pending;
         q('[data-codex-logout]').hidden = !state.connected;
         if(!busy) statusText(state.error || (state.connected ? [state.email,state.plan].filter(Boolean).join(' · ') || 'Codex account connected.' : state.pending ? 'Complete sign-in in your browser, then return here.' : 'Ready to sign in.'));
       } catch(error) {expand(true);statusText(error.message);} finally {refreshing=false;}
     }
     async function action(fn) {
-      if(busy)return;busy=true;card.querySelectorAll('button').forEach(b=>{b.disabled=true;});
+      if(busy)return;busy=true;card.querySelectorAll('button,input,select').forEach(b=>{b.disabled=true;});
       try {await fn();} catch(error) {expand(true);statusText(error.message);}
-      finally {busy=false;card.querySelectorAll('button').forEach(b=>{b.disabled=false;});}
+      finally {busy=false;card.querySelectorAll('button,input,select').forEach(b=>{b.disabled=false;});}
     }
     const beginLogin = mode => action(async()=>{
       // Open during the click so an async host request does not trigger popup blocking.
@@ -78,11 +79,12 @@
         statusText(result.device ? 'Open ChatGPT sign-in and enter the code above, then return here.' : authUrl && !popup ? 'Select Open ChatGPT sign-in to continue.' : 'Complete sign-in in your browser, then return here.');
       } catch(error) {popup?.close();throw error;}
     });
-    q('[data-codex-login]').onclick=()=>beginLogin('browser');
+    q('[data-codex-login]').onclick=()=>beginLogin(api.platform==='web'?'device':'browser');
     q('[data-codex-device-login]').onclick=()=>beginLogin('device');
     q('[data-codex-cancel]').onclick=()=>action(async()=>{loginFlow=false;await api.cancelCodexLogin();await refresh();statusText('Login cancelled.');});
     q('[data-codex-logout]').onclick=()=>action(async()=>{await api.logoutCodex();expand(false);await refresh();statusText('Signed out of Codex for OpenConstruction.');});
     void refresh();
+    void api.mountProviderConnections?.(card,'codex',()=>{connected=false;loginFlow=false;showDevice({});void refresh();}).catch(error=>{expand(true);statusText(error.message);});
     timer=setInterval(()=>{if(!card.isConnected){clearInterval(timer);return;}if(!connected && !busy)void refresh();},1800);
   }};
   window.addEventListener('pagehide',()=>{clearInterval(timer);generation++;});

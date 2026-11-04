@@ -47,6 +47,55 @@
   function saveNotes(value) { localStorage.setItem(notesKey, JSON.stringify(value)); }
   const unsupported = message => async () => { throw new Error(message); };
   const modelUnsupported = unsupported('This provider must be configured on the host machine.');
+  let connectionsPromise;
+  const selectedConnections={};
+  async function connectionRequest(route='',options={}){
+    const response=await fetch('/api/connections'+route,{method:options.method||'GET',cache:'no-store',headers:{'Content-Type':'application/json'},body:options.body===undefined?undefined:JSON.stringify(options.body)});
+    const value=await response.json();if(!response.ok)throw new Error(value.error||'Connection request failed.');return value;
+  }
+  async function connectionList(refresh=false){
+    if(refresh)connectionsPromise=null;
+    return connectionsPromise ||= connectionRequest().catch(error=>{connectionsPromise=null;throw error;});
+  }
+  async function account(provider,action,{method='GET',body}={}){
+    const listing=await connectionList();
+    const selected=selectedConnections[provider]??listing.selected?.[provider]??listing.connections.find(c=>c.provider===provider)?.id??(listing.hostConnectionsAvailable?'host':'');
+    if(!selected){if(action==='status')return {available:true,connected:false,pending:false,error:'Add your own account connection below.'};if(['models','api-models'].includes(action))return [];throw new Error('Add your own account connection first.');}
+    if(selected==='host'){
+      const legacy=provider==='claude'?({models:'account-models',connect:'account-connect','api-models':'models','api-connect':'connect'}[action]||action):action;
+      const result=await host(provider+'/'+legacy,{method,body});
+      if((selectedConnections[provider]??selected)!==selected)throw new Error('Account changed. Refresh this connection.');
+      if(['connect','api-connect'].includes(action)&&body?.sessionId)await connectionRequest('/selection',{method:'POST',body:{sessionId:body.sessionId,modelId:result.modelId}});
+      return result;
+    }
+    const result=await connectionRequest('/'+id(selected)+'/'+action,{method,body});
+    if((selectedConnections[provider]??selected)!==selected)throw new Error('Account changed. Refresh this connection.');
+    return result;
+  }
+  async function mountProviderConnections(card,provider,changed){
+    const panel=document.createElement('div');panel.className='oc-provider-connections';
+    panel.innerHTML='<label>My connection <select aria-label="My account connection"></select></label><input placeholder="Account name" aria-label="New account name" maxlength="80"><button type="button" data-add>Add account</button><button type="button" data-remove>Remove</button><p role="status"></p>';
+    card.querySelector('.oc-codex-heading').after(panel);
+    const select=panel.querySelector('select'),notice=panel.querySelector('p');
+    async function render(){const listing=await connectionList(true);if(!panel.isConnected)return;select.replaceChildren();
+      for(const row of listing.connections.filter(c=>c.provider===provider)){const option=new Option(row.name,row.id);select.add(option);}
+      if(listing.hostConnectionsAvailable)select.add(new Option('Host account (admin, shared)','host'));
+      if(!select.options.length)select.add(new Option('Add an account',''));
+      select.value=selectedConnections[provider]??listing.selected?.[provider]??select.options[0].value;selectedConnections[provider]=select.value;
+      panel.querySelector('[data-remove]').disabled=!select.value||select.value==='host';
+    }
+    const run=fn=>void(async()=>{notice.textContent='';panel.querySelectorAll('button,input,select').forEach(el=>{el.disabled=true;});try{await fn();}catch(error){notice.textContent=error.message;}finally{panel.querySelectorAll('button,input,select').forEach(el=>{el.disabled=false;});panel.querySelector('[data-remove]').disabled=!select.value||select.value==='host';}})();
+    const reset=()=>{const choices=panel.querySelector('[aria-label="Account model"]');if(choices){choices.replaceChildren();choices.hidden=true;panel.querySelector('[data-use]').hidden=true;}changed();};
+    select.onchange=()=>run(async()=>{if(select.value&&select.value!=='host')await connectionRequest('/'+id(select.value)+'/select',{method:'POST',body:{}});selectedConnections[provider]=select.value;await render();reset();});
+    panel.querySelector('[data-add]').onclick=()=>run(async()=>{const row=await connectionRequest('',{method:'POST',body:{provider,name:panel.querySelector('input').value.trim()||provider+' account'}});selectedConnections[provider]=row.id;panel.querySelector('input').value='';await render();reset();});
+    panel.querySelector('[data-remove]').onclick=()=>run(async()=>{if(!select.value||select.value==='host')return;await connectionRequest('/'+id(select.value)+'/remove',{method:'POST',body:{}});delete selectedConnections[provider];await render();reset();});
+    if(provider==='codex'){
+      const controls=document.createElement('div');controls.innerHTML='<button type="button" data-load>Choose model</button><select aria-label="Account model" hidden></select><button type="button" data-use hidden>Use in this conversation</button>';panel.append(controls);
+      controls.querySelector('[data-load]').onclick=()=>run(async()=>{const models=await account(provider,'models');const choices=controls.querySelector('select');choices.replaceChildren(...models.map(m=>new Option(m.name,m.id)));choices.hidden=!models.length;controls.querySelector('[data-use]').hidden=!models.length;});
+      controls.querySelector('[data-use]').onclick=()=>run(async()=>{const scope=window.OCResearchWorkspace?.getSelection?.()||window.OCDesktopLayout?.selection?.()||{};await account(provider,'connect',{method:'POST',body:{model:controls.querySelector('select').value,...scope,useAsDefault:!scope.projectId}});notice.textContent='Account and model selected for your new tasks.';await window.OCResearchWorkspace?.refreshSession?.();});
+    }
+    await render();
+  }
   const binaryPreview=async value=>{
     const result=await host('datasets/preview',{method:'POST',body:value});
     if(result.encoding==='base64'&&typeof result.data==='string'){
@@ -112,28 +161,30 @@
 
   const api = {
     platform:'web',
+    mountProviderConnections,
+    selectConnectionModel:value=>connectionRequest('/selection',{method:'POST',body:value}),
     readWorkspaceText:value=>host('workspace/text',{method:'POST',body:value}),
     saveWorkspaceText:value=>host('workspace/save-text',{method:'POST',body:value}),
     info:async()=>({version:'web',platform:'web',arch:'host',dataPath:'Host-managed',catalogBuiltAt:new Date().toISOString()}),
     listProjects,createProject,updateProject,deleteProject,exportWorkspace,importWorkspace,
     researchStatus:async()=>{await request('projects');return{connected:true,runtime:{state:'ready',stage:'OcWorkspace is ready.',managed:false}};},
-    codexStatus:()=>host('codex/status'),
-    loginCodex:(mode='browser')=>host('codex/login',{method:'POST',body:{mode}}),
-    cancelCodexLogin:()=>host('codex/cancel',{method:'POST'}),
-    codexModels:()=>host('codex/models'),
-    connectCodexModel:value=>host('codex/connect',{method:'POST',body:value}),
-    logoutCodex:()=>host('codex/logout',{method:'POST'}),
-    claudeStatus:()=>host('claude/status'),
-    loginClaude:value=>host('claude/login',{method:'POST',body:value}),
-    submitClaudeLoginCode:value=>host('claude/code',{method:'POST',body:value}),
-    cancelClaudeLogin:()=>host('claude/cancel',{method:'POST'}),
-    logoutClaude:()=>host('claude/logout',{method:'POST'}),
-    claudeAccountModels:()=>host('claude/account-models'),
-    connectClaudeAccountModel:value=>host('claude/account-connect',{method:'POST',body:value}),
-    saveClaudeKey:value=>host('claude/save-key',{method:'POST',body:value}),
-    claudeModels:()=>host('claude/models'),
-    connectClaudeModel:value=>host('claude/connect',{method:'POST',body:value}),
-    disconnectClaude:()=>host('claude/disconnect',{method:'POST'}),
+    codexStatus:()=>account('codex','status'),
+    loginCodex:(mode='device')=>account('codex','login',{method:'POST',body:{mode}}),
+    cancelCodexLogin:()=>account('codex','cancel',{method:'POST'}),
+    codexModels:()=>account('codex','models'),
+    connectCodexModel:value=>account('codex','connect',{method:'POST',body:value}),
+    logoutCodex:()=>account('codex','logout',{method:'POST'}),
+    claudeStatus:()=>account('claude','status'),
+    loginClaude:value=>account('claude','login',{method:'POST',body:value}),
+    submitClaudeLoginCode:value=>account('claude','code',{method:'POST',body:value}),
+    cancelClaudeLogin:()=>account('claude','cancel',{method:'POST'}),
+    logoutClaude:()=>account('claude','logout',{method:'POST'}),
+    claudeAccountModels:()=>account('claude','models'),
+    connectClaudeAccountModel:value=>account('claude','connect',{method:'POST',body:value}),
+    saveClaudeKey:value=>account('claude','save-key',{method:'POST',body:value}),
+    claudeModels:()=>account('claude','api-models'),
+    connectClaudeModel:value=>account('claude','api-connect',{method:'POST',body:value}),
+    disconnectClaude:()=>account('claude','disconnect',{method:'POST'}),
     startResearch:unsupported('The research runtime is managed by the host machine.'),
     stopResearch:unsupported('The research runtime is managed by the host machine.'),
     openResearchSettings:async()=>{location.href='/openconstruction-web/research.html?view=models';},

@@ -95,6 +95,11 @@
           profileId = result.modelId;
           codexProfiles[profileId] = result.model;
         } else if (field === 'model') profileId = value.slice(8);
+        if(field==='model'&&window.OCDesktop.platform==='web'&&profileId){
+          await window.OCDesktop.selectConnectionModel({sessionId,modelId:profileId});
+          if(snapshot.sessionId===sessionId)await window.OCResearchWorkspace.refreshSession();
+          return;
+        }
         const settings = await request(`sessions/${id(sessionId)}/settings`);
         const next = {...settings.overrides};
         if (field === 'model') {

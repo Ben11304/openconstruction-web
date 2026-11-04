@@ -99,7 +99,7 @@
             const chosen=catalog.find(m=>'codex:'+m.id===value);
             if(!chosen)throw Error('Choose an available Codex model.');
             // Register the profile only; apply settings once below, to this agent.
-            const result=await window.OCDesktop.connectCodexModel({model:chosen.id,useAsDefault:false});
+            const result=await window.OCDesktop.connectCodexModel({model:chosen.id,useAsDefault:false,...(window.OCDesktop.platform==='web'?{sessionId:session.id}: {})});
             value=result.modelId;profiles[value]=result.model;
             models=await request('models');
           }
@@ -107,7 +107,10 @@
           if(field==='model'&&value&&!models.some(m=>m.id===value))throw Error('Choose a connected model.');
           const chosenInfo=info(field==='model'?value:latest.effective.modelId);
           if(field==='effort'&&value==='off'&&chosenInfo?.efforts?.length&&!chosenInfo.efforts.includes('none'))throw Error('This model does not support disabling thinking.');
-          await request(route+'/settings','PUT',runtimeChange(latest,field,value,chosenInfo));
+          if(field==='model'&&window.OCDesktop?.platform==='web'){
+            if(!value)throw Error('Choose an account model for this conversation.');
+            await window.OCDesktop.selectConnectionModel({sessionId:session.id,modelId:value});
+          }else await request(route+'/settings','PUT',runtimeChange(latest,field,value,chosenInfo));
           details=await request(route+'/settings');
         }
         saved=true;notice(permissions?'Tool approval saved for this agent. Applies immediately.':'Saved for this agent. Applies to new tasks.');

@@ -3,7 +3,7 @@
   let timer,generation=0;
   window.OCDesktopClaude={mount(root){
     clearInterval(timer);const version=++generation;
-    const modelForm=(kind,label)=>`<form data-claude-${kind}-form hidden><label>${label}<select name="model" required></select></label><label class="oc-codex-current"><input type="checkbox" name="default"> Use as the global default</label><label class="oc-codex-current"><input type="checkbox" name="current"> Use for the current project and session</label><button type="submit" class="btn btn-primary">Use in Research</button></form>`;
+    const modelForm=(kind,label)=>`<form data-claude-${kind}-form hidden><label>${label}<select name="model" required></select></label><label class="oc-codex-current"><input type="checkbox" name="default"> ${api.platform==='web'?'Use as my default':'Use as the global default'}</label><label class="oc-codex-current"><input type="checkbox" name="current"> Use for the current project and session</label><button type="submit" class="btn btn-primary">Use in Research</button></form>`;
     const card=document.createElement('section');card.className='oc-codex-card oc-claude-card oc-provider-compact';card.setAttribute('aria-label','Claude account');
     card.innerHTML=`<div class="oc-codex-heading"><img class="oc-codex-mark" src="/openconstruction-web/desktop/assets/claude.png" alt="" width="28" height="28"><h3>Claude</h3><span data-claude-badge>Checking…</span><div class="oc-provider-actions"><button type="button" class="btn btn-primary" data-claude-login>Login</button><button type="button" class="btn btn-outline-secondary" data-claude-cancel hidden>Cancel login</button><button type="button" class="btn btn-outline-secondary" data-claude-manage aria-expanded="false" aria-controls="ocClaudeDetails">Options</button></div></div>
       <div class="oc-provider-details" id="ocClaudeDetails" hidden>
@@ -110,6 +110,6 @@
     });};
     q('[data-claude-refresh]').onclick=()=>void action(()=>loadModels('api',q('[data-claude-api-form]').elements.model.value));
     q('[data-claude-disconnect]').onclick=()=>void action(async()=>{await api.disconnectClaude();apiLoaded=false;await refresh();status('API key removed.');});
-    void refresh();timer=setInterval(()=>{if(!alive()){clearInterval(timer);return;}if(!busy)void refresh();},3000);
+    void refresh();void api.mountProviderConnections?.(card,'claude',()=>{connected=false;loaded=false;apiLoaded=false;loginFlow=false;showLogin({});q('[data-claude-account-form]').hidden=true;q('[data-claude-api-form]').hidden=true;void refresh();}).catch(error=>{expand(true);status(error.message);});timer=setInterval(()=>{if(!alive()){clearInterval(timer);return;}if(!busy)void refresh();},3000);
   }};
 })();
