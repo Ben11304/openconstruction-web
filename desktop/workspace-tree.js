@@ -323,7 +323,7 @@
       render();
     },
     dropDirectory(target){
-      if(state.view!=='project'||!state.session||!target.closest?.('.oc-ws-project')||target.closest('[data-ws-editor]'))return null;
+      if(state.view!=='project'||!state.session||(!target.closest?.('.oc-ws-project')&&!target.closest?.('[data-ws-upload]'))||target.closest('[data-ws-editor]'))return null;
       const row=target.closest('[data-ws-row]')||target.closest('details[data-ws-folder]')?.querySelector(':scope > summary');
       if(row?.dataset.wsDataset)return null;
       if(!row)return '';

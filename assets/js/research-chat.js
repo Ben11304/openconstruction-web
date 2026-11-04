@@ -294,7 +294,7 @@
     const dropTarget=event=>{
       const composer=event.target.closest?.('[data-research-composer]');if(composer)return composer;
       if(window.OCDesktopWorkspace?.dropDirectory(event.target)==null)return null;
-      return event.target.closest('[data-ws-row]')||event.target.closest('details[data-ws-folder]')?.querySelector(':scope > summary')||event.target.closest('.oc-ws-project');
+      return event.target.closest('[data-ws-row]')||event.target.closest('details[data-ws-folder]')?.querySelector(':scope > summary')||event.target.closest('[data-ws-upload]')||event.target.closest('.oc-ws-project');
     };
     const clearDrop=()=>root.querySelectorAll('.is-file-drop').forEach(node=>node.classList.remove('is-file-drop'));
     document.addEventListener('dragover',event=>{if(!event.dataTransfer?.types.includes('Files'))return;event.preventDefault();clearDrop();const target=dropTarget(event);event.dataTransfer.dropEffect=target&&!s.uploading?'copy':'none';if(target)target.classList.add('is-file-drop');});
