@@ -311,10 +311,10 @@
   }
   window.OCDesktopWorkspace={
     uploadStatus({sessionId,text,error=false,busy=false}){
-      if(!state.panel||sessionId!==state.session)return;
+      if(!state.panel)return;
       state.uploadBusy=busy;
       const status=state.panel.querySelector('[data-ws-upload-status]');
-      if(text!==undefined){status.textContent=text;status.hidden=!text;status.classList.toggle('is-error',error);}
+      if(sessionId===state.session&&text!==undefined){status.textContent=text;status.hidden=!text;status.classList.toggle('is-error',error);}
       state.panel.querySelector('[data-ws-upload]').disabled=busy||!state.session||state.view!=='project';
     },
     filesImported(sessionId,directory){
