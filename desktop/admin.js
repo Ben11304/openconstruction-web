@@ -219,7 +219,7 @@
         ${metric(toCompactSize(systemPrompt.length),'System prompt',`${formatNumber(systemPrompt.length)} chars`)}
         ${metric(toCompactSize(JSON.stringify(history).length),'History',`${history.length} messages`)}
         ${metric(toCompactSize(totalToolChars),'Tool schemas',`${tools.length} bound`)}
-        ${metric(deferred.length,'Deferred tools','lazy loaded')}
+        ${metric(deferred.length,'Deferred tools')}
       </div>
       ${contextWindow && inputTokens ? `<div class="oc-admin-progress-label" style="margin-top:16px"><span>Context occupancy</span><span>${formatNumber(inputTokens)} / ${formatNumber(contextWindow)} tokens</span></div><div class="oc-admin-progress ${ratio>90?'is-danger':ratio>75?'is-warn':''}"><span style="width:${ratio}%"></span></div>` : ''}
       <div class="oc-admin-split" style="margin-top:16px">
@@ -295,8 +295,8 @@
   const timeoutFields=[['gatewayIdleTimeoutMs','Gateway idle','Seconds'],['gatewayTurnTimeoutMs','Gateway turn','Seconds'],['kernelIdleTimeoutMs','Kernel idle','Seconds'],['permissionWaitTimeoutMs','Permission wait','Seconds'],['runnerExecTimeoutMs','Runner execution','Seconds']];
   const quotaFields=[['runnerMaxOutputBytes','Runner output','GB'],['runnerMaxWorkspaceBytes','Runner workspace','GB'],['uploadMaxFileBytes','Upload file','GB'],['uploadMaxRequestBytes','Upload request','GB']];
   function renderSystem() {
-    $('#timeoutsForm').innerHTML=timeoutFields.map(([key,label,unit])=>`<label><span>${escapeHtml(label)} (${unit.toLowerCase()})</span><input name="${key}" type="number" min="0" step="1" value="${number(state.timeouts?.[key])/1000}"><small class="oc-admin-field-note">Current: ${number(state.timeouts?.[key])===0?'unlimited':formatDuration(new Date(0),new Date(number(state.timeouts?.[key])))}</small></label>`).join('')+'<div class="oc-admin-form-actions"><button class="oc-admin-button oc-admin-button-primary" type="submit">Save timeouts</button></div>';
-    $('#quotasForm').innerHTML=quotaFields.map(([key,label,unit])=>`<label><span>${escapeHtml(label)} (${unit})</span><input name="${key}" type="number" min="0.001" step="0.001" value="${(number(state.quotas?.[key])/1024**3).toFixed(3)}"><small class="oc-admin-field-note">Current: ${formatBytes(state.quotas?.[key])}</small></label>`).join('')+'<div class="oc-admin-form-actions"><button class="oc-admin-button oc-admin-button-primary" type="submit">Save quotas</button></div>';
+    $('#timeoutsForm').innerHTML=timeoutFields.map(([key,label,unit])=>`<label><span>${escapeHtml(label)} (${unit.toLowerCase()})</span><input name="${key}" type="number" min="0" step="1" value="${number(state.timeouts?.[key])/1000}"></label>`).join('')+'<div class="oc-admin-form-actions"><button class="oc-admin-button oc-admin-button-primary" type="submit">Save timeouts</button></div>';
+    $('#quotasForm').innerHTML=quotaFields.map(([key,label,unit])=>`<label><span>${escapeHtml(label)} (${unit})</span><input name="${key}" type="number" min="0.001" step="0.001" value="${(number(state.quotas?.[key])/1024**3).toFixed(3)}"></label>`).join('')+'<div class="oc-admin-form-actions"><button class="oc-admin-button oc-admin-button-primary" type="submit">Save quotas</button></div>';
     const network=state.network||{};
     const proxyPolicies=[{value:'inherit',label:'Inherit global policy'},{value:'none',label:'No proxy (direct)'},...array(state.proxySettings?.servers).map(server=>({value:`proxy:${server.id}`,label:`${server.name} (${server.kind})`}))];
     if(network.egressProxyPolicy&&!proxyPolicies.some(item=>item.value===network.egressProxyPolicy))proxyPolicies.push({value:network.egressProxyPolicy,label:`Current: ${network.egressProxyPolicy}`});

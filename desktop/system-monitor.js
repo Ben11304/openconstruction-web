@@ -19,7 +19,7 @@
   function status(label, kind = 'info') { $('monitorStatus').textContent = label; $('monitorStatus').className = `oc-admin-status is-${kind}`; }
 
   function metric(title, value, detail, usage) {
-    return `<div class="oc-admin-metric"><span>${escape(title)}</span><strong>${escape(value)}</strong><small>${escape(detail)}</small>${Number.isFinite(usage) ? `<progress max="100" value="${Math.max(0, Math.min(100, usage))}" aria-label="${escape(title)} utilization"></progress>` : ''}</div>`;
+    return `<div class="oc-admin-metric"><span>${escape(title)}</span><strong>${escape(value)}</strong>${detail ? `<small>${escape(detail)}</small>` : ''}${Number.isFinite(usage) ? `<progress max="100" value="${Math.max(0, Math.min(100, usage))}" aria-label="${escape(title)} utilization"></progress>` : ''}</div>`;
   }
 
   function renderProcesses() {
@@ -35,7 +35,7 @@
     $('monitorProcessCount').textContent = `· ${snapshot.processCount} detected`;
     const states = { R:'Running', S:'Sleeping', D:'Waiting for I/O', Z:'Zombie', T:'Stopped', t:'Tracing stop', I:'Idle' };
     $('monitorProcesses').innerHTML = rows.length ? `<table class="oc-admin-table"><thead><tr><th>Process</th><th>PID</th><th>Status</th><th>CPU</th><th>Memory (RSS)</th></tr></thead><tbody>${rows.slice(0, 200).map(item => `<tr><td><strong>${escape(item.name)}</strong>${item.isMonitor ? '<span class="oc-admin-cell-sub">OC monitor host</span>' : ''}</td><td>${item.pid}</td><td>${escape(states[item.state] || item.state)}</td><td>${pct(item.cpuPercent)}</td><td>${bytes(item.memoryBytes)}</td></tr>`).join('')}</tbody></table>` : '<p class="oc-admin-empty">No readable processes match this filter.</p>';
-    $('monitorProcessNote').textContent = `Showing ${Math.min(200, rows.length)} of ${rows.length} matches · ${snapshot.scannedProcesses} PIDs scanned · ${snapshot.unreadableProcesses} exited or unreadable. Process names only; command arguments are not collected.`;
+    $('monitorProcessNote').textContent = `Showing ${Math.min(200, rows.length)} of ${rows.length} matches${snapshot.unreadableProcesses ? ` · ${snapshot.unreadableProcesses} unreadable` : ''}`;
   }
 
   function renderChart() {
@@ -57,7 +57,7 @@
     const { host, cpu, memory, storage, network, windowsMemory } = value;
     const wsl=host.scope==='WSL',windowsAvailable=windowsMemory?.status==='available';
     $('monitorScope').textContent = host.scope === 'WSL'
-      ? 'Windows RAM covers the whole PC, including WSL. CPU, WSL RAM, storage and processes describe the Linux backend; do not add Windows and WSL RAM together.'
+      ? 'Windows RAM includes WSL; do not add the two readings.'
       : `Live resources on OC’s ${host.platform} host.`;
     if($('monitorWindowsLegend'))$('monitorWindowsLegend').hidden=!wsl;
     $('monitorUpdated').textContent = `Last sample ${time(value.sampledAt)}`;
@@ -66,10 +66,10 @@
     const networkRate = key => network && network.every(item => Number.isFinite(item[key])) ? network.reduce((sum, item) => sum + item[key], 0) : null;
     $('monitorMetrics').innerHTML = [
       metric(wsl?'CPU · WSL':'CPU', pct(cpu.percent), `${host.logicalCpus} logical CPUs`, cpu.percent),
-      ...(wsl?[metric('Windows RAM',windowsAvailable?pct(windowsMemory.percent):'Unavailable',windowsAvailable?`${bytes(windowsMemory.usedBytes,2)} / ${bytes(windowsMemory.totalBytes,2)} · whole PC`:'Windows counters unavailable; WSL values are separate',windowsAvailable?windowsMemory.percent:null)]:[]),
-      metric(wsl?'WSL RAM':'Linux RAM', memory?pct(memory.percent):'Unavailable', memory?`${bytes(memory.usedBytes,2)} / ${bytes(memory.totalBytes,2)} · reclaimable cache excluded`:'Counters unavailable',memory?.percent),
+      ...(wsl?[metric('Windows RAM',windowsAvailable?pct(windowsMemory.percent):'Unavailable',windowsAvailable?`${bytes(windowsMemory.usedBytes,2)} / ${bytes(windowsMemory.totalBytes,2)} · whole PC`:'Windows counters unavailable',windowsAvailable?windowsMemory.percent:null)]:[]),
+      metric(wsl?'WSL RAM':'Linux RAM', memory?pct(memory.percent):'Unavailable', memory?`${bytes(memory.usedBytes,2)} / ${bytes(memory.totalBytes,2)} · cache excluded`:'Counters unavailable',memory?.percent),
       metric('Storage', storage ? pct(storage.percent) : 'Unavailable', storage ? `${bytes(storage.usedBytes)} / ${bytes(storage.totalBytes)} · ${bytes(storage.availableBytes)} available` : 'Counters unavailable', storage?.percent),
-      metric('Network ↓ / ↑', network ? `${rate(networkRate('receiveBytesPerSecond'))} / ${rate(networkRate('sendBytesPerSecond'))}` : 'Unavailable', 'All visible interfaces except loopback'),
+      metric('Network ↓ / ↑', network ? `${rate(networkRate('receiveBytesPerSecond'))} / ${rate(networkRate('sendBytesPerSecond'))}` : 'Unavailable', ''),
     ].join('');
     const uptime = `${Math.floor(host.uptimeSeconds / 86400)}d ${Math.floor(host.uptimeSeconds % 86400 / 3600)}h ${Math.floor(host.uptimeSeconds % 3600 / 60)}m`;
     const facts = [['Host', host.hostname], ['System', `${host.scope} · ${host.arch}`], ['Kernel', host.release], ['Processor', host.cpuModel], ['Uptime', uptime],
@@ -99,9 +99,9 @@
     }
     const availablePercent = value => Number.isFinite(value) ? pct(value) : 'Unavailable';
     $('monitorGpu').innerHTML = gpu.devices.map(device => `<section class="oc-monitor-gpu"><h3>GPU ${device.index} · ${escape(device.name)}</h3><div class="oc-monitor-metrics">${[
-      metric('GPU utilization', availablePercent(device.utilizationPercent), 'Driver-reported load', device.utilizationPercent),
+      metric('GPU utilization', availablePercent(device.utilizationPercent), '', device.utilizationPercent),
       metric('VRAM', availablePercent(device.memoryPercent), `${bytes(device.memoryUsedBytes)} / ${bytes(device.memoryTotalBytes)}`, device.memoryPercent),
-      metric('Temperature', Number.isFinite(device.temperatureCelsius) ? `${device.temperatureCelsius} °C` : 'Unavailable', 'GPU temperature'),
+      metric('Temperature', Number.isFinite(device.temperatureCelsius) ? `${device.temperatureCelsius} °C` : 'Unavailable', ''),
       metric('Power draw', Number.isFinite(device.powerWatts) ? `${device.powerWatts.toFixed(1)} W` : 'Unavailable', Number.isFinite(device.powerLimitWatts) ? `Power limit ${device.powerLimitWatts.toFixed(1)} W` : 'Power limit unavailable'),
     ].join('')}</div></section>`).join('');
   }
