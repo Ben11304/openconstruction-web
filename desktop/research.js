@@ -12,6 +12,7 @@
   window.OCDesktopLayout.mount(root);
   window.OCDesktopTrace.mount(root);
   window.OCDesktopSkills.mount(root);
+  window.OCResourceWorkspace?.mount(root);
   window.OCDesktopChatControls.mount(root);
   window.OCDesktopSlash?.mount(root);
   window.OCResearchFocus?.mount(root);
